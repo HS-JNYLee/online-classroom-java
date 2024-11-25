@@ -11,7 +11,7 @@ public class User implements UserInterface {
     protected ImageIcon profileImage;
     protected String classRoomAddr;
     protected int classRoomPort;
-    protected String teamRoomAddr;
+    protected String teamRoomAddr; // groupId
     protected int teamRoomPort;
     protected Socket socket;
 
@@ -61,6 +61,10 @@ public class User implements UserInterface {
 
     public void setProfileImage(ImageIcon profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public void setTeamRoomAddr(String teamRoomAddr) {
+        this.teamRoomAddr = teamRoomAddr;
     }
 
     public void sendMic() {

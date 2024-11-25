@@ -11,8 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Ellipse2D;
 import java.io.*;
 import java.net.*;
+import java.util.Objects;
 
 public class WithTalk extends JFrame {
     private JTextField t_input_id, t_input_name;
@@ -33,7 +35,7 @@ public class WithTalk extends JFrame {
     private String uName;
     private String uType;
     private Thread receiveThread = null;
-
+    private String uFileName;
     private int frameHeight = 390;
     private int frameWidth = 510;
     private int inputPanelHeight = 30;
@@ -48,6 +50,15 @@ public class WithTalk extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(frameWidth, frameHeight);
         setVisible(true);
+
+        try {
+            connectToServer();
+            sendUserID();
+        } catch (UnknownHostException e1) {
+            printDisplay("서버 주소와 포트번호를 확인하세요: " + e1.getMessage());
+        } catch (IOException ex) {
+            printDisplay("서버와의 연결 오류: " + ex.getMessage());
+        }
     }
 
     public void buildGUI() {
@@ -63,7 +74,48 @@ public class WithTalk extends JFrame {
     public JPanel createDisplayPanel() {
         JPanel p = new JPanel(new BorderLayout());
         document = new DefaultStyledDocument();
-        t_display = new JTextPane(document);
+        t_display = new JTextPane(document){
+            public void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                ImageIcon icon = new ImageIcon(uFileName);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                // JTextPane 가로x세로
+                int panelWidth = getWidth();
+                int panelHeight = getHeight();
+
+                // 최소크기 원 지름
+                int circleDiameter = Math.min(panelWidth, panelHeight);
+
+                // 원형 클리핑
+                Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, circleDiameter, circleDiameter);
+                g2.setClip(circle);
+
+                // 이미지 크기 조정
+                if (icon != null) {
+                    // 이미지의 원본 크기
+                    int imgWidth = icon.getIconWidth();
+                    int imgHeight = icon.getIconHeight();
+
+                    // 비율
+                    double scaleX = (double) circleDiameter / imgWidth;
+                    double scaleY = (double) circleDiameter / imgHeight;
+                    double scale = Math.min(scaleX, scaleY);
+
+                    int newWidth = (int) (imgWidth * scale);
+                    int newHeight = (int) (imgHeight * scale);
+
+                    // 중앙 배치
+                    int x = (circleDiameter - newWidth) / 2;
+                    int y = (circleDiameter - newHeight) / 2;
+                    // 이미지 크기 조정
+                    g2.drawImage(icon.getImage(), x, y, newWidth, newHeight, this);
+                }
+                t_display.repaint();
+            }
+        };
         t_display.setEditable(false); // 편집 불가
 
         p.add(new JScrollPane(t_display), BorderLayout.CENTER);
@@ -117,9 +169,11 @@ public class WithTalk extends JFrame {
                     JOptionPane.showMessageDialog(WithTalk.this, "파일을 선택하지 않았습니다.");
                     return;
                 }
-
-                t_input_id.setText(chooser.getSelectedFile().getAbsolutePath());
-                sendImage();
+                uFileName = chooser.getSelectedFile().getAbsolutePath();
+                File file = new File(uFileName);
+                if (!file.exists()) {
+                    printDisplay(">> 파일이 존재하지 않습니다: " + uFileName);
+                }
             }
         });
 
@@ -148,8 +202,9 @@ public class WithTalk extends JFrame {
         JPanel entrancePanel = new JPanel(new BorderLayout());
         entrancePanel.add(b_send, BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(4, 0)); // 입력 & 제어 한 패널로 묶음
+        JPanel bottomPanel = new JPanel(new GridLayout(5, 0)); // 입력 & 제어 한 패널로 묶음
 
+        bottomPanel.add(b_select);
         bottomPanel.add(inputPanelOption);
         bottomPanel.add(inputPanelId);
         bottomPanel.add(inputPanelName);
@@ -313,6 +368,14 @@ public class WithTalk extends JFrame {
                                 printDisplay(inMsg.userID + ": " + inMsg.message);
                                 printDisplay(inMsg.image);
                                 break;
+                            case ChatMsg.MODE_TX_ACCESS:
+                                printDisplay(inMsg.userID + ": " + inMsg.message);
+                                dispose();
+                                new MainScreenGUI();
+                                break;
+                            case ChatMsg.MODE_TX_DENIED:
+                                printDisplay(inMsg.userID + ": " + inMsg.message);
+                                break;
                         }
                     } catch (IOException ex) {
                         System.err.println("연결을 종료했습니다.");
@@ -361,7 +424,7 @@ public class WithTalk extends JFrame {
             out.writeObject(msg);
             out.flush();
         } catch (IOException e) {
-            System.err.println("클라이언트 일반 전송 오류> " + e.getMessage());
+            System.err.println("클라이언트 일반 전송 오류> " + e);
         }
     }
 
@@ -374,9 +437,9 @@ public class WithTalk extends JFrame {
     }
 
     private void sendUserID() {
-        uId = t_userID.getText();
+        uId = "guest" + getLocalAddr().split("\\.")[3];
 
-        send(new ChatMsg(uId, ChatMsg.MODE_LOGIN));
+        send(new ChatMsg(uId, ChatMsg.MODE_CONNECT));
 
         t_input_id.setText("");
     }
@@ -386,7 +449,18 @@ public class WithTalk extends JFrame {
         uName = t_input_name.getText();
         uType = cb.getSelectedItem().toString();
         User user = new User();
-        user.setId(uId);
+        user.setId(uId); // 학번/교번
+        user.setName(uName); // 이름
+
+        // 프로필 사진
+        File file = new File(uFileName);
+        if (!file.exists()) {
+            printDisplay(">> 파일이 존재하지 않습니다: " + uFileName);
+            return;
+        }
+        ImageIcon icon = new ImageIcon(uFileName);
+
+        send(new ChatMsg(uId, ChatMsg.MODE_LOGIN, file.getName(), icon, uId, uName, uType));
     }
 
     private void sendImage() {

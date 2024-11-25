@@ -1,5 +1,7 @@
 package ClassRoom;
 
+import User.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -20,6 +22,8 @@ public class WithChatServer extends JFrame {
 
     public WithChatServer(int port) {
         super("With Chat Server");
+
+        DatabaseFile.parsing();
 
         buildGUI();
 
@@ -167,11 +171,20 @@ public class WithChatServer extends JFrame {
 
                 ChatMsg msg;
                 while ((msg = (ChatMsg)in.readObject()) != null) {
-                    if (msg.mode == ChatMsg.MODE_LOGIN) {
+                    if (msg.mode == ChatMsg.MODE_CONNECT) {
                         uid = msg.userID;
                         printDisplay("새 참가자: " + uid);
                         printDisplay("현재 참가자 수: " + users.size());
                         continue;
+                    } else if (msg.mode == ChatMsg.MODE_LOGIN) {
+                        printDisplay("참가자 구분: " + msg.uType);
+                        printDisplay("참가자 이름: " + msg.uName);
+                        printDisplay("참가자 학번/교번: " + msg.uId);
+                        User user = new User();
+                        user.setRole(DatabaseFile.matchRole(msg.uType));
+                        user.setName(msg.uName);
+                        user.setId(msg.uId);
+                        sendMessage(DatabaseFile.isValidate(user));
                     } else if (msg.mode == ChatMsg.MODE_LOGOUT) {
                         break;
                     } else if (msg.mode == ChatMsg.MODE_TX_STRING) {
@@ -213,6 +226,16 @@ public class WithChatServer extends JFrame {
         private void sendMessage(String msg) {
             send(new ChatMsg(uid, ChatMsg.MODE_TX_STRING, msg));
         }
+
+        private void sendMessage(Boolean isValid) {
+            String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
+            if(isValid) {
+                send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg));
+            } else {
+                send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
+            }
+        }
+
         private void broadcasting(ChatMsg msg) {
             for (ClientHandler c : users) {
                 c.send(msg);
