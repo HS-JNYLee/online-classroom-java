@@ -71,19 +71,11 @@ public class User implements UserInterface {
 
     }
 
-    public void receiveMic() {
-
-    }
-
     public void sendMessage() {
 
     }
 
     public void receiveMessage() {
-
-    }
-
-    public void sendSound() {
 
     }
 

@@ -23,22 +23,12 @@ public class Student extends User{
     }
 
     @Override
-    public void receiveMic() {
-
-    }
-
-    @Override
     public void sendMessage() {
 
     }
 
     @Override
     public void receiveMessage() {
-
-    }
-
-    @Override
-    public void sendSound() {
 
     }
 

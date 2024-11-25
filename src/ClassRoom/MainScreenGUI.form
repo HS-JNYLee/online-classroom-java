@@ -115,12 +115,38 @@
               </scrollpane>
             </children>
           </grid>
-          <grid id="82fc1" binding="ChatPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-            <margin top="0" left="0" bottom="0" right="0"/>
+          <grid id="82fc1" binding="ChatPanelMargin" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints/>
             <properties/>
             <border type="none"/>
-            <children/>
+            <children>
+              <grid id="414ce" binding="ChatPanel" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints border-constraint="Center"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <grid id="844f7" binding="MessageSendControlPanel" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+                    <constraints border-constraint="South"/>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="31eae" class="javax.swing.JTextField" binding="chatTextField" custom-create="true">
+                        <constraints border-constraint="Center"/>
+                        <properties/>
+                      </component>
+                      <component id="3ea6" class="javax.swing.JButton" binding="sendBtn" custom-create="true">
+                        <constraints border-constraint="East"/>
+                        <properties>
+                          <background color="-1851844"/>
+                          <foreground color="-16777216"/>
+                          <text value="전송하기"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+            </children>
           </grid>
         </children>
       </grid>

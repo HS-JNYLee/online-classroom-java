@@ -24,19 +24,11 @@ public interface UserInterface {
     int getTeamRoomPort();
 
     void sendMic();
-
-    void receiveMic();
-
     void sendMessage();
 
     void receiveMessage();
-
-    void sendSound();
-
     void receiveSound();
-
-    void connectToClassRoom(String trAddr, int trPort) throws IOException;
-
-    void connectToTeamRoom(String trAddr, int trPort) throws IOException;
+    void connectToClassRoom(String trAddr,int trPort) throws IOException;
+    void connectToTeamRoom(String trAddr,int trPort) throws IOException;
 }
 
