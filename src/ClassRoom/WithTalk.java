@@ -13,12 +13,12 @@ import java.io.*;
 import java.net.*;
 
 public class WithTalk extends JFrame {
-    private JTextField t_input;
+    private JTextField t_input_id, t_input_name;
     private JTextField t_userID, t_hostAddr, t_portNum;
     private JTextPane t_display;
     private DefaultStyledDocument document;
     private JButton b_connect, b_disconnect, b_send, b_exit, b_select;
-
+    private JComboBox<String> cb;
     private String serverAddress;
     private int serverPort;
 
@@ -50,10 +50,8 @@ public class WithTalk extends JFrame {
     public void buildGUI() {
         add(createDisplayPanel(), BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(3, 0)); // 입력 & 제어 한 패널로 묶음
+        JPanel bottomPanel = new JPanel(new GridLayout(1, 0)); // 입력 & 제어 한 패널로 묶음
         bottomPanel.add(createInputPanel());
-        bottomPanel.add(createInfoPanel());
-        bottomPanel.add(createControlPanel());
 
         add(bottomPanel, BorderLayout.SOUTH);
     }
@@ -72,17 +70,17 @@ public class WithTalk extends JFrame {
 
     // 입력 패널
     public JPanel createInputPanel() {
-        JPanel inputPanel = new JPanel(new BorderLayout());
+        JPanel inputPanelId = new JPanel(new BorderLayout());
         int t_input_width = 410;
         int b_connect_width = 90;
 
-        t_input = new JTextField(30);
-        t_input.setSize(t_input_width, inputPanelHeight);
+        t_input_id = new JTextField(30);
+        t_input_id.setSize(t_input_width, inputPanelHeight);
 
         b_send = new JButton("보내기");
         b_send.setEnabled(false);
         // 엔터키로 문자 전송
-        t_input.addKeyListener(new KeyAdapter() {
+        t_input_id.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent evt) {
                 if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
                     sendMessage();
@@ -117,23 +115,45 @@ public class WithTalk extends JFrame {
                     return;
                 }
 
-                t_input.setText(chooser.getSelectedFile().getAbsolutePath());
+                t_input_id.setText(chooser.getSelectedFile().getAbsolutePath());
                 sendImage();
             }
         });
 
         // 배치 미리보기
         // [입력창] [보내기]
-        inputPanel.add(t_input, BorderLayout.CENTER);
+        inputPanelId.add(new JLabel("학번/교번"), BorderLayout.WEST);
+        inputPanelId.add(t_input_id, BorderLayout.CENTER);
         JPanel p_button = new JPanel(new GridLayout(1, 0));
         p_button.add(b_select);
         p_button.add(b_send);
-        inputPanel.add(p_button, BorderLayout.EAST);
 
-        t_input.setEnabled(false);
+        JPanel inputPanelName = new JPanel(new BorderLayout());
+        t_input_name = new JTextField(30);
+        t_input_name.setSize(t_input_width, inputPanelHeight);
+        inputPanelName.add(new JLabel("이름"), BorderLayout.WEST);
+        inputPanelName.add(t_input_name, BorderLayout.CENTER);
+
+        JPanel inputPanelOption = new JPanel(new BorderLayout());
+        String[] choices = { "학생", "교수"};
+        cb = new JComboBox<String>(choices);
+        cb.setMaximumSize(cb.getPreferredSize()); // added code
+        cb.setAlignmentX(Component.CENTER_ALIGNMENT);// added code
+        inputPanelOption.add(new JLabel("구분"), BorderLayout.WEST);
+        inputPanelOption.add(cb, BorderLayout.CENTER);
+
+        JPanel entrancePanel = new JPanel(new BorderLayout());
+        entrancePanel.add(b_send, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new GridLayout(4, 0)); // 입력 & 제어 한 패널로 묶음
+
+        bottomPanel.add(inputPanelOption);
+        bottomPanel.add(inputPanelId);
+        bottomPanel.add(inputPanelName);
+        bottomPanel.add(entrancePanel);
+
         b_select.setEnabled(false);
-        b_send.setEnabled(false);
-        return inputPanel;
+        return bottomPanel;
     }
 
     private JPanel createInfoPanel() {
@@ -181,7 +201,7 @@ public class WithTalk extends JFrame {
                 b_connect.setEnabled(false); // 연결하기 비활성화
                 b_disconnect.setEnabled(true); // 접속끊기 활성화
 
-                t_input.setEnabled(true);
+                t_input_id.setEnabled(true);
                 b_send.setEnabled(true);
                 b_select.setEnabled(true);
                 b_exit.setEnabled(false); // 종료하기 비활성화
@@ -245,7 +265,7 @@ public class WithTalk extends JFrame {
         }
         t_display.insertIcon(icon);
         printDisplay("");
-        t_input.setText("");
+        t_input_id.setText("");
     }
 
     private String getLocalAddr() {
@@ -343,11 +363,11 @@ public class WithTalk extends JFrame {
     }
 
     private void sendMessage() {
-        String message = t_input.getText();
+        String message = t_input_id.getText();
         if (message.isEmpty()) return;
 
         send(new ChatMsg(uid, ChatMsg.MODE_TX_STRING, message));
-        t_input.setText("");
+        t_input_id.setText("");
     }
 
     private void sendUserID() {
@@ -355,11 +375,11 @@ public class WithTalk extends JFrame {
 
         send(new ChatMsg(uid, ChatMsg.MODE_LOGIN));
 
-        t_input.setText("");
+        t_input_id.setText("");
     }
 
     private void sendImage() {
-        String filename = t_input.getText().strip();
+        String filename = t_input_id.getText().strip();
         if (filename.isEmpty()) return;
         File file = new File(filename);
         if (!file.exists()) {
@@ -369,7 +389,7 @@ public class WithTalk extends JFrame {
 
         ImageIcon icon = new ImageIcon(filename);
         send(new ChatMsg(uid, ChatMsg.MODE_TX_IMAGE, file.getName(), icon));
-        t_input.setText("");
+        t_input_id.setText("");
     }
 
     public static void main(String[] args) {

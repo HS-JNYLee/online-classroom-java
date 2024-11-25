@@ -1,5 +1,7 @@
 package ClassRoom;
 
+import User.User;
+
 import javax.swing.*;
 import java.io.Serializable;
 
@@ -15,6 +17,7 @@ public class ChatMsg implements Serializable {
     String message;
     ImageIcon image;
     long size;
+    User user;
 
     public ChatMsg(String userID, int code, String message, ImageIcon image, long size) {
         this.userID = userID;
