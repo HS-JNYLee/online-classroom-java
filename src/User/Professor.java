@@ -5,7 +5,7 @@ import java.net.Socket;
 
 public class Professor extends User{
 
-    Professor(){}
+    public Professor(){}
 
     @Override
     public void sendMic() {

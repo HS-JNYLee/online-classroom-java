@@ -210,7 +210,7 @@ public class WithTalk extends JFrame {
         bottomPanel.add(inputPanelName);
         bottomPanel.add(entrancePanel);
 
-        b_select.setEnabled(false);
+//        b_select.setEnabled(false);
         return bottomPanel;
     }
 

@@ -1,5 +1,6 @@
 package User;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -7,7 +8,13 @@ public class Student extends User{
 
     private int teamNum;
 
-    Student(){}
+    public Student(){}
+
+    public Student(String id, String name, ImageIcon profileImage){
+        this.id = id;
+        this.name = name;
+        this.profileImage = profileImage;
+    }
 
     public int getTeamNum(){
         return this.teamNum;

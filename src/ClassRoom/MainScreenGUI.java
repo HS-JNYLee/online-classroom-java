@@ -7,10 +7,12 @@ import User.User;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainScreenGUI extends JFrame {
 
@@ -27,14 +29,16 @@ public class MainScreenGUI extends JFrame {
     private JPanel VariousPanel;
     private JPanel TeamStudentPanel;
     private JPanel StudentTablePanel;
-    private JPanel ChatPanelMargin;
     private JTable studentJTable;
     private JScrollPane StudentTableJScrollPanel;
     private JPanel ChatPanel;
     private JTextField chatTextField;
     private JButton sendBtn;
     private JPanel MessageSendControlPanel;
-    private JScrollPane ChatComuPanel;
+    private JPanel ChatComuPanel;
+    private ArrayList<JPanel> TeamPanels;
+
+    //TODO ClassRoom class 만들어서 삽입
 
     private boolean is_mic_on = false;
     private boolean is_sound_on = true;
@@ -46,7 +50,7 @@ public class MainScreenGUI extends JFrame {
         setContentPane(MainScreenPanel);
         setTitle("ClassRoom Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1200, 800);
+        setSize(1500, 800);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -62,6 +66,7 @@ public class MainScreenGUI extends JFrame {
         createExitButton();
         createStudentPanel();
         createChatRoomPanel();
+        createTeamStudentPanel();
     }
 
 
@@ -243,7 +248,7 @@ public class MainScreenGUI extends JFrame {
 
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(50,50, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
-                    //TODO 팀활동 시작
+                    ChatPanel.setVisible(false);
                 }
                 else{ // 채팅화면이 꺼져 있는 경우
                     is_chat_on = true;
@@ -253,7 +258,7 @@ public class MainScreenGUI extends JFrame {
 
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(50,50, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
-                    // TODO 팀활동 종료
+                    ChatPanel.setVisible(true);
                 }
             }
         });
@@ -269,6 +274,57 @@ public class MainScreenGUI extends JFrame {
 
         exitBtn.setForeground(Color.white);
         // TODO 통신 종료
+    }
+
+    private void createTeamStudentPanel(){
+        this.TeamStudentPanel = new JPanel(new GridLayout(2,2));
+
+        TeamStudentPanel.setPreferredSize(new Dimension(500,500));
+
+        TeamStudentPanel.setBackground(Color.blue);
+
+        this.TeamPanels = new ArrayList<JPanel>(4);
+
+        ArrayList<Color> colors = new ArrayList<>(Arrays.asList(
+                Color.BLUE,
+                Color.RED,
+                Color.GREEN,
+                Color.YELLOW
+        ));
+
+        int i;
+        int j;
+        for(i=0;i<4;i++){
+            JPanel teamPanel = new JPanel(new GridLayout(2,2));
+            for(j=0;j<4;j++){ // TODO j<classRoom && j<4의 학생수 보다 작다면... 추가
+                if(j==3){
+                    JLabel userPanel = new JLabel();
+                    ImageIcon icon = new ImageIcon("./assets/user_icon.png");
+                    Image img = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH); // 원하는 크기로 조정
+                    userPanel.setIcon(new ImageIcon(img));
+                    teamPanel.add(userPanel);
+                    continue;
+                }
+
+                JLabel userPanel = new JLabel();
+                ImageIcon icon = new ImageIcon("./assets/non_join_user.png");
+                Image img = icon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH); // 원하는 크기로 조정
+                userPanel.setIcon(new ImageIcon(img));
+                teamPanel.add(userPanel);
+            }
+            teamPanel.setBackground(Color.MAGENTA);
+            TeamPanels.add(teamPanel);
+        }
+
+
+
+        int index = 0;
+        for(JPanel team : TeamPanels){
+            team.setBackground(colors.get(index % colors.size()));
+            TeamStudentPanel.add(team);
+            index++;
+        }
+
     }
 
     private void createStudentPanel(){
@@ -335,36 +391,54 @@ public class MainScreenGUI extends JFrame {
 
     private void createChatRoomPanel(){
 
-        this.ChatPanelMargin = new JPanel(new BorderLayout());
-
         this.ChatPanel = new JPanel(new BorderLayout());
-        ChatPanel.setBackground(Color.red);
 
-        JPanel ttmp = new JPanel(new GridLayout(20,1));
-
-        for (int i = 1; i <= 20; i++) {
-            ttmp.add(new JLabel("Label " + i));
-        }
-
-        this.ChatPanel.add(ttmp,BorderLayout.CENTER);
-
-        this.ChatComuPanel = new JScrollPane(ttmp);
+        this.ChatPanel.setPreferredSize(new Dimension(300,500));
 
         this.MessageSendControlPanel = new JPanel(new BorderLayout());
 
         this.sendBtn = new JButton("보내기");
+        this.sendBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //TODO 메시지 보내기
+
+                String msg = chatTextField.getText();
+                chatTextField.setText("");
+
+                ChatComuPanel.add(addMessage(msg, new Professor()));
+            }
+        });
+
         this.chatTextField = new JTextField();
+        this.chatTextField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String msg = chatTextField.getText();
+                chatTextField.setText("");
 
-        ChatComuPanel.setPreferredSize(new Dimension(200,200));
-        ChatPanelMargin.setPreferredSize(new Dimension(200,200));
-        ChatPanel.setPreferredSize(new Dimension(200,200));
+                ChatComuPanel.add(addMessage(msg, new Professor()));
+            }
+        });
 
-        this.ChatPanelMargin.add(ChatComuPanel, BorderLayout.CENTER);
-
-        this.MessageSendControlPanel.add(sendBtn , BorderLayout.CENTER);
-        this.MessageSendControlPanel.add(chatTextField , BorderLayout.EAST);
+        this.MessageSendControlPanel.add(chatTextField, BorderLayout.CENTER);
+        this.MessageSendControlPanel.add(sendBtn, BorderLayout.EAST);
 
         this.ChatPanel.add(MessageSendControlPanel, BorderLayout.SOUTH);
+
+        this.ChatComuPanel = new JPanel();
+
+        ChatComuPanel.setLayout(new BoxLayout(ChatComuPanel, BoxLayout.Y_AXIS));
+
+        // 임시 데이터
+        int i;
+        for(i=0;i<40;i++){
+            ChatComuPanel.add(addMessage("I'm a student", new Student("132", "KJH", new ImageIcon("./assets/icons/user_icon.png"))));
+            ChatComuPanel.add(addMessage("I'm a professor", new Professor()));
+        }
+
+
+        this.ChatPanel.add(new JScrollPane(ChatComuPanel), BorderLayout.CENTER);
     }
 
     private JPanel addMessage(String msg, User user){
@@ -374,23 +448,55 @@ public class MainScreenGUI extends JFrame {
         String name;
         JPanel msgGroupPanel = new JPanel(new FlowLayout());
 
-        if(user instanceof Student){
-            id = ((Student)user).getId();
-            name = ((Student)user).getName();
-            profileImage = ((Student)user).getProfileImage();
+        if (user instanceof Student) {
+            id = ((Student) user).getId();
+            name = ((Student) user).getName();
+            profileImage = ((Student) user).getProfileImage();
 
-//            JPanel
+            // 프로필 이미지 레이블 생성
+            JLabel msgProfile = new JLabel(profileImage);
 
-            msgGroupPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            // 메시지 텍스트 레이블 생성
+            JLabel msgText = new JLabel(msg);
 
-        }else if(user instanceof Professor){
-            id = ((Professor)user).getId();
-            name = ((Professor)user).getName();
-            profileImage = ((Professor)user).getProfileImage();
+            // 이미지와 텍스트의 배치를 위한 설정
+            msgGroupPanel.setAlignmentX(FlowLayout.RIGHT);
 
-            msgGroupPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+            // 메시지 텍스트와 이미지를 각각 패널에 추가
+            msgGroupPanel.add(msgProfile);
+            msgGroupPanel.add(msgText);  // 이제 메시지 텍스트도 추가
+
+            msgGroupPanel.setBackground(Color.blue);
+
+        } else if (user instanceof Professor) {
+            id = ((Professor) user).getId();
+            name = ((Professor) user).getName();
+            profileImage = ((Professor) user).getProfileImage();
+
+            // 프로필 이미지 레이블 생성
+            JLabel msgProfile = new JLabel(profileImage);
+
+            // 메시지 텍스트 레이블 생성
+            JLabel msgText = new JLabel(msg);
+
+            // 메시지 텍스트와 이미지를 각각 패널에 추가
+            msgGroupPanel.setAlignmentX(FlowLayout.LEFT);
+
+            // 텍스트와 이미지를 추가
+            msgGroupPanel.add(msgProfile);
+            msgGroupPanel.add(msgText);
+
+            msgGroupPanel.setBackground(Color.red);  // 배경색 설정 (선택 사항)
         }
+
+        ChatPanel.revalidate();
+        ChatPanel.repaint();
 
         return msgGroupPanel;
     }
+    public static void main(String[] args) {
+        new MainScreenGUI();
+    }
 }
+
+
