@@ -19,32 +19,37 @@ public class ChatMsg implements Serializable {
     long size;
     User user;
 
-    public ChatMsg(String userID, int code, String message, ImageIcon image, long size) {
+    public ChatMsg(String userID, int code, String message, ImageIcon image, long size, User user) {
         this.userID = userID;
         this.mode = code;
         this.message = message;
         this.image = image;
         this.size = size;
+        this.user = user;
     }
 
     public ChatMsg(String userID, int code, String message, ImageIcon image) {
-        this(userID, code, message, image, 0);
+        this(userID, code, message, image, 0, null);
     }
 
     public ChatMsg(String userID, int code) {
-        this(userID, code, null, null);
+        this(userID, code, null, null, 0, null);
     }
 
     public ChatMsg(String userID, int code, String message) {
-        this(userID, code, message, null);
+        this(userID, code, message, null, 0, null);
     }
 
     public ChatMsg(String userID, int code, ImageIcon image) {
-        this(userID, code, null, image);
+        this(userID, code, null, image, 0, null);
     }
 
     public ChatMsg(String userID, int code, String filename, long size) {
-        this(userID, code, filename, null, size);
+        this(userID, code, filename, null, size, null);
+    }
+
+    public ChatMsg(String userID, int code, User user) {
+        this(userID, code, null, null, 0, user);
     }
 }
 

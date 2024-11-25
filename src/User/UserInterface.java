@@ -2,12 +2,11 @@ package User;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.net.Socket;
 
 public interface UserInterface {
 
     // User Info
-    int getId();
+    String getId();
 
     String getName();
 

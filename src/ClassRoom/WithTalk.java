@@ -1,5 +1,7 @@
 package ClassRoom;
 
+import User.User;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
@@ -27,8 +29,9 @@ public class WithTalk extends JFrame {
     private Reader in;
     private BufferedOutputStream bos;
 
-    private String uid;
-
+    private String uId;
+    private String uName;
+    private String uType;
     private Thread receiveThread = null;
 
     private int frameHeight = 390;
@@ -78,7 +81,6 @@ public class WithTalk extends JFrame {
         t_input_id.setSize(t_input_width, inputPanelHeight);
 
         b_send = new JButton("보내기");
-        b_send.setEnabled(false);
         // 엔터키로 문자 전송
         t_input_id.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent evt) {
@@ -92,7 +94,8 @@ public class WithTalk extends JFrame {
         b_send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                sendMessage();
+                // sendMessage();
+                sendUserLogin();
             }
         });
         b_send.setSize(b_connect_width, inputPanelHeight);
@@ -340,7 +343,7 @@ public class WithTalk extends JFrame {
     // 서버와 접속을 종료하는 함수
     public void disconnect() {
         /* 소켓 닫기 */
-        send(new ChatMsg(uid, ChatMsg.MODE_LOGOUT));
+        send(new ChatMsg(uId, ChatMsg.MODE_LOGOUT));
         try {
             receiveThread = null;
             socket.close();
@@ -366,16 +369,24 @@ public class WithTalk extends JFrame {
         String message = t_input_id.getText();
         if (message.isEmpty()) return;
 
-        send(new ChatMsg(uid, ChatMsg.MODE_TX_STRING, message));
+        send(new ChatMsg(uId, ChatMsg.MODE_TX_STRING, message));
         t_input_id.setText("");
     }
 
     private void sendUserID() {
-        uid = t_userID.getText();
+        uId = t_userID.getText();
 
-        send(new ChatMsg(uid, ChatMsg.MODE_LOGIN));
+        send(new ChatMsg(uId, ChatMsg.MODE_LOGIN));
 
         t_input_id.setText("");
+    }
+
+    private void sendUserLogin() {
+        uId = t_input_id.getText();
+        uName = t_input_name.getText();
+        uType = cb.getSelectedItem().toString();
+        User user = new User();
+        user.setId(uId);
     }
 
     private void sendImage() {
@@ -388,7 +399,7 @@ public class WithTalk extends JFrame {
         }
 
         ImageIcon icon = new ImageIcon(filename);
-        send(new ChatMsg(uid, ChatMsg.MODE_TX_IMAGE, file.getName(), icon));
+        send(new ChatMsg(uId, ChatMsg.MODE_TX_IMAGE, file.getName(), icon));
         t_input_id.setText("");
     }
 

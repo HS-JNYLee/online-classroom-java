@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class User implements UserInterface {
-    protected int id;
+    protected String id;
     protected String name;
     protected Roles role;
     protected ImageIcon profileImage;
@@ -15,7 +15,7 @@ public class User implements UserInterface {
     protected int teamRoomPort;
     protected Socket socket;
 
-    public int getId() {
+    public String getId() {
         return this.id;
     }
 
@@ -47,7 +47,7 @@ public class User implements UserInterface {
         return this.teamRoomPort;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
