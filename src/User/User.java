@@ -15,6 +15,14 @@ public class User implements UserInterface {
     protected int teamRoomPort;
     protected Socket socket;
 
+    public User(){}
+
+    public User(String id, ImageIcon profileImage, String name) {
+        this.id = id;
+        this.profileImage = profileImage;
+        this.name = name;
+    }
+
     public String getId() {
         return this.id;
     }

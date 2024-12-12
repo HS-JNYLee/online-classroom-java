@@ -8,7 +8,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.color.ColorSpace;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -133,7 +132,7 @@ public class MainScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(50,50, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
                 }
-                else{ // 마이크가 꺼져있을 때 눌렀을 경우
+                else{ // 소리가 꺼져있을 때 눌렀을 경우
                     is_sound_on = true;
                     soundBtn.setIcon(new ImageIcon("./assets/icons/sound_on.png"));
 
