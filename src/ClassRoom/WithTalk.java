@@ -11,18 +11,15 @@ import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.geom.Ellipse2D;
 import java.io.*;
 import java.net.*;
 
 public class WithTalk extends JFrame {
-    private JTextField t_input_id, t_input_name;
+    private JTextField t_id, t_input_name;
     private JTextField t_userID, t_hostAddr, t_portNum;
     private JTextPane t_display;
     private DefaultStyledDocument document;
-    private JButton b_connect, b_disconnect, b_send, b_exit, b_select;
+    private JButton b_connect, b_disconnect, b_enter, b_exit, b_select;
     private JComboBox<String> cb;
     private String serverAddress;
     private int serverPort;
@@ -62,9 +59,6 @@ public class WithTalk extends JFrame {
     }
 
     public void buildGUI() {
-        // 전체 패널 [이미지 선택 버튼+입력 패널 모음]
-        JPanel contentPanel = new JPanel(new BorderLayout());
-
         // 이미지 선택 버튼
         SelectImageButton selectImageButton = new SelectImageButton();
         selectImageButton.getButton().addActionListener(new ActionListener() {
@@ -91,7 +85,7 @@ public class WithTalk extends JFrame {
                 ImageIcon icon = new ImageIcon(uFileName);
                 Image scaledImage = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
                 selectImageButton.setImage(scaledImage);
-                contentPanel.repaint();
+                selectImageButton.getButton().repaint();
             }
         });
 
@@ -100,6 +94,7 @@ public class WithTalk extends JFrame {
         imageButtonWrapper.setLayout(new GridBagLayout());
         imageButtonWrapper.setBackground(Theme.Ultramarine);
         imageButtonWrapper.add(selectImageButton.getButton()); // 이미지 선택 버튼 추가
+        // ---------- 이미지 선택 버튼 끝
 
         // 둥근 그림진 사각형 패널 생성
         RoundedShadowPane roundedShadowPane = new RoundedShadowPane();
@@ -111,86 +106,54 @@ public class WithTalk extends JFrame {
         inputPanelWrapper.add(createInputPanel(), BorderLayout.CENTER); // 입력 패널 모음 추가
         
         roundedShadowPane.setContentPane(inputPanelWrapper); // 둥근 사각형 팬에 input wrapper 추가
+        // ---------- 입력 패널 wrapper 끝
+
+        // 전체 패널 [이미지 선택 버튼+입력 패널 모음]
+        JPanel contentPanel = new JPanel(new BorderLayout());
 
         contentPanel.setBackground(Theme.Ultramarine);
         contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
         contentPanel.add(imageButtonWrapper, BorderLayout.CENTER); // 이미지 버튼 배치 (중앙)
         contentPanel.add(roundedShadowPane, BorderLayout.SOUTH); // 둥근 사각형 팬 배치 (남쪽)
-        
+        // ---------- 전체 패널 끝
+
         add(contentPanel, BorderLayout.CENTER); // 전체 패널 프레임에 추가
-    }
-
-    // 텍스트 화면 패널
-    public JPanel createDisplayPanel() {
-        JPanel p = new JPanel(new BorderLayout());
-        document = new DefaultStyledDocument();
-        t_display = new JTextPane(document){
-            public void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                ImageIcon icon = new ImageIcon(uFileName);
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // JTextPane 가로x세로
-                int panelWidth = getWidth();
-                int panelHeight = getHeight();
-
-                // 최소크기 원 지름
-                int circleDiameter = Math.min(panelWidth, panelHeight);
-
-                // 원형 클리핑
-                Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, circleDiameter, circleDiameter);
-                g2.setClip(circle);
-
-                // 이미지 크기 조정
-                if (icon != null) {
-                    // 이미지의 원본 크기
-                    int imgWidth = icon.getIconWidth();
-                    int imgHeight = icon.getIconHeight();
-
-                    // 비율
-                    double scaleX = (double) circleDiameter / imgWidth;
-                    double scaleY = (double) circleDiameter / imgHeight;
-                    double scale = Math.min(scaleX, scaleY);
-
-                    int newWidth = (int) (imgWidth * scale);
-                    int newHeight = (int) (imgHeight * scale);
-
-                    // 중앙 배치
-                    int x = (circleDiameter - newWidth) / 2;
-                    int y = (circleDiameter - newHeight) / 2;
-                    // 이미지 크기 조정
-                    g2.drawImage(icon.getImage(), x, y, newWidth, newHeight, this);
-                }
-                t_display.repaint();
-            }
-        };
-        t_display.setEditable(false); // 편집 불가
-
-        p.add(new JScrollPane(t_display), BorderLayout.CENTER);
-
-        return p;
     }
 
     // 입력 패널
     public JPanel createInputPanel() {
-        JPanel inputPanelId = new JPanel(new BorderLayout());
-        
-        t_input_id = new JTextField(30);
+        // 구분(선택) JLabel+ComboBox
+        JLabel l_type = new JLabel("구분");
+        String[] types = { "학생", "교수"};
+        cb = new JComboBox<String>(types);
+        cb.setMaximumSize(cb.getPreferredSize());
+        cb.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        b_send = new JButton("입장하기");
-        // 엔터키로 문자 전송
-        t_input_id.addKeyListener(new KeyAdapter() {
-            public void keyPressed(KeyEvent evt) {
-                if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
-                    sendMessage();
-                }
-            }
-        });
+        JPanel typePanel = new JPanel(new BorderLayout());
+        typePanel.add(l_type, BorderLayout.WEST);
+        typePanel.add(cb, BorderLayout.CENTER);
+        // ---------- 구분(선택) 끝
 
-        // [보내기] 버튼으로 문자 전송
-        b_send.addActionListener(new ActionListener() {
+        // 학번/교번(입력) JLabel+JTextField
+        JLabel l_id = new JLabel("학번/교번");
+        t_id = new JTextField(30);
+        JPanel idPanel = new JPanel(new BorderLayout());
+        idPanel.add(l_id, BorderLayout.WEST);
+        idPanel.add(t_id, BorderLayout.CENTER);
+        // ---------- 학번/교번(입력) 끝
+
+        // 이름(입력) JLabel+JTextField
+        JLabel l_name = new JLabel("이름");
+        t_input_name = new JTextField(30);
+
+        JPanel namePanel = new JPanel(new BorderLayout());
+        namePanel.add(l_name, BorderLayout.WEST);
+        namePanel.add(t_input_name, BorderLayout.CENTER);
+        // ---------- 이름(입력) 끝
+
+        // 입장하기(클릭) JButton
+        b_enter = new JButton("입장하기");
+        b_enter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // sendMessage();
@@ -198,38 +161,20 @@ public class WithTalk extends JFrame {
             }
         });
 
-        // 배치 미리보기
-        // [입력창] [보내기]
-        inputPanelId.add(new JLabel("학번/교번"), BorderLayout.WEST);
-        inputPanelId.add(t_input_id, BorderLayout.CENTER);
-        JPanel p_button = new JPanel(new GridLayout(1, 0));
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.add(b_enter, BorderLayout.CENTER);
+        // ---------- 입장하기(클릭) 끝
 
-        p_button.add(b_send);
+        // 입력 패널 배치
+        JPanel panel = new JPanel(new GridLayout(4, 0));
+        panel.setBackground(Theme.Ultramarine);
+        panel.add(typePanel);   // 구분
+        panel.add(idPanel);     // 학번/교번
+        panel.add(namePanel);   // 이름
+        panel.add(buttonPanel); // 입장하기
+        // ---------- 입력 패널 배치 끝
 
-        JPanel inputPanelName = new JPanel(new BorderLayout());
-        t_input_name = new JTextField(30);
-        inputPanelName.add(new JLabel("이름"), BorderLayout.WEST);
-        inputPanelName.add(t_input_name, BorderLayout.CENTER);
-
-        JPanel inputPanelOption = new JPanel(new BorderLayout());
-        String[] choices = { "학생", "교수"};
-        cb = new JComboBox<String>(choices);
-        cb.setMaximumSize(cb.getPreferredSize()); // added code
-        cb.setAlignmentX(Component.CENTER_ALIGNMENT);// added code
-        inputPanelOption.add(new JLabel("구분"), BorderLayout.WEST);
-        inputPanelOption.add(cb, BorderLayout.CENTER);
-
-        JPanel entrancePanel = new JPanel(new BorderLayout());
-        entrancePanel.add(b_send, BorderLayout.CENTER);
-
-        JPanel bottomPanel = new JPanel(new GridLayout(4, 0)); // 입력 & 제어 한 패널로 묶음
-
-        bottomPanel.add(inputPanelOption);
-        bottomPanel.add(inputPanelId);
-        bottomPanel.add(inputPanelName);
-        bottomPanel.add(entrancePanel);
-        bottomPanel.setBackground(Theme.Ultramarine);
-        return bottomPanel;
+        return panel;
     }
 
     public void printDisplay(String msg) {
@@ -252,7 +197,7 @@ public class WithTalk extends JFrame {
         }
         t_display.insertIcon(icon);
         printDisplay("");
-        t_input_id.setText("");
+        t_id.setText("");
     }
 
     private String getLocalAddr() {
@@ -358,11 +303,11 @@ public class WithTalk extends JFrame {
     }
 
     private void sendMessage() {
-        String message = t_input_id.getText();
+        String message = t_id.getText();
         if (message.isEmpty()) return;
 
         send(new ChatMsg(uId, ChatMsg.MODE_TX_STRING, message));
-        t_input_id.setText("");
+        t_id.setText("");
     }
 
     private void sendUserID() {
@@ -370,11 +315,11 @@ public class WithTalk extends JFrame {
 
         send(new ChatMsg(uId, ChatMsg.MODE_CONNECT));
 
-        t_input_id.setText("");
+        t_id.setText("");
     }
 
     private void sendUserLogin() {
-        uId = t_input_id.getText();
+        uId = t_id.getText();
         uName = t_input_name.getText();
         uType = cb.getSelectedItem().toString();
         User user = new User();
