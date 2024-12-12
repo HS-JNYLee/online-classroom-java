@@ -64,7 +64,6 @@ public class WithTalk extends JFrame {
     public void buildGUI() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        // panel.add(createDisplayPanel(), BorderLayout.CENTER);
         SelectImageButton f = new SelectImageButton();
         f.getButton().addActionListener(new ActionListener() {
             JFileChooser chooser = new JFileChooser();
@@ -96,7 +95,7 @@ public class WithTalk extends JFrame {
 
         // 중앙 정렬을 위한 패널 설정
         JPanel panel1 = new JPanel();
-        panel1.setBackground(Color.WHITE);
+        panel1.setBackground(Theme.Ultramarine);
         panel1.setLayout(new GridBagLayout());
         panel1.add(f.getButton());
 
@@ -106,7 +105,7 @@ public class WithTalk extends JFrame {
         bottomPanel.add(createInputPanel());
 
         panel.add(bottomPanel, BorderLayout.SOUTH);
-        panel.setBackground(Color.BLUE);
+        panel.setBackground(Theme.Ultramarine);
         panel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
         add(panel, BorderLayout.CENTER);
     }
