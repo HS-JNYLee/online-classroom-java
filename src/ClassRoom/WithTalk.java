@@ -1,6 +1,7 @@
 package ClassRoom;
 
 import User.User;
+import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
 import Utils.Theme;
 
@@ -11,8 +12,10 @@ import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.TextAttribute;
 import java.io.*;
 import java.net.*;
+import java.util.Map;
 
 public class WithTalk extends JFrame {
     private JTextField t_id, t_input_name;
@@ -120,35 +123,60 @@ public class WithTalk extends JFrame {
         add(contentPanel, BorderLayout.CENTER); // 전체 패널 프레임에 추가
     }
 
+    public Font setUnderline(Font font) {
+        // https://stackoverflow.com/questions/15892844/underlined-jlabel
+        Map attributes = font.getAttributes();
+        attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+        return font.deriveFont(attributes);
+    }
+
+    public void initLabelStyle(JLabel label) {
+        label.setForeground(Theme.Blue);
+        label.setFont(setUnderline(label.getFont()));
+    }
+
+    public JPanel createInputWrapperPanel() {
+        JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
+        inputPanel.setBackground(Theme.Grey);
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 60));
+        return inputPanel;
+    }
+
+    public void addInputPanelContent(JPanel panel, Component componentText, Component componentInput) {
+        panel.add(componentText, BorderLayout.WEST);
+        panel.add(componentInput, BorderLayout.CENTER);
+    }
+
     // 입력 패널
     public JPanel createInputPanel() {
         // 구분(선택) JLabel+ComboBox
         JLabel l_type = new JLabel("구분");
+        initLabelStyle(l_type);
         String[] types = { "학생", "교수"};
         cb = new JComboBox<String>(types);
-        cb.setMaximumSize(cb.getPreferredSize());
         cb.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cb.setSize(100, l_type.getPreferredSize().height);
 
-        JPanel typePanel = new JPanel(new BorderLayout());
-        typePanel.add(l_type, BorderLayout.WEST);
-        typePanel.add(cb, BorderLayout.CENTER);
+        JPanel typePanel = createInputWrapperPanel();
+        addInputPanelContent(typePanel, l_type, cb);
         // ---------- 구분(선택) 끝
 
         // 학번/교번(입력) JLabel+JTextField
         JLabel l_id = new JLabel("학번/교번");
-        t_id = new JTextField(30);
-        JPanel idPanel = new JPanel(new BorderLayout());
-        idPanel.add(l_id, BorderLayout.WEST);
-        idPanel.add(t_id, BorderLayout.CENTER);
+        initLabelStyle(l_id);
+        t_id = new JTextField(15);
+
+        JPanel idPanel = createInputWrapperPanel();
+        addInputPanelContent(idPanel, l_id, t_id);
         // ---------- 학번/교번(입력) 끝
 
         // 이름(입력) JLabel+JTextField
         JLabel l_name = new JLabel("이름");
-        t_input_name = new JTextField(30);
+        initLabelStyle(l_name);
+        t_input_name = new JTextField(15);
 
-        JPanel namePanel = new JPanel(new BorderLayout());
-        namePanel.add(l_name, BorderLayout.WEST);
-        namePanel.add(t_input_name, BorderLayout.CENTER);
+        JPanel namePanel = createInputWrapperPanel();
+        addInputPanelContent(namePanel, l_name, t_input_name);
         // ---------- 이름(입력) 끝
 
         // 입장하기(클릭) JButton
@@ -160,9 +188,14 @@ public class WithTalk extends JFrame {
                 sendUserLogin();
             }
         });
-
+        b_enter.setBackground(Theme.Red);
+        b_enter.setForeground(Theme.White);
+        b_enter.setBorderPainted(false);
+        RoundedPane roundedShadowPane = new RoundedPane();
+        roundedShadowPane.setContentPane(b_enter);
+        roundedShadowPane.setBackgroundColor(Theme.Grey);
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.add(b_enter, BorderLayout.CENTER);
+        buttonPanel.add(roundedShadowPane, BorderLayout.CENTER);
         // ---------- 입장하기(클릭) 끝
 
         // 입력 패널 배치
