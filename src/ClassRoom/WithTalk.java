@@ -62,12 +62,53 @@ public class WithTalk extends JFrame {
     }
 
     public void buildGUI() {
-        add(createDisplayPanel(), BorderLayout.CENTER);
+        JPanel panel = new JPanel(new BorderLayout());
+
+        // panel.add(createDisplayPanel(), BorderLayout.CENTER);
+        SelectImageButton f = new SelectImageButton();
+        f.getButton().addActionListener(new ActionListener() {
+            JFileChooser chooser = new JFileChooser();
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                        "JPG & GIF & PNG Images",
+                        "jpg", "gif", "png"
+                );
+                chooser.setFileFilter(filter);
+
+                int ret = chooser.showOpenDialog(WithTalk.this);
+                if(ret != JFileChooser.APPROVE_OPTION) {
+                    JOptionPane.showMessageDialog(WithTalk.this, "파일을 선택하지 않았습니다.");
+                    return;
+                }
+                uFileName = chooser.getSelectedFile().getAbsolutePath();
+                File file = new File(uFileName);
+                if (!file.exists()) {
+                    printDisplay(">> 파일이 존재하지 않습니다: " + uFileName);
+                }
+                ImageIcon icon = new ImageIcon(uFileName);
+                Image scaledImage = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                f.setImage(scaledImage);
+                panel.repaint();
+            }
+        });
+
+        // 중앙 정렬을 위한 패널 설정
+        JPanel panel1 = new JPanel();
+        panel1.setBackground(Color.WHITE);
+        panel1.setLayout(new GridBagLayout());
+        panel1.add(f.getButton());
+
+        panel.add(panel1, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new GridLayout(1, 0)); // 입력 & 제어 한 패널로 묶음
         bottomPanel.add(createInputPanel());
 
-        add(bottomPanel, BorderLayout.SOUTH);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+        panel.setBackground(Color.BLUE);
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
+        add(panel, BorderLayout.CENTER);
     }
 
     // 텍스트 화면 패널
@@ -126,13 +167,10 @@ public class WithTalk extends JFrame {
     // 입력 패널
     public JPanel createInputPanel() {
         JPanel inputPanelId = new JPanel(new BorderLayout());
-        int t_input_width = 410;
-        int b_connect_width = 90;
-
+        
         t_input_id = new JTextField(30);
-        t_input_id.setSize(t_input_width, inputPanelHeight);
 
-        b_send = new JButton("보내기");
+        b_send = new JButton("입장하기");
         // 엔터키로 문자 전송
         t_input_id.addKeyListener(new KeyAdapter() {
             public void keyPressed(KeyEvent evt) {
@@ -150,10 +188,9 @@ public class WithTalk extends JFrame {
                 sendUserLogin();
             }
         });
-        b_send.setSize(b_connect_width, inputPanelHeight);
 
         b_select = new JButton("선택하기");
-        b_select.addActionListener(new ActionListener() {
+        /*b_select.addActionListener(new ActionListener() {
             JFileChooser chooser = new JFileChooser();
 
             @Override
@@ -175,19 +212,18 @@ public class WithTalk extends JFrame {
                     printDisplay(">> 파일이 존재하지 않습니다: " + uFileName);
                 }
             }
-        });
+        });*/
 
         // 배치 미리보기
         // [입력창] [보내기]
         inputPanelId.add(new JLabel("학번/교번"), BorderLayout.WEST);
         inputPanelId.add(t_input_id, BorderLayout.CENTER);
         JPanel p_button = new JPanel(new GridLayout(1, 0));
-        p_button.add(b_select);
+       // p_button.add(b_select);
         p_button.add(b_send);
 
         JPanel inputPanelName = new JPanel(new BorderLayout());
         t_input_name = new JTextField(30);
-        t_input_name.setSize(t_input_width, inputPanelHeight);
         inputPanelName.add(new JLabel("이름"), BorderLayout.WEST);
         inputPanelName.add(t_input_name, BorderLayout.CENTER);
 
@@ -204,7 +240,7 @@ public class WithTalk extends JFrame {
 
         JPanel bottomPanel = new JPanel(new GridLayout(5, 0)); // 입력 & 제어 한 패널로 묶음
 
-        bottomPanel.add(b_select);
+        //bottomPanel.add(b_select);
         bottomPanel.add(inputPanelOption);
         bottomPanel.add(inputPanelId);
         bottomPanel.add(inputPanelName);
@@ -212,95 +248,6 @@ public class WithTalk extends JFrame {
 
 //        b_select.setEnabled(false);
         return bottomPanel;
-    }
-
-    private JPanel createInfoPanel() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        t_userID = new JTextField(7);
-        t_hostAddr = new JTextField(12);
-        t_portNum = new JTextField(5);
-
-        t_userID.setText("guest" + getLocalAddr().split("\\.")[3]);
-        t_hostAddr.setText(this.serverAddress);
-        t_portNum.setText(String.valueOf(this.serverPort));
-
-        t_portNum.setHorizontalAlignment(JTextField.CENTER);
-
-        p.add(new JLabel("아이디: "));
-        p.add(t_userID);
-
-        p.add(new JLabel("서버주소: "));
-        p.add(t_hostAddr);
-
-        p.add(new JLabel("포트번호: "));
-        p.add(t_portNum);
-
-        return p;
-    }
-
-    // 동작 제어 패널
-    public JPanel createControlPanel() {
-        b_connect = new JButton("접속하기");
-        b_connect.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                serverAddress = t_hostAddr.getText();
-                serverPort = Integer.parseInt(t_portNum.getText());
-                try {
-                    connectToServer();
-                    sendUserID();
-                } catch (UnknownHostException e1) {
-                    printDisplay("서버 주소와 포트번호를 확인하세요: " + e1.getMessage());
-                    return;
-                } catch (IOException ex) {
-                    printDisplay("서버와의 연결 오류: " + ex.getMessage());
-                    return;
-                }
-                b_connect.setEnabled(false); // 연결하기 비활성화
-                b_disconnect.setEnabled(true); // 접속끊기 활성화
-
-                t_input_id.setEnabled(true);
-                b_send.setEnabled(true);
-                b_select.setEnabled(true);
-                b_exit.setEnabled(false); // 종료하기 비활성화
-
-                t_userID.setEditable(false);
-                t_hostAddr.setEditable(false);
-                t_portNum.setEditable(false);
-            }
-        });
-
-        b_disconnect = new JButton("접속 끊기");
-        // [접속 끊기] 버튼으로 연결 해제
-        b_disconnect.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                disconnect();
-            }
-        });
-
-        b_exit = new JButton("종료하기");
-        b_exit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
-
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new GridLayout(1, 3));
-        // 배치 미리보기
-        // [접속하기] [접속끊기] [종료하기]
-
-        controlPanel.add(b_connect);
-        controlPanel.add(b_disconnect);
-        controlPanel.add(b_exit);
-
-        b_connect.setEnabled(true); // 연결하기 활성화
-        b_disconnect.setEnabled(false); // 접속끊기 비활성화
-        b_exit.setEnabled(true); // 종료하기 활성화
-
-        return controlPanel;
     }
 
     public void printDisplay(String msg) {
@@ -461,20 +408,6 @@ public class WithTalk extends JFrame {
         ImageIcon icon = new ImageIcon(uFileName);
 
         send(new ChatMsg(uId, ChatMsg.MODE_LOGIN, file.getName(), icon, uId, uName, uType));
-    }
-
-    private void sendImage() {
-        String filename = t_input_id.getText().strip();
-        if (filename.isEmpty()) return;
-        File file = new File(filename);
-        if (!file.exists()) {
-            printDisplay(">> 파일이 존재하지 않습니다: " + filename);
-            return;
-        }
-
-        ImageIcon icon = new ImageIcon(filename);
-        send(new ChatMsg(uId, ChatMsg.MODE_TX_IMAGE, file.getName(), icon));
-        t_input_id.setText("");
     }
 
     public static void main(String[] args) {
