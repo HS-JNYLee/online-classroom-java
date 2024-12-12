@@ -188,37 +188,12 @@ public class WithTalk extends JFrame {
             }
         });
 
-        b_select = new JButton("선택하기");
-        /*b_select.addActionListener(new ActionListener() {
-            JFileChooser chooser = new JFileChooser();
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                FileNameExtensionFilter filter = new FileNameExtensionFilter(
-                        "JPG & GIF & PNG Images",
-                        "jpg", "gif", "png"
-                );
-                chooser.setFileFilter(filter);
-
-                int ret = chooser.showOpenDialog(WithTalk.this);
-                if(ret != JFileChooser.APPROVE_OPTION) {
-                    JOptionPane.showMessageDialog(WithTalk.this, "파일을 선택하지 않았습니다.");
-                    return;
-                }
-                uFileName = chooser.getSelectedFile().getAbsolutePath();
-                File file = new File(uFileName);
-                if (!file.exists()) {
-                    printDisplay(">> 파일이 존재하지 않습니다: " + uFileName);
-                }
-            }
-        });*/
-
         // 배치 미리보기
         // [입력창] [보내기]
         inputPanelId.add(new JLabel("학번/교번"), BorderLayout.WEST);
         inputPanelId.add(t_input_id, BorderLayout.CENTER);
         JPanel p_button = new JPanel(new GridLayout(1, 0));
-       // p_button.add(b_select);
+
         p_button.add(b_send);
 
         JPanel inputPanelName = new JPanel(new BorderLayout());
@@ -239,7 +214,6 @@ public class WithTalk extends JFrame {
 
         JPanel bottomPanel = new JPanel(new GridLayout(5, 0)); // 입력 & 제어 한 패널로 묶음
 
-        //bottomPanel.add(b_select);
         bottomPanel.add(inputPanelOption);
         bottomPanel.add(inputPanelId);
         bottomPanel.add(inputPanelName);
