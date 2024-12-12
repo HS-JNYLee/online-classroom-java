@@ -1,6 +1,8 @@
 package ClassRoom;
 
 import User.User;
+import Utils.RoundedShadowPane;
+import Utils.Theme;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -14,7 +16,6 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Ellipse2D;
 import java.io.*;
 import java.net.*;
-import java.util.Objects;
 
 public class WithTalk extends JFrame {
     private JTextField t_input_id, t_input_name;
@@ -38,7 +39,6 @@ public class WithTalk extends JFrame {
     private String uFileName;
     private int frameHeight = 390;
     private int frameWidth = 510;
-    private int inputPanelHeight = 30;
 
     WithTalk(String serverAddress, int serverPort) {
         super("WithTalk");
@@ -62,10 +62,12 @@ public class WithTalk extends JFrame {
     }
 
     public void buildGUI() {
-        JPanel panel = new JPanel(new BorderLayout());
+        // 전체 패널 [이미지 선택 버튼+입력 패널 모음]
+        JPanel contentPanel = new JPanel(new BorderLayout());
 
-        SelectImageButton f = new SelectImageButton();
-        f.getButton().addActionListener(new ActionListener() {
+        // 이미지 선택 버튼
+        SelectImageButton selectImageButton = new SelectImageButton();
+        selectImageButton.getButton().addActionListener(new ActionListener() {
             JFileChooser chooser = new JFileChooser();
 
             @Override
@@ -88,26 +90,34 @@ public class WithTalk extends JFrame {
                 }
                 ImageIcon icon = new ImageIcon(uFileName);
                 Image scaledImage = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
-                f.setImage(scaledImage);
-                panel.repaint();
+                selectImageButton.setImage(scaledImage);
+                contentPanel.repaint();
             }
         });
 
-        // 중앙 정렬을 위한 패널 설정
-        JPanel panel1 = new JPanel();
-        panel1.setBackground(Theme.Ultramarine);
-        panel1.setLayout(new GridBagLayout());
-        panel1.add(f.getButton());
+        // 이미지 선택 버튼 wrapper 위치 조정 및 배경 설정
+        JPanel imageButtonWrapper = new JPanel();
+        imageButtonWrapper.setLayout(new GridBagLayout());
+        imageButtonWrapper.setBackground(Theme.Ultramarine);
+        imageButtonWrapper.add(selectImageButton.getButton()); // 이미지 선택 버튼 추가
 
-        panel.add(panel1, BorderLayout.CENTER);
+        // 둥근 그림진 사각형 패널 생성
+        RoundedShadowPane roundedShadowPane = new RoundedShadowPane();
 
-        JPanel bottomPanel = new JPanel(new GridLayout(1, 0)); // 입력 & 제어 한 패널로 묶음
-        bottomPanel.add(createInputPanel());
+        // 입력 패널 모음 wrapper
+        JPanel inputPanelWrapper = new JPanel();
+        inputPanelWrapper.setBackground(Theme.Grey);
+        inputPanelWrapper.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        inputPanelWrapper.add(createInputPanel(), BorderLayout.CENTER); // 입력 패널 모음 추가
+        
+        roundedShadowPane.setContentPane(inputPanelWrapper); // 둥근 사각형 팬에 input wrapper 추가
 
-        panel.add(bottomPanel, BorderLayout.SOUTH);
-        panel.setBackground(Theme.Ultramarine);
-        panel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
-        add(panel, BorderLayout.CENTER);
+        contentPanel.setBackground(Theme.Ultramarine);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(0, 50, 0, 50));
+        contentPanel.add(imageButtonWrapper, BorderLayout.CENTER); // 이미지 버튼 배치 (중앙)
+        contentPanel.add(roundedShadowPane, BorderLayout.SOUTH); // 둥근 사각형 팬 배치 (남쪽)
+        
+        add(contentPanel, BorderLayout.CENTER); // 전체 패널 프레임에 추가
     }
 
     // 텍스트 화면 패널
@@ -212,14 +222,13 @@ public class WithTalk extends JFrame {
         JPanel entrancePanel = new JPanel(new BorderLayout());
         entrancePanel.add(b_send, BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel(new GridLayout(5, 0)); // 입력 & 제어 한 패널로 묶음
+        JPanel bottomPanel = new JPanel(new GridLayout(4, 0)); // 입력 & 제어 한 패널로 묶음
 
         bottomPanel.add(inputPanelOption);
         bottomPanel.add(inputPanelId);
         bottomPanel.add(inputPanelName);
         bottomPanel.add(entrancePanel);
-
-        b_select.setEnabled(false);
+        bottomPanel.setBackground(Theme.Ultramarine);
         return bottomPanel;
     }
 
