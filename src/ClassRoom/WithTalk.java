@@ -19,18 +19,13 @@ import java.util.Map;
 
 public class WithTalk extends JFrame {
     private JTextField t_id, t_input_name;
-    private JTextField t_userID, t_hostAddr, t_portNum;
-    private JTextPane t_display;
-    private DefaultStyledDocument document;
-    private JButton b_connect, b_disconnect, b_enter, b_exit, b_select;
+    private JButton b_enter;
     private JComboBox<String> cb;
     private String serverAddress;
     private int serverPort;
 
     private Socket socket;
     private ObjectOutputStream out;
-    private Reader in;
-    private BufferedOutputStream bos;
 
     private String uId;
     private String uName;
@@ -211,24 +206,15 @@ public class WithTalk extends JFrame {
     }
 
     public void printDisplay(String msg) {
-        int len = t_display.getDocument().getLength();
-        try {
-            document.insertString(len, msg + "\n", null);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-
-        t_display.setCaretPosition(len);
+        System.out.println(msg);
     }
 
     public void printDisplay(ImageIcon icon) {
-        t_display.setCaretPosition(t_display.getDocument().getLength());
         if(icon.getIconWidth() > 400) {
             Image img = icon.getImage();
             Image chanegImg = img.getScaledInstance(400, -1, Image.SCALE_SMOOTH);
             icon = new ImageIcon(chanegImg);
         }
-        t_display.insertIcon(icon);
         printDisplay("");
         t_id.setText("");
     }
@@ -317,9 +303,6 @@ public class WithTalk extends JFrame {
         try {
             receiveThread = null;
             socket.close();
-            b_connect.setEnabled(true); // 연결하기 활성화
-            b_disconnect.setEnabled(false); // 연결 끊기 비활성화
-            b_exit.setEnabled(true); // 종료하기 활성화
         } catch (IOException ex) {
             System.err.println("클라이언트 닫기 오류> "+ex.getMessage());
             System.exit(-1);
