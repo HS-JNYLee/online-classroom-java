@@ -44,7 +44,7 @@ public class MainStudScreenGUI extends JFrame {
     ); // 팀원들 최대 3명
 
     // 교수가 팀 활동을 시작했을 경우 활성화
-    private boolean teamActivityStatus = true;
+    private boolean teamActivityStatus = false;
 
     // 임시 user data
     Student LoginStudent = new Student("1", "김재호", new ImageIcon("./assets/icons/user_icon.png"), Roles.TEAM_LEADER);
@@ -52,10 +52,14 @@ public class MainStudScreenGUI extends JFrame {
 
     // 구현 예정 함수들
     // 메시지 송신
-    public void sendMsg(){ }
+    public void sendMsg(){
+
+    }
 
     // 메시지 수신 (Thread)
-    public void receiveMsg(){ }
+    public void receiveMsg(){
+
+    }
 
     // 교수가 화면 공유를 시작했을 경우 화면 수신 (Thread)
     public void receiveScreen(){ }
@@ -544,9 +548,11 @@ public class MainStudScreenGUI extends JFrame {
     }
 
     private JPanel addMessage(String msg, User user) {
-        ImageIcon profileImage;
-        String id;
-        String name;
+        String id = user.getId();
+        String name = user.getName();
+        ImageIcon profileImage = user.getProfileImage();
+        Image resize = profileImage.getImage().getScaledInstance(25,25, Image.SCALE_SMOOTH);
+        ((ImageIcon) profileImage).setImage(resize);
 
         // 송신된 메시지는 우측에, 수신된 메시지는 좌측에
         JPanel msgGroupPanel = new JPanel();
@@ -554,30 +560,19 @@ public class MainStudScreenGUI extends JFrame {
         msgGroupPanel.setBackground(Color.white);
         msgGroupPanel.setLayout(new BoxLayout(msgGroupPanel, BoxLayout.X_AXIS));
 
-        if (user instanceof Student && ((Student) user) == LoginStudent) {
-            // 송신자의 정보 (우측 정렬)
-            id = ((Student) user).getId();
-            name = ((Student) user).getName();
-            profileImage = ((Student) user).getProfileImage();
+        JLabel msgText = new JLabel(msg);
+        JLabel msgProfile = new JLabel(profileImage);
 
-            JLabel msgText = new JLabel(msg);
-            JLabel msgProfile = new JLabel(profileImage);
+        if (user instanceof Student && ((Student) user) == LoginStudent) { // 수신자의 정보 (우측 정렬)
 
-            // 우측 정렬을 위한 공간 추가
+            // 우측 정렬
             msgGroupPanel.add(Box.createHorizontalGlue());
             msgGroupPanel.add(msgText);
             msgGroupPanel.add(Box.createRigidArea(new Dimension(20, 0))); // Profile Image와 택스트 사이의 공백
             msgGroupPanel.add(msgProfile);
 
 //            msgGroupPanel.setBackground(Color.blue);
-        } else {
-            // 수신자의 정보 (좌측 정렬)
-            id = user.getId();
-            name = user.getName();
-            profileImage = user.getProfileImage();
-
-            JLabel msgProfile = new JLabel(profileImage);
-            JLabel msgText = new JLabel(msg);
+        } else { // 송신자의 정보 (좌측 정렬)
 
             // 좌측 정렬
             msgGroupPanel.add(msgProfile);
