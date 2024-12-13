@@ -14,6 +14,14 @@ public class Student extends User{
         this.id = id;
         this.name = name;
         this.profileImage = profileImage;
+        this.role = Roles.STUDENT;
+    }
+
+    public Student(String id, String name, ImageIcon profileImage, Roles roles){
+        this.id = id;
+        this.name = name;
+        this.profileImage = profileImage;
+        this.role = roles;
     }
 
     public int getTeamNum(){
