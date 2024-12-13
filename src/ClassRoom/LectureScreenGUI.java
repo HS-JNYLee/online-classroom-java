@@ -118,31 +118,49 @@ public class LectureScreenGUI extends JFrame {
     }
 
     public JPanel getButtonPanel() {
-        JPanel buttonWrapper = new JPanel(new BorderLayout());
-        JPanel buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.setBackground(Theme.Red);
+        // 나가기 버튼 아이콘
         PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon);
         exitButton.setPreferredSize(new Dimension(30, 31));
-        buttonPanel.add(exitButton, BorderLayout.WEST);
+        // ---------- 나가기 버튼 아이콘 끝
+        
+        // 나가기 라벨
         JLabel label = new JLabel("나가기");
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setForeground(Theme.White);
         label.setBackground(Theme.Red);
-        buttonPanel.add(label, BorderLayout.CENTER);
+        label.setForeground(Theme.White);
+        label.setHorizontalAlignment(JLabel.CENTER);
+        // ---------- 나가기 라벨 끝
 
+        // 나가기 버튼+라벨 배치 패널
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setBackground(Theme.Red);
         buttonPanel.setPreferredSize(new Dimension(100, 31));
+
+        buttonPanel.add(label, BorderLayout.CENTER);
+        buttonPanel.add(exitButton, BorderLayout.WEST);
+        // ---------- 나가기 버튼+라벨 배치 패널 끝
+
+        // 그림진 둥근 나가기 버튼+라벨
         RoundedShadowPane roundedShadowPane = new RoundedShadowPane();
-        roundedShadowPane.setContentPane(buttonPanel);
         roundedShadowPane.setBackground(Theme.Red);
+        roundedShadowPane.setContentPane(buttonPanel);
         roundedShadowPane.setPreferredSize(new Dimension(100, 31));
-        buttonWrapper.add(roundedShadowPane, BorderLayout.WEST);
-        buttonWrapper.setBorder(new EmptyBorder(5, 5, 0, 0));
+        // ---------- 그림진 둥근 나가기 버튼+라벨 끝
+
+        // BorderLayout CENTER 영역 차지를 위한 빈 패널
         JPanel emptyPanel = new JPanel();
         emptyPanel.setBackground(Theme.Ultramarine);
-        buttonWrapper.add(emptyPanel, BorderLayout.CENTER);
-        buttonWrapper.setPreferredSize(new Dimension(screenWidth, 57));
+        // ---------- 빈 패널 끝
 
+        // 나가기 버튼+라벨 배치 패널 (좌로 밀착)
+        JPanel buttonWrapper = new JPanel(new BorderLayout());
         buttonWrapper.setBackground(Theme.Ultramarine);
+        buttonWrapper.setPreferredSize(new Dimension(screenWidth, 57));
+        buttonWrapper.setBorder(new EmptyBorder(5, 5, 0, 0));
+
+        buttonWrapper.add(emptyPanel, BorderLayout.CENTER);
+        buttonWrapper.add(roundedShadowPane, BorderLayout.WEST);
+        // ---------- 나가기 버튼+라벨 배치 패널 (좌로 밀착) 끝
+
         return buttonWrapper;
     }
 
