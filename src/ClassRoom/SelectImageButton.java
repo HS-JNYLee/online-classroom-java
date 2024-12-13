@@ -20,6 +20,17 @@ public class SelectImageButton {
         button.setBorderPainted(false);
     }
 
+    private int width = 100;
+    private int height = 100;
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
     private JButton buildButton() {
         return new JButton() {
 
@@ -66,8 +77,7 @@ public class SelectImageButton {
 
             @Override
             public Dimension getPreferredSize() {
-                // 버튼의 기본 크기를 설정
-                return new Dimension(100, 100);
+                return new Dimension(width, height);
             }
         };
     }
