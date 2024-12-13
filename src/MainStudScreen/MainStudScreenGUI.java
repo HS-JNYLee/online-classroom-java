@@ -8,6 +8,7 @@ import User.Roles;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.text.Utilities;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -105,7 +106,7 @@ public class MainStudScreenGUI extends JFrame {
     }
 
     private JPanel createCntlPanel(){
-        JPanel btnsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50,30));
+        JPanel btnsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 80,5));
 
         // 안에 포함된 컴포넌트 구성
         btnsPanel.add(createMicBtn()); // 마이크 버튼
@@ -310,13 +311,11 @@ public class MainStudScreenGUI extends JFrame {
         // 더 나아가 화면 필기를 할때는 Center에 그림판을 위치시키기만 하면됨(?)
         this.screenPanel = new JPanel(new BorderLayout());
 
-        screenPanel.setBackground(new Color(39, 81, 171));
-
         // 현재 로그인한 사용자의 Profile 표시
         JPanel profilePanelMargin = new JPanel(new GridBagLayout());
+        profilePanelMargin.setBackground(new Color(39, 81, 171));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.NONE;
-
         profilePanelMargin.add(createUserProfilePanel(), gbc);
 
         screenPanel.add(BorderLayout.CENTER, profilePanelMargin);
@@ -327,76 +326,61 @@ public class MainStudScreenGUI extends JFrame {
         return screenPanel;
     }
 
-    class RoundedBorder implements Border {
-        private int arcWidth;
-        private int arcHeight;
-        private Color borderColor;
-        private int thickness;
-
-        public RoundedBorder(int arcWidth, int arcHeight, Color borderColor, int thickness) {
-            this.arcWidth = arcWidth;
-            this.arcHeight = arcHeight;
-            this.borderColor = borderColor;
-            this.thickness = thickness;
-        }
-
-        @Override
-        public Insets getBorderInsets(Component c) {
-            return new Insets(thickness, thickness, thickness, thickness);
-        }
-
-        @Override
-        public boolean isBorderOpaque() {
-            return true;
-        }
-
-        @Override
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            // 테두리 색상 및 두께 설정
-            g2.setColor(borderColor);
-            g2.setStroke(new BasicStroke(thickness));
-
-            // 둥근 사각형 테두리 그리기
-            g2.drawRoundRect(x, y, width - 1, height - 1, arcWidth, arcHeight);
-        }
-    }
-
     private JPanel createUserProfilePanel(){
         JPanel profilePanel = new JPanel(new GridLayout(2,1,0,50));
         profilePanel.setBackground(new Color(27, 116, 231));
-        profilePanel.setPreferredSize(new Dimension(300,300));
 
         // User Profile 이미지
         JLabel userImageLabel = new JLabel();
         ImageIcon icon = LoginStudent.getProfileImage();
-        Image img = icon.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH); // 원하는 크기로 조정
+        Image img = icon.getImage().getScaledInstance(35, 35, Image.SCALE_SMOOTH); // 원하는 크기로 조정
         userImageLabel.setHorizontalAlignment(JLabel.CENTER); // 가로 중앙 정렬
         userImageLabel.setVerticalAlignment(JLabel.CENTER); // 세로 중앙 정렬
         userImageLabel.setIcon(new ImageIcon(img));
         userImageLabel.setOpaque(true);
         userImageLabel.setBackground(new Color(27, 116, 231));
+        userImageLabel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         profilePanel.add(userImageLabel);
 
         //User 이름
         JLabel userName = new JLabel(LoginStudent.getName());
         userName.setHorizontalAlignment(JLabel.CENTER); // 가로 중앙 정렬
         userName.setVerticalAlignment(JLabel.CENTER); // 세로 중앙 정렬
-        userName.setFont(new Font("맑은 고딕", Font.PLAIN, 40));
+        userName.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
         userName.setOpaque(true);
         userName.setBackground(new Color(27, 116, 231));
         profilePanel.add(userName);
 
         // user 이름, Profile 이미지를 감싸는 Padding
-        JPanel padding = new JPanel();
-        padding.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
-        padding.setBackground(new Color(39, 81, 171));
+        JPanel profilePadding = new JPanel(new BorderLayout());
+        profilePadding.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
+        profilePadding.setBackground(new Color(39, 81, 171));
 
-        padding.add(profilePanel);
+        profilePadding.add(profilePanel, BorderLayout.CENTER);
 
-        return padding;
+        JPanel tmpEast = new JPanel();
+        tmpEast.setBorder(BorderFactory.createEmptyBorder(50,30,50,30));
+        tmpEast.setBackground(new Color(39, 81, 171));
+
+        JPanel tmpWest = new JPanel();
+        tmpWest.setBorder(BorderFactory.createEmptyBorder(50,30,50,30));
+        tmpWest.setBackground(new Color(39, 81, 171));
+//        tmpWest.setBackground(Color.red);
+
+        profilePadding.add(tmpEast, BorderLayout.EAST);
+        profilePadding.add(tmpWest, BorderLayout.WEST);
+
+        JPanel tmpSouth = new JPanel(new FlowLayout());
+        tmpSouth.add(new JLabel("Apple"));
+        tmpSouth.add(new JLabel("Apple"));
+        tmpSouth.add(new JLabel("Apple"));
+        tmpSouth.add(new JLabel("Apple"));
+        tmpSouth.add(new JLabel("Apple"));
+
+
+        profilePadding.add(tmpSouth, BorderLayout.SOUTH);
+
+        return profilePadding;
     }
 
     private JPanel createChatRoomPanel(){
