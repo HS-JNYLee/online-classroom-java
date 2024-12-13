@@ -20,10 +20,11 @@ public class LectureScreenGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
-    private JPanel layeredPane;
-    private JPanel screenPanel;
+
     private DrawingPanel d;
     public void buildGUI() {
+        d = new DrawingPanel(); // b4, b5, b6 참조
+
         // 팔레트 패널
         JPanel palettePanel = createPalettePanel();
         // 앱 제어 패널
@@ -32,9 +33,9 @@ public class LectureScreenGUI extends JFrame {
         JPanel buttonPanel = createButtonPanel();
 
         // 수업 화면 패널
-        screenPanel = createScreenPanel();
+        JPanel screenPanel = createScreenPanel();
         screenPanel.setPreferredSize(new Dimension(842, 631));
-        d = new DrawingPanel(b3, b2);
+        d.setButtons(b3, b2);
         d.setLayout(new BorderLayout());
         d.setOpaque(false);
         d.setPreferredSize(new Dimension(842, 631));
@@ -93,14 +94,15 @@ public class LectureScreenGUI extends JFrame {
         b2 = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
         // 연필
         b3 = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
-
         // 연필 색 - 빨강
-        PaletteButton b4 = new PaletteColorButton(Icons.redPaletteIcon, Theme.Red);
-
+        PaletteColorButton b4 = new PaletteColorButton(Icons.redPaletteIcon, Theme.Red);
+        b4.setDrawingPanel(d);
         // 연필 색 - 초록
-        PaletteButton b5 = new PaletteColorButton(Icons.greenPaletteIcon, Theme.Green);
+        PaletteColorButton b5 = new PaletteColorButton(Icons.greenPaletteIcon, Theme.Green);
+        b5.setDrawingPanel(d);
         // 연픽 색 - 파랑
-        PaletteButton b6 = new PaletteColorButton(Icons.bluePaletteIcon, Theme.Blue);
+        PaletteColorButton b6 = new PaletteColorButton(Icons.bluePaletteIcon, Theme.Blue);
+        b6.setDrawingPanel(d);
 
         JPanel palettePanel = new JPanel();
         palettePanel.setBackground(Theme.White);
