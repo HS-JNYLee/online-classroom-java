@@ -10,20 +10,23 @@ import java.awt.image.BufferedImage;
 public class LectureScreenGUI extends JFrame {
     private final int screenWidth = 960;
     private final int screenHeight = 540;
+    private PaletteButton b_pen;
+    private PaletteButton b_eraser;
+    private DrawingPanel drawingPanel;
+
     LectureScreenGUI() {
         super("수업 중...");
 
         buildGUI();
 
-        setLocationRelativeTo(null);
         setSize(screenWidth, screenHeight);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+        setLocationRelativeTo(null);
     }
 
-    private DrawingPanel d;
     public void buildGUI() {
-        d = new DrawingPanel(); // b4, b5, b6 참조
+        drawingPanel = new DrawingPanel(); // b4, b5, b6 참조
 
         // 팔레트 패널
         JPanel palettePanel = createPalettePanel();
@@ -35,11 +38,11 @@ public class LectureScreenGUI extends JFrame {
         // 수업 화면 패널
         JPanel screenPanel = createScreenPanel();
         screenPanel.setPreferredSize(new Dimension(842, 631));
-        d.setButtons(b3, b2);
-        d.setLayout(new BorderLayout());
-        d.setOpaque(false);
-        d.setPreferredSize(new Dimension(842, 631));
-        d.add(screenPanel, BorderLayout.CENTER);
+        drawingPanel.setButtons(b_pen, b_eraser);
+        drawingPanel.setLayout(new BorderLayout());
+        drawingPanel.setOpaque(false);
+        drawingPanel.setPreferredSize(new Dimension(842, 631));
+        drawingPanel.add(screenPanel, BorderLayout.CENTER);
 
         // 빈 패널 (위치 조정용)
         JPanel emptyPanel = new JPanel();
@@ -54,7 +57,7 @@ public class LectureScreenGUI extends JFrame {
         contentPanel.add(buttonPanel, BorderLayout.NORTH);
         contentPanel.add(palettePanel, BorderLayout.WEST);
         contentPanel.add(controlPanel, BorderLayout.SOUTH);
-        contentPanel.add(d, BorderLayout.CENTER);
+        contentPanel.add(drawingPanel, BorderLayout.CENTER);
         // ---------- 전체 패널 끝
         add(contentPanel);
     }
@@ -67,7 +70,7 @@ public class LectureScreenGUI extends JFrame {
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
         
         // (임시) 영상 녹화 테스트용
-        new Thread(() -> simulateVideoFrames(videoPanel, bookmarkSlider)).start();
+        new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
         // 영상+슬라이더 패널
         JPanel screenPanel = new JPanel(new BorderLayout());
@@ -83,39 +86,41 @@ public class LectureScreenGUI extends JFrame {
 
         return roundedPane;
     }
-    PaletteButton b3;
-    PaletteButton b2;
+
+    JButton b_save;
     // 팔레트 패널 함수
     public JPanel createPalettePanel() {
         // 팔레트 버튼 모음
         // 북마크
-        PaletteButton b1 = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
+        PaletteButton b_bookmark = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
         // 지우개
-        b2 = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
+        b_eraser = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
         // 연필
-        b3 = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
+        b_pen = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
         // 연필 색 - 빨강
-        PaletteColorButton b4 = new PaletteColorButton(Icons.redPaletteIcon, Theme.Red);
-        b4.setDrawingPanel(d);
+        PaletteColorButton b_red = new PaletteColorButton(Icons.redPaletteIcon, Theme.Red);
+        b_red.setDrawingPanel(drawingPanel);
         // 연필 색 - 초록
-        PaletteColorButton b5 = new PaletteColorButton(Icons.greenPaletteIcon, Theme.Green);
-        b5.setDrawingPanel(d);
+        PaletteColorButton b_green = new PaletteColorButton(Icons.greenPaletteIcon, Theme.Green);
+        b_green.setDrawingPanel(drawingPanel);
         // 연픽 색 - 파랑
-        PaletteColorButton b6 = new PaletteColorButton(Icons.bluePaletteIcon, Theme.Blue);
-        b6.setDrawingPanel(d);
+        PaletteColorButton b_blue = new PaletteColorButton(Icons.bluePaletteIcon, Theme.Blue);
+        b_blue.setDrawingPanel(drawingPanel);
 
         JPanel palettePanel = new JPanel();
         palettePanel.setBackground(Theme.White);
         palettePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         palettePanel.setPreferredSize(new Dimension(164, screenHeight));
-        palettePanel.setLayout(new GridLayout(6, 1, 10, 10));
+        palettePanel.setLayout(new GridLayout(7, 1, 10, 10));
+        b_save = new JButton();
+        palettePanel.add(b_bookmark);
+        palettePanel.add(b_eraser);
+        palettePanel.add(b_pen);
+        palettePanel.add(b_red);
+        palettePanel.add(b_green);
+        palettePanel.add(b_blue);
+        palettePanel.add(b_save);
 
-        palettePanel.add(b1);
-        palettePanel.add(b2);
-        palettePanel.add(b3);
-        palettePanel.add(b4);
-        palettePanel.add(b5);
-        palettePanel.add(b6);
         // ---------- 팔레트 버튼 모음 끝
 
         // 팔레트 패널 둥글게 만들기
@@ -203,7 +208,7 @@ public class LectureScreenGUI extends JFrame {
         new LectureScreenGUI();
     }
 
-    private void simulateVideoFrames(VideoPanel videoPanel, BookmarkSlider bookmarkSlider) {
+    private void simulateVideoFrames(BookmarkSlider bookmarkSlider) {
         try {
             int frameCount = 0;
             while (true) {
@@ -212,12 +217,13 @@ public class LectureScreenGUI extends JFrame {
                 g.setColor(new Color((frameCount * 10) % 255, (frameCount * 5) % 255, (frameCount * 3) % 255));
                 g.fillRect(0, 0, 600, 340);
                 g.setColor(Color.WHITE);
-                g.drawString("Frame: " + frameCount, 300, 170);
-                g.drawImage(d.getDrawingImage(), 0, 0, null);
+                g.drawString("Frame: " + frameCount, 250, 170);
                 g.dispose();
+
                 SwingUtilities.invokeLater(() -> {
-                videoPanel.updateFrame(frame);
-                bookmarkSlider.addFrame(frame);
+                    bookmarkSlider.setDrawingPanel(drawingPanel);
+                    bookmarkSlider.addFrame(frame);
+                    bookmarkSlider.setButton(b_save);
                 });
                 frameCount++;
                 Thread.sleep(100);
@@ -225,15 +231,6 @@ public class LectureScreenGUI extends JFrame {
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-    // Combine Video Frame and Drawing
-    private static BufferedImage combineImages(BufferedImage videoFrame, BufferedImage drawing) {
-        BufferedImage combined = new BufferedImage(videoFrame.getWidth(), videoFrame.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = combined.createGraphics();
-        g.drawImage(videoFrame, 0, 0, null);
-        g.drawImage(drawing, 0, 0, null);
-        g.dispose();
-        return combined;
     }
 }
 

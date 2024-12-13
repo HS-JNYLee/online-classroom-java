@@ -90,6 +90,16 @@ class BookmarkSlider extends JPanel {
     private final JPanel markerPanel;
     private boolean isDragging = false;
 
+    public void setButton(JButton button) {
+        button.addActionListener(_ -> {
+            int frameIndex = slider.getValue();
+            BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
+            frameBuffer.set(frameIndex, combinedImage);
+            drawingPanel.removePaint();
+            videoPanel.updateFrame(frameBuffer.get(frameIndex));
+        });
+    }
+
     public BookmarkSlider(VideoPanel videoPanel) {
         this.videoPanel = videoPanel;
         this.frameBuffer = new ArrayList<>();
@@ -105,8 +115,11 @@ class BookmarkSlider extends JPanel {
                 isDragging = true;
                 int frameIndex = slider.getValue();
                 if (frameIndex < frameBuffer.size()) {
-                    videoPanel.updateFrame(frameBuffer.get(frameIndex));
+                    BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
+                    videoPanel.updateFrame(combinedImage);
+
                 }
+                System.out.println(frameIndex);
             } else {
                 isDragging = false;
             }
@@ -122,15 +135,34 @@ class BookmarkSlider extends JPanel {
     }
 
     public void addFrame(BufferedImage frame) {
-        if (frameBuffer.size() >= 300) {
-            frameBuffer.remove(0);
+        BufferedImage combinedImage = frame;
+
+        if (frameBuffer.size() >= 36000) { // 0.1 단위로 36000장(약 1시간 분량)
+            frameBuffer.removeFirst();
         }
         frameBuffer.add(frame);
         slider.setMaximum(frameBuffer.size() - 1);
-        if (!isDragging) {
-            slider.setValue(frameBuffer.size() - 1);
+        // 최신까지 당긴다면, 라이브로 유지
+        if (slider.getValue() == frameBuffer.size() - 2) { // 업데이트 직전 프레임에 위치한다면,
+            combinedImage = combineImages(frameBuffer.get(slider.getValue()), drawingPanel.getDrawingImage());
+            slider.setValue(frameBuffer.size() - 1); // 최신 프레임 상태로 유지
+            videoPanel.updateFrame(combinedImage); // 최신 프레임으로 업데이트
         }
         updateMarkers();
+    }
+
+    private DrawingPanel drawingPanel;
+    public void setDrawingPanel(DrawingPanel drawingPanel) {
+        this.drawingPanel = drawingPanel;
+    }
+
+    private BufferedImage combineImages(BufferedImage videoFrame, BufferedImage drawing) {
+        BufferedImage combined = new BufferedImage(videoFrame.getWidth(), videoFrame.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = combined.createGraphics();
+        g.drawImage(videoFrame, 0, 0, null);
+        g.drawImage(drawing, 0, 0, null);
+        g.dispose();
+        return combined;
     }
 
     public void addBookmark() {

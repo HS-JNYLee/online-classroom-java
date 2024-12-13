@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 
 // Panel for drawing annotations
 public class DrawingPanel extends JPanel {
-    private final BufferedImage drawingImage;
+    private BufferedImage drawingImage;
     private Color color;
     private PaletteButton penButton;
     private PaletteButton eraserButton;
@@ -66,6 +66,10 @@ public class DrawingPanel extends JPanel {
         g.drawLine(prevPoint.x, prevPoint.y, currPoint.x, currPoint.y);
         g.dispose();
         repaint();
+    }
+
+    public void removePaint() {
+        drawingImage = new BufferedImage(600, 340, BufferedImage.TYPE_INT_ARGB);
     }
 
     public BufferedImage getDrawingImage() {
