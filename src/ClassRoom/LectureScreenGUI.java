@@ -219,7 +219,7 @@ public class LectureScreenGUI extends JFrame {
                 g.dispose();
 
                 SwingUtilities.invokeLater(() -> {
-                    videoPanel.updateFrame(frame);
+                    // videoPanel.updateFrame(frame);
                     bookmarkSlider.addFrame(frame);
                 });
                 frameCount++;

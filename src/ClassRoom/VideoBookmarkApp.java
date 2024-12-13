@@ -107,6 +107,7 @@ class BookmarkSlider extends JPanel {
                 if (frameIndex < frameBuffer.size()) {
                     videoPanel.updateFrame(frameBuffer.get(frameIndex));
                 }
+                System.out.println(frameIndex);
             } else {
                 isDragging = false;
             }
@@ -127,8 +128,10 @@ class BookmarkSlider extends JPanel {
         }
         frameBuffer.add(frame);
         slider.setMaximum(frameBuffer.size() - 1);
-        if (!isDragging) {
-            slider.setValue(frameBuffer.size() - 1);
+        // 최신까지 당긴다면, 라이브로 유지
+        if (slider.getValue() == frameBuffer.size() - 2) { // 업데이트 직전 프레임에 위치한다면,
+            slider.setValue(frameBuffer.size() - 1); // 최신 프레임 상태로 유지
+            videoPanel.updateFrame(frame); // 최신 프레임으로 업데이트
         }
         updateMarkers();
     }
