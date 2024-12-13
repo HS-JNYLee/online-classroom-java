@@ -1,9 +1,6 @@
 package ClassRoom;
 
-import Utils.Icons;
-import Utils.RoundedPane;
-import Utils.RoundedShadowPane;
-import Utils.Theme;
+import Utils.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,8 +8,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class LectureScreenGUI extends JFrame {
-    private int screenWidth = 912;
-    private int screenHeight = 513;
+    private final int screenWidth = 960;
+    private final int screenHeight = 540;
     LectureScreenGUI() {
         super("Lecture Screen");
 
@@ -30,7 +27,7 @@ public class LectureScreenGUI extends JFrame {
         JPanel buttonPanel = getButtonPanel();
         JPanel screenPanel = getScreenPanel();
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setPreferredSize(new Dimension(156, screenHeight));
+        emptyPanel.setPreferredSize(new Dimension(164, screenHeight));
         emptyPanel.setBackground(Theme.Ultramarine);
 
         JPanel contentPane = new JPanel(new BorderLayout());
@@ -58,27 +55,19 @@ public class LectureScreenGUI extends JFrame {
         return roundedPane;
     }
 
-    public JButton createIconButton(ImageIcon icon) {
-        JButton iconButton = new JButton();
-        iconButton.setBackground(Theme.White);
-        iconButton.setBorderPainted(false);
-        iconButton.setIcon(icon);
-        return iconButton;
-    }
-
     public JPanel getPalettePanel() {
         JPanel palettePanel = new JPanel();
         palettePanel.setLayout(new GridLayout(6, 1, 10, 10));
         palettePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         palettePanel.setBackground(Theme.White);
-        palettePanel.setPreferredSize(new Dimension(156, screenHeight));
+        palettePanel.setPreferredSize(new Dimension(164, screenHeight));
 
-        JButton b1 = createIconButton(Icons.bookmarkInactiveIcon);
-        JButton b2 = createIconButton(Icons.eraserInactiveIcon);
-        JButton b3 = createIconButton(Icons.penInactiveIcon);
-        JButton b4 = createIconButton(Icons.redPaletteIcon);
-        JButton b5 = createIconButton(Icons.greenPaletteIcon);
-        JButton b6 = createIconButton(Icons.bluePaletteIcon);
+        PaletteButton b1 = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
+        PaletteButton b2 = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
+        PaletteButton b3 = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
+        PaletteButton b4 = new PaletteColorButton(Icons.redPaletteIcon);
+        PaletteButton b5 = new PaletteColorButton(Icons.greenPaletteIcon);
+        PaletteButton b6 = new PaletteColorButton(Icons.bluePaletteIcon);
 
         palettePanel.add(b1);
         palettePanel.add(b2);
@@ -90,10 +79,10 @@ public class LectureScreenGUI extends JFrame {
         RoundedPane roundedPane = new RoundedPane();
         roundedPane.setContentPane(palettePanel);
         roundedPane.setBackground(Theme.White);
-        roundedPane.setPreferredSize(new Dimension(43, 240));
+        roundedPane.setPreferredSize(new Dimension(45, 253));
         JPanel wrapper = new JPanel(new GridBagLayout());
         wrapper.setBackground(Theme.Ultramarine);
-        wrapper.setPreferredSize(new Dimension(156, screenHeight));
+        wrapper.setPreferredSize(new Dimension(164, screenHeight));
         wrapper.add(roundedPane);
         return wrapper;
     }
@@ -105,7 +94,7 @@ public class LectureScreenGUI extends JFrame {
         label.setForeground(Color.WHITE);
         label.setSize(screenWidth, screenHeight);
         controlPanel.add(label);
-        controlPanel.setPreferredSize(new Dimension(screenWidth, 65));
+        controlPanel.setPreferredSize(new Dimension(screenWidth, 68));
         return controlPanel;
     }
 
@@ -113,9 +102,9 @@ public class LectureScreenGUI extends JFrame {
         JPanel buttonWrapper = new JPanel(new BorderLayout());
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(Theme.Red);
-        JButton exitbutton = createIconButton(Icons.exitIcon);
-        exitbutton.setPreferredSize(new Dimension(30, 31));
-        buttonPanel.add(exitbutton, BorderLayout.WEST);
+        PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon);
+        exitButton.setPreferredSize(new Dimension(30, 31));
+        buttonPanel.add(exitButton, BorderLayout.WEST);
         JLabel label = new JLabel("나가기");
         label.setHorizontalAlignment(JLabel.CENTER);
         label.setForeground(Theme.White);
@@ -139,29 +128,29 @@ public class LectureScreenGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        LectureScreenGUI gui = new LectureScreenGUI();
+        new LectureScreenGUI();
     }
 
     private static void simulateVideoFrames(VideoPanel videoPanel, BookmarkSlider bookmarkSlider) {
         try {
             int frameCount = 0;
             while (true) {
-                BufferedImage frame = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+                BufferedImage frame = new BufferedImage(842, 631, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g = frame.createGraphics();
                 g.setColor(new Color((frameCount * 10) % 255, (frameCount * 5) % 255, (frameCount * 3) % 255));
-                g.fillRect(0, 0, 800, 600);
+                g.fillRect(0, 0, 842, 631);
                 g.setColor(Color.WHITE);
-                g.drawString("Frame: " + frameCount, 350, 300);
+                g.drawString("Frame: " + frameCount, 421, 315);
                 g.dispose();
 
                 videoPanel.updateFrame(frame);
                 bookmarkSlider.addFrame(frame);
 
                 frameCount++;
-                Thread.sleep(1000); // Simulate 10 FPS
+                Thread.sleep(1000);
             }
         } catch (InterruptedException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 }
