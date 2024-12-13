@@ -335,14 +335,6 @@ public class WithTalk extends JFrame {
         }
     }
 
-    private void sendMessage() {
-        String message = t_id.getText();
-        if (message.isEmpty()) return;
-
-        send(new ChatMsg(uId, ChatMsg.MODE_TX_STRING, message));
-        t_id.setText("");
-    }
-
     private void sendUserID() {
         uId = "guest" + getLocalAddr().split("\\.")[3];
 
