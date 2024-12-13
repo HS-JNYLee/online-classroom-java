@@ -70,7 +70,7 @@ public class LectureScreenGUI extends JFrame {
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
         
         // (임시) 영상 녹화 테스트용
-        new Thread(() -> simulateVideoFrames(videoPanel, bookmarkSlider)).start();
+        new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
         // 영상+슬라이더 패널
         JPanel screenPanel = new JPanel(new BorderLayout());
@@ -205,7 +205,7 @@ public class LectureScreenGUI extends JFrame {
         new LectureScreenGUI();
     }
 
-    private void simulateVideoFrames(VideoPanel videoPanel, BookmarkSlider bookmarkSlider) {
+    private void simulateVideoFrames(BookmarkSlider bookmarkSlider) {
         try {
             int frameCount = 0;
             while (true) {
@@ -227,15 +227,6 @@ public class LectureScreenGUI extends JFrame {
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-    // Combine Video Frame and Drawing
-    private static BufferedImage combineImages(BufferedImage videoFrame, BufferedImage drawing) {
-        BufferedImage combined = new BufferedImage(videoFrame.getWidth(), videoFrame.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = combined.createGraphics();
-        g.drawImage(videoFrame, 0, 0, null);
-        g.drawImage(drawing, 0, 0, null);
-        g.dispose();
-        return combined;
     }
 }
 
