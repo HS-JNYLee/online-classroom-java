@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 
 // Panel for drawing annotations
 public class DrawingPanel extends JPanel {
-    private final BufferedImage drawingImage;
+    private BufferedImage drawingImage;
     private Color color;
     private PaletteButton penButton;
     private PaletteButton eraserButton;
