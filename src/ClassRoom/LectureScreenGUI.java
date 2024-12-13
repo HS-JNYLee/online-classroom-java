@@ -12,6 +12,7 @@ public class LectureScreenGUI extends JFrame {
     private final int screenHeight = 540;
     private PaletteButton b_pen;
     private PaletteButton b_eraser;
+    private PaletteButton b_bookmark;
     private DrawingPanel drawingPanel;
 
     LectureScreenGUI() {
@@ -68,7 +69,8 @@ public class LectureScreenGUI extends JFrame {
         VideoPanel videoPanel = new VideoPanel();
         // 슬라이더 - 타임라인 조정
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
-        
+        bookmarkSlider.setBookmarkButton(b_bookmark);
+
         // (임시) 영상 녹화 테스트용
         new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
@@ -92,7 +94,7 @@ public class LectureScreenGUI extends JFrame {
     public JPanel createPalettePanel() {
         // 팔레트 버튼 모음
         // 북마크
-        PaletteButton b_bookmark = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
+        b_bookmark = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
         // 지우개
         b_eraser = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
         // 연필

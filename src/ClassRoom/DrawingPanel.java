@@ -39,8 +39,10 @@ public class DrawingPanel extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if (penButton.getActive()) {
+                    eraserButton.inactive();
                     drawLine(e.getPoint(), color, prevPoint); // 연필은 빨간색
                 } else if (eraserButton.getActive()) {
+                    penButton.inactive();
                     erase(e.getPoint()); // 지우개 기능
                 }
                 prevPoint = e.getPoint();
