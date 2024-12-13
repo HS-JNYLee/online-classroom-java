@@ -172,7 +172,12 @@ public class LectureScreenGUI extends JFrame {
     // 나가기 버튼 배치 패널
     public JPanel createButtonPanel() {
         // 나가기 버튼 아이콘
-        PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon);
+        PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon) {
+            @Override
+            public void onClick() {
+                ExitModal.showModalDialog(LectureScreenGUI.this);
+            }
+        };
         exitButton.setPreferredSize(new Dimension(30, 31));
         // ---------- 나가기 버튼 아이콘 끝
         
