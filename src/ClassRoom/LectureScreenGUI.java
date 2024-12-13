@@ -215,11 +215,10 @@ public class LectureScreenGUI extends JFrame {
                 g.fillRect(0, 0, 600, 340);
                 g.setColor(Color.WHITE);
                 g.drawString("Frame: " + frameCount, 250, 170);
-                g.drawImage(drawingPanel.getDrawingImage(), 0, 0, null);
                 g.dispose();
 
                 SwingUtilities.invokeLater(() -> {
-                    // videoPanel.updateFrame(frame);
+                    bookmarkSlider.setDrawingPanel(drawingPanel);
                     bookmarkSlider.addFrame(frame);
                 });
                 frameCount++;
