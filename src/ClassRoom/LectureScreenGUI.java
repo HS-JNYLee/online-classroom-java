@@ -2,9 +2,11 @@ package ClassRoom;
 
 import Utils.Icons;
 import Utils.RoundedPane;
+import Utils.RoundedShadowPane;
 import Utils.Theme;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
@@ -95,6 +97,7 @@ public class LectureScreenGUI extends JFrame {
         wrapper.add(roundedPane);
         return wrapper;
     }
+
     public JPanel getControlPanel() {
         JPanel controlPanel = new JPanel(new GridBagLayout());
         controlPanel.setBackground(Theme.Ultramarine);
@@ -105,11 +108,34 @@ public class LectureScreenGUI extends JFrame {
         controlPanel.setPreferredSize(new Dimension(screenWidth, 65));
         return controlPanel;
     }
+
     public JPanel getButtonPanel() {
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(Theme.Ultramarine);
-        buttonPanel.setPreferredSize(new Dimension(screenWidth, 32));
-        return buttonPanel;
+        JPanel buttonWrapper = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setBackground(Theme.Red);
+        JButton exitbutton = createIconButton(Icons.exitIcon);
+        exitbutton.setPreferredSize(new Dimension(30, 31));
+        buttonPanel.add(exitbutton, BorderLayout.WEST);
+        JLabel label = new JLabel("나가기");
+        label.setHorizontalAlignment(JLabel.CENTER);
+        label.setForeground(Theme.White);
+        label.setBackground(Theme.Red);
+        buttonPanel.add(label, BorderLayout.CENTER);
+
+        buttonPanel.setPreferredSize(new Dimension(100, 31));
+        RoundedShadowPane roundedShadowPane = new RoundedShadowPane();
+        roundedShadowPane.setContentPane(buttonPanel);
+        roundedShadowPane.setBackground(Theme.Red);
+        roundedShadowPane.setPreferredSize(new Dimension(100, 31));
+        buttonWrapper.add(roundedShadowPane, BorderLayout.WEST);
+        buttonWrapper.setBorder(new EmptyBorder(5, 5, 0, 0));
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setBackground(Theme.Ultramarine);
+        buttonWrapper.add(emptyPanel, BorderLayout.CENTER);
+        buttonWrapper.setPreferredSize(new Dimension(screenWidth, 57));
+
+        buttonWrapper.setBackground(Theme.Ultramarine);
+        return buttonWrapper;
     }
 
     public static void main(String[] args) {

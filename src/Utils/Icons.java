@@ -15,7 +15,7 @@ public class Icons {
     public static ImageIcon redPaletteIcon = createCircleIcon(Theme.Red);
     public static ImageIcon greenPaletteIcon = createCircleIcon(Theme.Green);
     public static ImageIcon bluePaletteIcon = createCircleIcon(Theme.Blue);
-
+    public static ImageIcon exitIcon = setIcon("assets/icons/exit.png");
     private static ImageIcon setIcon(String path) {
         ImageIcon icon = new ImageIcon(path);
         Image image = icon.getImage();
