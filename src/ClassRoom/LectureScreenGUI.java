@@ -11,33 +11,41 @@ public class LectureScreenGUI extends JFrame {
     private final int screenWidth = 960;
     private final int screenHeight = 540;
     LectureScreenGUI() {
-        super("Lecture Screen");
+        super("수업 중...");
 
         buildGUI();
 
+        setLocationRelativeTo(null);
         setSize(screenWidth, screenHeight);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setVisible(true);
     }
 
     public void buildGUI() {
+        // 팔레트 패널
         JPanel palettePanel = getPalettePanel();
+        // 앱 제어 패널
         JPanel controlPanel = getControlPanel();
+        // 나가기 버튼 패널
         JPanel buttonPanel = getButtonPanel();
+        // 수업 화면 패널
         JPanel screenPanel = getScreenPanel();
+        // 빈 패널 (위치 조정용)
         JPanel emptyPanel = new JPanel();
         emptyPanel.setPreferredSize(new Dimension(164, screenHeight));
         emptyPanel.setBackground(Theme.Ultramarine);
 
-        JPanel contentPane = new JPanel(new BorderLayout());
-        contentPane.add(buttonPanel, BorderLayout.NORTH);
-        contentPane.add(emptyPanel, BorderLayout.EAST);
-        contentPane.add(palettePanel, BorderLayout.WEST);
-        contentPane.add(controlPanel, BorderLayout.SOUTH);
-        contentPane.add(screenPanel, BorderLayout.CENTER);
-        contentPane.setBackground(Theme.Ultramarine);
-        add(contentPane);
+        // 실시간 녹화 전체 패널
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(Theme.Ultramarine);
+
+        contentPanel.add(emptyPanel, BorderLayout.EAST);
+        contentPanel.add(buttonPanel, BorderLayout.NORTH);
+        contentPanel.add(palettePanel, BorderLayout.WEST);
+        contentPanel.add(controlPanel, BorderLayout.SOUTH);
+        contentPanel.add(screenPanel, BorderLayout.CENTER);
+        // ---------- 전체 패널 끝
+        add(contentPanel);
     }
 
     public JPanel getScreenPanel() {
