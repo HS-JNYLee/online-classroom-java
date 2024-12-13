@@ -35,14 +35,12 @@ public class LectureScreenGUI extends JFrame {
 
         // 수업 화면 패널
         screenPanel = createScreenPanel();
+        screenPanel.setPreferredSize(new Dimension(842, 631));
         d = new DrawingPanel();
+        d.setLayout( new BorderLayout());
         d.setOpaque(false);
         d.setPreferredSize(new Dimension(842, 631));
-
-        layeredPane = new JPanel();
-        layeredPane.setLayout(new OverlayLayout(layeredPane));
-        layeredPane.add(screenPanel);
-        layeredPane.add(d);
+        d.add(screenPanel, BorderLayout.CENTER);
 
         // 빈 패널 (위치 조정용)
         JPanel emptyPanel = new JPanel();
@@ -57,7 +55,7 @@ public class LectureScreenGUI extends JFrame {
         contentPanel.add(buttonPanel, BorderLayout.NORTH);
         contentPanel.add(palettePanel, BorderLayout.WEST);
         contentPanel.add(controlPanel, BorderLayout.SOUTH);
-        contentPanel.add(layeredPane, BorderLayout.CENTER);
+        contentPanel.add(d, BorderLayout.CENTER);
         // ---------- 전체 패널 끝
         add(contentPanel);
     }
@@ -206,12 +204,13 @@ public class LectureScreenGUI extends JFrame {
         try {
             int frameCount = 0;
             while (true) {
-                BufferedImage frame = new BufferedImage(842, 631, BufferedImage.TYPE_INT_RGB);
+                BufferedImage frame = new BufferedImage(600, 340, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g = frame.createGraphics();
                 g.setColor(new Color((frameCount * 10) % 255, (frameCount * 5) % 255, (frameCount * 3) % 255));
-                g.fillRect(0, 0, 842, 631);
+                g.fillRect(0, 0, 600, 340);
                 g.setColor(Color.WHITE);
                 g.drawString("Frame: " + frameCount, 421, 315);
+                g.drawImage(d.getDrawingImage(), 0, 0, null);
                 g.dispose();
                 System.out.println("Frame: " + frameCount);
                 SwingUtilities.invokeLater(() -> {
@@ -225,6 +224,15 @@ public class LectureScreenGUI extends JFrame {
             System.out.println(ex.getMessage());
         }
     }
+    // Combine Video Frame and Drawing
+    private static BufferedImage combineImages(BufferedImage videoFrame, BufferedImage drawing) {
+        BufferedImage combined = new BufferedImage(videoFrame.getWidth(), videoFrame.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = combined.createGraphics();
+        g.drawImage(videoFrame, 0, 0, null);
+        g.drawImage(drawing, 0, 0, null);
+        g.dispose();
+        return combined;
+    }
 }
 
 // Panel for drawing annotations
@@ -232,13 +240,14 @@ class DrawingPanel extends JPanel {
     private BufferedImage drawingImage;
 
     public DrawingPanel() {
-        drawingImage = new BufferedImage(842, 631, BufferedImage.TYPE_INT_ARGB);
+        drawingImage = new BufferedImage(600, 340, BufferedImage.TYPE_INT_ARGB);
         MouseAdapter adapter = new MouseAdapter() {
             private Point prevPoint;
 
             @Override
             public void mousePressed(MouseEvent e) {
                 prevPoint = e.getPoint();
+                System.out.println(prevPoint.x + "," + prevPoint.y);
             }
 
             @Override
