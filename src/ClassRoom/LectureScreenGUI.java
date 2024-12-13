@@ -104,13 +104,16 @@ public class LectureScreenGUI extends JFrame {
     }
 
     public JPanel getControlPanel() {
-        JPanel controlPanel = new JPanel(new GridBagLayout());
-        controlPanel.setBackground(Theme.Ultramarine);
         JLabel label = new JLabel("Control Panel");
         label.setForeground(Color.WHITE);
         label.setSize(screenWidth, screenHeight);
-        controlPanel.add(label);
+
+        JPanel controlPanel = new JPanel(new GridBagLayout());
+        controlPanel.setBackground(Theme.Ultramarine);
         controlPanel.setPreferredSize(new Dimension(screenWidth, 68));
+
+        controlPanel.add(label);
+
         return controlPanel;
     }
 
