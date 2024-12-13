@@ -1,5 +1,7 @@
 package ClassRoom;
 
+import Utils.Theme;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -43,10 +45,10 @@ public class SelectImageButton {
                     setIcon(null);
                 }
                 if (image == null) {
-                    g2.setColor(new Color(0xD7DBDC));
+                    g2.setColor(Theme.Grey);
                     g2.fillOval(0, 0, getWidth(), getHeight());
                     // 이미지가 없을 경우 기본 십자가 표시
-                    g2.setColor(new Color(0x1B74E7));
+                    g2.setColor(Theme.Blue);
                     int padding = 5; // 십자가의 여백
                     int centerX = getWidth() / 2;
                     int centerY = getHeight() / 2;
