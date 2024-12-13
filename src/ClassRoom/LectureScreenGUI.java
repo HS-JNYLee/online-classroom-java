@@ -5,6 +5,8 @@ import Utils.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class LectureScreenGUI extends JFrame {
@@ -20,7 +22,9 @@ public class LectureScreenGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
-
+    private JPanel layeredPane;
+    private JPanel screenPanel;
+    private DrawingPanel d;
     public void buildGUI() {
         // 팔레트 패널
         JPanel palettePanel = createPalettePanel();
@@ -28,8 +32,18 @@ public class LectureScreenGUI extends JFrame {
         JPanel controlPanel = createControlPanel();
         // 나가기 버튼 패널
         JPanel buttonPanel = createButtonPanel();
+
         // 수업 화면 패널
-        JPanel screenPanel = createScreenPanel();
+        screenPanel = createScreenPanel();
+        d = new DrawingPanel();
+        d.setOpaque(false);
+        d.setPreferredSize(new Dimension(842, 631));
+
+        layeredPane = new JPanel();
+        layeredPane.setLayout(new OverlayLayout(layeredPane));
+        layeredPane.add(screenPanel);
+        layeredPane.add(d);
+
         // 빈 패널 (위치 조정용)
         JPanel emptyPanel = new JPanel();
         emptyPanel.setPreferredSize(new Dimension(164, screenHeight));
@@ -43,7 +57,7 @@ public class LectureScreenGUI extends JFrame {
         contentPanel.add(buttonPanel, BorderLayout.NORTH);
         contentPanel.add(palettePanel, BorderLayout.WEST);
         contentPanel.add(controlPanel, BorderLayout.SOUTH);
-        contentPanel.add(screenPanel, BorderLayout.CENTER);
+        contentPanel.add(layeredPane, BorderLayout.CENTER);
         // ---------- 전체 패널 끝
         add(contentPanel);
     }
@@ -188,7 +202,7 @@ public class LectureScreenGUI extends JFrame {
         new LectureScreenGUI();
     }
 
-    private static void simulateVideoFrames(VideoPanel videoPanel, BookmarkSlider bookmarkSlider) {
+    private void simulateVideoFrames(VideoPanel videoPanel, BookmarkSlider bookmarkSlider) {
         try {
             int frameCount = 0;
             while (true) {
@@ -199,10 +213,11 @@ public class LectureScreenGUI extends JFrame {
                 g.setColor(Color.WHITE);
                 g.drawString("Frame: " + frameCount, 421, 315);
                 g.dispose();
-
+                System.out.println("Frame: " + frameCount);
+                SwingUtilities.invokeLater(() -> {
                 videoPanel.updateFrame(frame);
                 bookmarkSlider.addFrame(frame);
-
+                });
                 frameCount++;
                 Thread.sleep(1000);
             }
@@ -211,3 +226,46 @@ public class LectureScreenGUI extends JFrame {
         }
     }
 }
+
+// Panel for drawing annotations
+class DrawingPanel extends JPanel {
+    private BufferedImage drawingImage;
+
+    public DrawingPanel() {
+        drawingImage = new BufferedImage(842, 631, BufferedImage.TYPE_INT_ARGB);
+        MouseAdapter adapter = new MouseAdapter() {
+            private Point prevPoint;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                prevPoint = e.getPoint();
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                Point currPoint = e.getPoint();
+                System.out.println(currPoint.x + "," + currPoint.y);
+                Graphics2D g = drawingImage.createGraphics();
+                g.setColor(Color.RED);
+                g.setStroke(new BasicStroke(2));
+                g.drawLine(prevPoint.x, prevPoint.y, currPoint.x, currPoint.y);
+                g.dispose();
+                prevPoint = currPoint;
+                repaint();
+            }
+        };
+        addMouseListener(adapter);
+        addMouseMotionListener(adapter);
+    }
+
+    public BufferedImage getDrawingImage() {
+        return drawingImage;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(drawingImage, 0, 0, null);
+    }
+}
+
