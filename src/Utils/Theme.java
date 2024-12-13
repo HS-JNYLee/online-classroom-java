@@ -13,4 +13,5 @@ public class Theme {
     public static Color Red         = new Color(0xFA5B57);
     public static Color Ultramarine = new Color(0x2C374C);
     public static Color Grey        = new Color(0xD7DBDC);
+    public static Color Darkblue    = new Color(0x2751AB);
 }

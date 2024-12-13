@@ -5,13 +5,15 @@ import User.User;
 import User.Student;
 import User.Professor;
 import User.Roles;
+import Utils.Icons;
+import Utils.Theme;
+import ClassRoom.SelectImageButton;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MainStudScreenGUI extends JFrame {
 
@@ -25,11 +27,21 @@ public class MainStudScreenGUI extends JFrame {
     private JTextField chatTextField;
     private JScrollPane chatScroller; // 채팅방의 스크롤 Panel
     private JPanel chatCommunityPanel;
+    private JPanel teamProfilesPanel;
+    private JPanel teamProfilesPanelPadding; // 해당부분의 setVisibility를 사용하여 숨김 보이기 관리
 
     private boolean is_mic_on = false;
     private boolean is_sound_on = true;
     private boolean is_screen_share_possible = true;
     private boolean is_chat_on = true;
+
+    private ArrayList<Student> teamMembers = new ArrayList<Student>(
+            Arrays.asList(
+                    new Student("1","KJH",Icons.userIcon, Roles.TEAM_LEADER),
+                    new Student("12","KJH",Icons.userIcon, Roles.TEAM_MEMBER),
+                    new Student("123","KJH",Icons.userIcon, Roles.TEAM_MEMBER)
+            )
+    ); // 팀원들 최대 3명
 
     // 교수가 팀 활동을 시작했을 경우 활성화
     private boolean teamActivityStatus = true;
@@ -54,7 +66,7 @@ public class MainStudScreenGUI extends JFrame {
     // 현재 로그인 된 학생의 마이크 소리 송신 (Thread)
     public void sendMicVoice(){ }
 
-    // Team 활동 시작 유무 수신 (Thread)
+    // Team 활동 시작 유무 수신 (Thread) 팀원들 정보 전달 받음
     public void receiveTeamActivityStatus(){ }
 
     // Team 활동을 시작했고 User가 팀장인 경우 화면 송신 가능 (Thread)
@@ -98,9 +110,18 @@ public class MainStudScreenGUI extends JFrame {
         exitBtn.setPreferredSize(new Dimension(100, 30));
         exitBtn.setForeground(Color.white);
 
-        ret.add(exitBtn);
 
         //TODO 나가기 설계 Login? main?
+        exitBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                teamActivityStatus = !teamActivityStatus;
+                teamProfilesPanelPadding.setVisible(teamActivityStatus);
+                screenShareBtn.setVisible(teamActivityStatus);
+            }
+        });
+
+        ret.add(exitBtn);
 
         return ret;
     }
@@ -327,7 +348,7 @@ public class MainStudScreenGUI extends JFrame {
     }
 
     private JPanel createUserProfilePanel(){
-        JPanel profilePanel = new JPanel(new GridLayout(2,1,0,50));
+        JPanel profilePanel = new JPanel(new GridLayout(2,1,0,0));
         profilePanel.setBackground(new Color(27, 116, 231));
 
         // User Profile 이미지
@@ -339,24 +360,26 @@ public class MainStudScreenGUI extends JFrame {
         userImageLabel.setIcon(new ImageIcon(img));
         userImageLabel.setOpaque(true);
         userImageLabel.setBackground(new Color(27, 116, 231));
-        userImageLabel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        userImageLabel.setBorder(BorderFactory.createEmptyBorder(20,50,20,50)); // 프로필 이미지 주변에 Padding 추가
+        userImageLabel.setBackground(Color.red);
         profilePanel.add(userImageLabel);
 
         //User 이름
         JLabel userName = new JLabel(LoginStudent.getName());
         userName.setHorizontalAlignment(JLabel.CENTER); // 가로 중앙 정렬
         userName.setVerticalAlignment(JLabel.CENTER); // 세로 중앙 정렬
-        userName.setFont(new Font("맑은 고딕", Font.PLAIN, 20));
+        userName.setFont(new Font("맑은 고딕", Font.PLAIN, 15));
         userName.setOpaque(true);
         userName.setBackground(new Color(27, 116, 231));
+        userName.setBorder(BorderFactory.createEmptyBorder(20,50,20,50));
+        userName.setBackground(Color.red);
         profilePanel.add(userName);
 
-        // user 이름, Profile 이미지를 감싸는 Padding
-        JPanel profilePadding = new JPanel(new BorderLayout());
-        profilePadding.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
-        profilePadding.setBackground(new Color(39, 81, 171));
+        // user 이름, Profile 이미지, 팀원 프로필들을 감싸는 Padding
+        JPanel userAndTeamPanel = new JPanel(new BorderLayout());
+        userAndTeamPanel.setBackground(new Color(39, 81, 171));
 
-        profilePadding.add(profilePanel, BorderLayout.CENTER);
+        userAndTeamPanel.add(profilePanel, BorderLayout.CENTER);
 
         JPanel tmpEast = new JPanel();
         tmpEast.setBorder(BorderFactory.createEmptyBorder(50,30,50,30));
@@ -367,20 +390,79 @@ public class MainStudScreenGUI extends JFrame {
         tmpWest.setBackground(new Color(39, 81, 171));
 //        tmpWest.setBackground(Color.red);
 
-        profilePadding.add(tmpEast, BorderLayout.EAST);
-        profilePadding.add(tmpWest, BorderLayout.WEST);
+        userAndTeamPanel.add(tmpEast, BorderLayout.EAST);
+        userAndTeamPanel.add(tmpWest, BorderLayout.WEST);
 
-        JPanel tmpSouth = new JPanel(new FlowLayout());
-        tmpSouth.add(new JLabel("Apple"));
-        tmpSouth.add(new JLabel("Apple"));
-        tmpSouth.add(new JLabel("Apple"));
-        tmpSouth.add(new JLabel("Apple"));
-        tmpSouth.add(new JLabel("Apple"));
+        userAndTeamPanel.add(createTeamMemberPanel(), BorderLayout.SOUTH);
+        // 팀활동 중이라면 팀원 프로필 표시
+        teamProfilesPanelPadding.setVisible(teamActivityStatus);
 
+        return userAndTeamPanel;
+    }
 
-        profilePadding.add(tmpSouth, BorderLayout.SOUTH);
+    private JPanel createTeamMemberPanel(){
+        this.teamProfilesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40,0));
+        teamProfilesPanel.setBackground(Theme.Ultramarine);
 
-        return profilePadding;
+        this.teamProfilesPanelPadding = new JPanel();
+
+        if(!teamMembers.isEmpty()){ // 팀원이 있는 경우 표시
+            teamMembers.forEach((studentItem)->{
+                SelectImageButton circleIcon = new SelectImageButton();
+                circleIcon.setImage(studentItem.getProfileImage().getImage());
+                circleIcon.setHeight(30);
+                circleIcon.setWidth(30);
+                circleIcon.getButton().setEnabled(false);
+
+                ProfileInfoPanel profileInfoPanelClass = new ProfileInfoPanel(studentItem);
+                JPanel profileInfoPanel = profileInfoPanelClass.buildPanel();
+
+                String role;
+                if(studentItem.getRole()==Roles.TEAM_LEADER){
+                    role = "팀장";
+                } else {
+                    role = "팀원";
+                }
+
+                ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
+
+                String toolTipString = String.format("<html><div style='background-color: #2c3e50; color: white; font-size: 12px'> 이름 : %s<br>학번 : %s<br>모둠번호 : %s<br>역할 : %s </div></html>", studentItem.getId(), studentItem.getName(), studentItem.getTeamNum(), role);
+
+                circleIcon.getButton().setToolTipText(toolTipString);
+
+//                circleIcon.getButton().addMouseListener(new MouseAdapter() {
+//                    @Override
+//                    public void mouseEntered(MouseEvent e) {
+//                        System.out.println("in Apple");
+//                        Point location = circleIcon.getButton().getLocationOnScreen();
+//
+//                        System.out.println(profileInfoPanelClass.getStudent().getId());
+//
+//                        // 패널 위치 설정
+//                        profileInfoPanel.setLocation(location.x + circleIcon.getButton().getWidth() / 2 - profileInfoPanel.getWidth() / 2,
+//                                location.y - profileInfoPanel.getHeight());
+//                        profileInfoPanel.setVisible(true);
+//                    }
+//
+//                    @Override
+//                    public void mouseExited(MouseEvent e) {
+//                        System.out.println("out Apple");
+//                        profileInfoPanel.setVisible(false);
+//                    }
+//                });
+
+                teamProfilesPanel.add(circleIcon.getButton());
+            });
+
+            teamProfilesPanelPadding.setBackground(Theme.Ultramarine);
+            teamProfilesPanelPadding.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
+
+            teamProfilesPanelPadding.add(teamProfilesPanel);
+        } else{
+            teamProfilesPanelPadding.setBackground(Theme.Darkblue);
+        }
+
+        return teamProfilesPanelPadding;
     }
 
     private JPanel createChatRoomPanel(){

@@ -91,7 +91,7 @@ public class SelectImageButton {
         button.repaint();
     }
 
-    JButton getButton() {
+    public JButton getButton() {
         return button;
     }
 }

@@ -24,6 +24,10 @@ public class Student extends User{
         this.role = roles;
     }
 
+    public Student(ImageIcon profileImage){
+        this.profileImage = profileImage;
+    }
+
     public int getTeamNum(){
         return this.teamNum;
     }
