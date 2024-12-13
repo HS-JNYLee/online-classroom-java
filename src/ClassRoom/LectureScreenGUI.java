@@ -55,19 +55,27 @@ public class LectureScreenGUI extends JFrame {
         return roundedPane;
     }
 
+    // 팔레트 패널 만드는 함수
     public JPanel getPalettePanel() {
-        JPanel palettePanel = new JPanel();
-        palettePanel.setLayout(new GridLayout(6, 1, 10, 10));
-        palettePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        palettePanel.setBackground(Theme.White);
-        palettePanel.setPreferredSize(new Dimension(164, screenHeight));
-
+        // 팔레트 버튼 모음
+        // 북마크
         PaletteButton b1 = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
+        // 지우개
         PaletteButton b2 = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
+        // 연필
         PaletteButton b3 = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
+        // 연필 색 - 빨강
         PaletteButton b4 = new PaletteColorButton(Icons.redPaletteIcon);
+        // 연필 색 - 초록
         PaletteButton b5 = new PaletteColorButton(Icons.greenPaletteIcon);
+        // 연픽 색 - 파랑
         PaletteButton b6 = new PaletteColorButton(Icons.bluePaletteIcon);
+
+        JPanel palettePanel = new JPanel();
+        palettePanel.setBackground(Theme.White);
+        palettePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        palettePanel.setPreferredSize(new Dimension(164, screenHeight));
+        palettePanel.setLayout(new GridLayout(6, 1, 10, 10));
 
         palettePanel.add(b1);
         palettePanel.add(b2);
@@ -75,16 +83,24 @@ public class LectureScreenGUI extends JFrame {
         palettePanel.add(b4);
         palettePanel.add(b5);
         palettePanel.add(b6);
+        // ---------- 팔레트 버튼 모음 끝
 
+        // 팔레트 패널 둥글게 만들기
         RoundedPane roundedPane = new RoundedPane();
-        roundedPane.setContentPane(palettePanel);
         roundedPane.setBackground(Theme.White);
         roundedPane.setPreferredSize(new Dimension(45, 253));
-        JPanel wrapper = new JPanel(new GridBagLayout());
-        wrapper.setBackground(Theme.Ultramarine);
-        wrapper.setPreferredSize(new Dimension(164, screenHeight));
-        wrapper.add(roundedPane);
-        return wrapper;
+
+        roundedPane.setContentPane(palettePanel);
+        // ---------- 둥근 팔레트 끝
+
+        // 팔레트 패널 중앙 정렬
+        JPanel paletteWrapper = new JPanel(new GridBagLayout());
+        paletteWrapper.setBackground(Theme.Ultramarine);
+        paletteWrapper.setPreferredSize(new Dimension(164, screenHeight));
+
+        paletteWrapper.add(roundedPane);
+        // ---------- 팔레트 중앙 정렬 끝
+        return paletteWrapper;
     }
 
     public JPanel getControlPanel() {
