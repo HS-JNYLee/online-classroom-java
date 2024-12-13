@@ -23,13 +23,13 @@ public class LectureScreenGUI extends JFrame {
 
     public void buildGUI() {
         // 팔레트 패널
-        JPanel palettePanel = getPalettePanel();
+        JPanel palettePanel = createPalettePanel();
         // 앱 제어 패널
-        JPanel controlPanel = getControlPanel();
+        JPanel controlPanel = createControlPanel();
         // 나가기 버튼 패널
-        JPanel buttonPanel = getButtonPanel();
+        JPanel buttonPanel = createButtonPanel();
         // 수업 화면 패널
-        JPanel screenPanel = getScreenPanel();
+        JPanel screenPanel = createScreenPanel();
         // 빈 패널 (위치 조정용)
         JPanel emptyPanel = new JPanel();
         emptyPanel.setPreferredSize(new Dimension(164, screenHeight));
@@ -48,23 +48,33 @@ public class LectureScreenGUI extends JFrame {
         add(contentPanel);
     }
 
-    public JPanel getScreenPanel() {
-        JPanel screenPanel = new JPanel(new BorderLayout());
-        RoundedPane roundedPane = new RoundedPane();
+    // 영상 패널
+    public JPanel createScreenPanel() {
+        // 영상 패널
         VideoPanel videoPanel = new VideoPanel();
+        // 슬라이더 - 타임라인 조정
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
+        
+        // (임시) 영상 녹화 테스트용
         new Thread(() -> simulateVideoFrames(videoPanel, bookmarkSlider)).start();
+        
+        // 영상+슬라이더 패널
+        JPanel screenPanel = new JPanel(new BorderLayout());
         screenPanel.add(videoPanel, BorderLayout.CENTER);
         screenPanel.add(bookmarkSlider, BorderLayout.SOUTH);
-
-        roundedPane.setContentPane(screenPanel);
+        // ---------- 비디오+슬라이더 패널 끝
+        
+        // 둥근 스크린 패널
+        RoundedPane roundedPane = new RoundedPane();
         roundedPane.setBackground(Theme.Blue);
+        roundedPane.setContentPane(screenPanel);
+        // ---------- 둥근 스크린 패널 끝
 
         return roundedPane;
     }
 
-    // 팔레트 패널 만드는 함수
-    public JPanel getPalettePanel() {
+    // 팔레트 패널 함수
+    public JPanel createPalettePanel() {
         // 팔레트 버튼 모음
         // 북마크
         PaletteButton b1 = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
@@ -111,7 +121,8 @@ public class LectureScreenGUI extends JFrame {
         return paletteWrapper;
     }
 
-    public JPanel getControlPanel() {
+    // 제어 패널
+    public JPanel createControlPanel() {
         JLabel label = new JLabel("Control Panel");
         label.setForeground(Color.WHITE);
         label.setSize(screenWidth, screenHeight);
@@ -125,7 +136,8 @@ public class LectureScreenGUI extends JFrame {
         return controlPanel;
     }
 
-    public JPanel getButtonPanel() {
+    // 나가기 버튼 배치 패널
+    public JPanel createButtonPanel() {
         // 나가기 버튼 아이콘
         PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon);
         exitButton.setPreferredSize(new Dimension(30, 31));
