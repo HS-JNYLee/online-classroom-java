@@ -70,7 +70,7 @@ public class LectureScreenGUI extends JFrame {
         // 영상 패널
         VideoPanel videoPanel = new VideoPanel();
 
-        videoPanel.addMouseListener(new MouseAdapter() {
+        drawingPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) { // 우클릭 감지
@@ -78,7 +78,6 @@ public class LectureScreenGUI extends JFrame {
                 }
             }
         });
-
         // 슬라이더 - 타임라인 조정
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
         bookmarkSlider.setBookmarkButton(b_bookmark);
