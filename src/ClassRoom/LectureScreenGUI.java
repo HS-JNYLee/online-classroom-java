@@ -5,6 +5,8 @@ import Utils.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class LectureScreenGUI extends JFrame {
@@ -67,6 +69,16 @@ public class LectureScreenGUI extends JFrame {
     public JPanel createScreenPanel() {
         // 영상 패널
         VideoPanel videoPanel = new VideoPanel();
+
+        videoPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) { // 우클릭 감지
+                    videoPanel.showEmoji(e.getPoint());
+                }
+            }
+        });
+
         // 슬라이더 - 타임라인 조정
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
         bookmarkSlider.setBookmarkButton(b_bookmark);
