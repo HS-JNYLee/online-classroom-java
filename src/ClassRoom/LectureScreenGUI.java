@@ -5,8 +5,6 @@ import Utils.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class LectureScreenGUI extends JFrame {
@@ -36,8 +34,8 @@ public class LectureScreenGUI extends JFrame {
         // 수업 화면 패널
         screenPanel = createScreenPanel();
         screenPanel.setPreferredSize(new Dimension(842, 631));
-        d = new DrawingPanel();
-        d.setLayout( new BorderLayout());
+        d = new DrawingPanel(b3, b2);
+        d.setLayout(new BorderLayout());
         d.setOpaque(false);
         d.setPreferredSize(new Dimension(842, 631));
         d.add(screenPanel, BorderLayout.CENTER);
@@ -84,22 +82,25 @@ public class LectureScreenGUI extends JFrame {
 
         return roundedPane;
     }
-
+    PaletteButton b3;
+    PaletteButton b2;
     // 팔레트 패널 함수
     public JPanel createPalettePanel() {
         // 팔레트 버튼 모음
         // 북마크
         PaletteButton b1 = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
         // 지우개
-        PaletteButton b2 = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
+        b2 = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
         // 연필
-        PaletteButton b3 = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
+        b3 = new PaletteToggleButton(Icons.penInactiveIcon, Icons.penActiveIcon);
+
         // 연필 색 - 빨강
-        PaletteButton b4 = new PaletteColorButton(Icons.redPaletteIcon);
+        PaletteButton b4 = new PaletteColorButton(Icons.redPaletteIcon, Theme.Red);
+
         // 연필 색 - 초록
-        PaletteButton b5 = new PaletteColorButton(Icons.greenPaletteIcon);
+        PaletteButton b5 = new PaletteColorButton(Icons.greenPaletteIcon, Theme.Green);
         // 연픽 색 - 파랑
-        PaletteButton b6 = new PaletteColorButton(Icons.bluePaletteIcon);
+        PaletteButton b6 = new PaletteColorButton(Icons.bluePaletteIcon, Theme.Blue);
 
         JPanel palettePanel = new JPanel();
         palettePanel.setBackground(Theme.White);
@@ -209,16 +210,15 @@ public class LectureScreenGUI extends JFrame {
                 g.setColor(new Color((frameCount * 10) % 255, (frameCount * 5) % 255, (frameCount * 3) % 255));
                 g.fillRect(0, 0, 600, 340);
                 g.setColor(Color.WHITE);
-                g.drawString("Frame: " + frameCount, 421, 315);
+                g.drawString("Frame: " + frameCount, 300, 170);
                 g.drawImage(d.getDrawingImage(), 0, 0, null);
                 g.dispose();
-                System.out.println("Frame: " + frameCount);
                 SwingUtilities.invokeLater(() -> {
                 videoPanel.updateFrame(frame);
                 bookmarkSlider.addFrame(frame);
                 });
                 frameCount++;
-                Thread.sleep(1000);
+                Thread.sleep(100);
             }
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
@@ -232,49 +232,6 @@ public class LectureScreenGUI extends JFrame {
         g.drawImage(drawing, 0, 0, null);
         g.dispose();
         return combined;
-    }
-}
-
-// Panel for drawing annotations
-class DrawingPanel extends JPanel {
-    private BufferedImage drawingImage;
-
-    public DrawingPanel() {
-        drawingImage = new BufferedImage(600, 340, BufferedImage.TYPE_INT_ARGB);
-        MouseAdapter adapter = new MouseAdapter() {
-            private Point prevPoint;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                prevPoint = e.getPoint();
-                System.out.println(prevPoint.x + "," + prevPoint.y);
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                Point currPoint = e.getPoint();
-                System.out.println(currPoint.x + "," + currPoint.y);
-                Graphics2D g = drawingImage.createGraphics();
-                g.setColor(Color.RED);
-                g.setStroke(new BasicStroke(2));
-                g.drawLine(prevPoint.x, prevPoint.y, currPoint.x, currPoint.y);
-                g.dispose();
-                prevPoint = currPoint;
-                repaint();
-            }
-        };
-        addMouseListener(adapter);
-        addMouseMotionListener(adapter);
-    }
-
-    public BufferedImage getDrawingImage() {
-        return drawingImage;
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.drawImage(drawingImage, 0, 0, null);
     }
 }
 

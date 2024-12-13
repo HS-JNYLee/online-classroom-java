@@ -5,6 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public abstract class PaletteButton extends JButton implements ActionListener {
+    Boolean isActive = false;
+
+    public Boolean getActive() {
+        return isActive;
+    }
 
     public PaletteButton() {}
 
@@ -31,4 +36,12 @@ public abstract class PaletteButton extends JButton implements ActionListener {
     }
 
     public abstract void onClick();
+    public void active() {
+        isActive = true;
+    };
+    public void inactive() {
+        isActive = false;
+    }
+
+
 }

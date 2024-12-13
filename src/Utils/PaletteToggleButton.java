@@ -5,7 +5,6 @@ import javax.swing.*;
 public class PaletteToggleButton extends PaletteButton {
     ImageIcon activeImageIcon;
     ImageIcon inactiveImageIcon;
-    Boolean isActive = false;
 
     public PaletteToggleButton(ImageIcon activeImageIcon, ImageIcon inactiveImageIcon) {
         this.activeImageIcon = activeImageIcon;
@@ -31,14 +30,16 @@ public class PaletteToggleButton extends PaletteButton {
         setInactiveImageIcon();
     }
 
+    @Override
     public void active() {
+        super.active();
         setActiveImageIcon();
-        isActive = true;
     }
 
+    @Override
     public void inactive() {
+        super.inactive();
         setInactiveImageIcon();
-        isActive = false;
     }
 
     private void setInactiveImageIcon() {
