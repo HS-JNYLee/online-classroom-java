@@ -87,6 +87,7 @@ public class LectureScreenGUI extends JFrame {
         return roundedPane;
     }
 
+    JButton b_save;
     // 팔레트 패널 함수
     public JPanel createPalettePanel() {
         // 팔레트 버튼 모음
@@ -110,14 +111,16 @@ public class LectureScreenGUI extends JFrame {
         palettePanel.setBackground(Theme.White);
         palettePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         palettePanel.setPreferredSize(new Dimension(164, screenHeight));
-        palettePanel.setLayout(new GridLayout(6, 1, 10, 10));
-
+        palettePanel.setLayout(new GridLayout(7, 1, 10, 10));
+        b_save = new JButton();
         palettePanel.add(b_bookmark);
         palettePanel.add(b_eraser);
         palettePanel.add(b_pen);
         palettePanel.add(b_red);
         palettePanel.add(b_green);
         palettePanel.add(b_blue);
+        palettePanel.add(b_save);
+
         // ---------- 팔레트 버튼 모음 끝
 
         // 팔레트 패널 둥글게 만들기
@@ -220,6 +223,7 @@ public class LectureScreenGUI extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     bookmarkSlider.setDrawingPanel(drawingPanel);
                     bookmarkSlider.addFrame(frame);
+                    bookmarkSlider.setButton(b_save);
                 });
                 frameCount++;
                 Thread.sleep(100);

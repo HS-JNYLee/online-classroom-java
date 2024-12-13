@@ -90,6 +90,16 @@ class BookmarkSlider extends JPanel {
     private final JPanel markerPanel;
     private boolean isDragging = false;
 
+    public void setButton(JButton button) {
+        button.addActionListener(_ -> {
+            int frameIndex = slider.getValue();
+            BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
+            frameBuffer.set(frameIndex, combinedImage);
+            drawingPanel.removePaint();
+            videoPanel.updateFrame(frameBuffer.get(frameIndex));
+        });
+    }
+
     public BookmarkSlider(VideoPanel videoPanel) {
         this.videoPanel = videoPanel;
         this.frameBuffer = new ArrayList<>();

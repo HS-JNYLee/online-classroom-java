@@ -68,6 +68,10 @@ public class DrawingPanel extends JPanel {
         repaint();
     }
 
+    public void removePaint() {
+        drawingImage = new BufferedImage(600, 340, BufferedImage.TYPE_INT_ARGB);
+    }
+
     public BufferedImage getDrawingImage() {
         return drawingImage;
     }
