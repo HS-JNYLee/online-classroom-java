@@ -130,11 +130,11 @@ public class LectureScreenGUI extends JFrame {
         bookmarkHistory.add(emptyEastPanel, BorderLayout.EAST);
         return bookmarkHistory;
     }
-    
+    private VideoPanel videoPanel;
     // 영상 패널
     public JPanel createScreenPanel() {
         // 영상 패널
-        VideoPanel videoPanel = new VideoPanel();
+        videoPanel = new VideoPanel();
 
         drawingPanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -356,9 +356,10 @@ public class LectureScreenGUI extends JFrame {
     void setSendObserver(SendObserver sendObserver) {
         this.sendObserver = sendObserver;
     }
-    private ChatMsg chatMsg;
-    public void setChatMsg(ChatMsg chatMsg) {
-        this.chatMsg = chatMsg;
+    private Point point;
+    public void setPoint(Point point) {
+        videoPanel.showEmoji(point);
+        this.point = point;
     }
 }
 

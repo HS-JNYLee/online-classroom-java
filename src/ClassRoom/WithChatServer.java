@@ -204,6 +204,7 @@ public class WithChatServer extends JFrame {
                     }
                     else if(msg.mode == ChatMsg.MODE_EMOJI) {
                         printDisplay("Received Emoji: " + msg.x + ", " + msg.y);
+                        broadcasting(msg);
                     }
                 }
                 users.removeElement(this);

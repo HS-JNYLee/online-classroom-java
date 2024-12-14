@@ -359,6 +359,9 @@ public class WithTalk extends JFrame implements SendObserver {
                                 lectureScreenGUI.getAudioChunk(inMsg.micSound);
                             }
                             break;
+                        case ChatMsg.MODE_EMOJI:
+                            lectureScreenGUI.setPoint(new Point(inMsg.x, inMsg.y));
+                            break;
                     }
 
                     if(WithTalk.this.mainScreenGUI != null){ // 현재 로그인 사용자의 화면이 교수인 경우
