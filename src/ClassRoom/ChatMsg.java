@@ -16,6 +16,7 @@ public class ChatMsg implements Serializable {
     public final static int MODE_TX_DENIED = 0x51;
     public final static int MODE_USER_INFO = 0x52;
     public final static int MODE_SHARED_SCREEN = 0x53;
+    public final static int MODE_MIC_SOUND = 0x59;
 
     String userID;
     int mode;
@@ -24,6 +25,15 @@ public class ChatMsg implements Serializable {
     long size;
     String uName;
     String uType;
+    byte[] micSound;
+
+    // TODO 학생의 모둠 번호도 추가하여 모둠 별로만 통신이 가능하도록 설계
+    public ChatMsg(String userID, String uType, int code, byte[] micSound){
+        this.userID = userID;
+        this.uType = uType;
+        this.mode = code;
+        this.micSound = micSound;
+    }
 
     public ChatMsg(String userID, String userName, ImageIcon image, String uType ,int code, String message){
         this.userID = userID;
