@@ -2,6 +2,7 @@ package ClassRoom;
 
 import Utils.PaletteButton;
 import Utils.Theme;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,60 +10,6 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-
-public class VideoBookmarkApp {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Video Bookmark Feature");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-
-        // Main panel for video and controls
-        JPanel mainPanel = new JPanel(new BorderLayout());
-
-        // Video display panel
-        VideoPanel videoPanel = new VideoPanel();
-        mainPanel.add(videoPanel, BorderLayout.CENTER);
-
-        // Playback control slider with bookmarks
-        BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
-        mainPanel.add(bookmarkSlider, BorderLayout.SOUTH);
-
-        // Bookmark Button
-        JButton bookmarkButton = new JButton("Add Bookmark");
-        bookmarkButton.addActionListener(e -> bookmarkSlider.addBookmark());
-        frame.add(bookmarkButton, BorderLayout.NORTH);
-
-        frame.add(mainPanel);
-        frame.setVisible(true);
-
-        // Simulate incoming video frames
-        new Thread(() -> simulateVideoFrames(videoPanel, bookmarkSlider)).start();
-    }
-    static int frameWidth = 462;
-    static int frameHeight = 369;
-    private static void simulateVideoFrames(VideoPanel videoPanel, BookmarkSlider bookmarkSlider) {
-        try {
-            int frameCount = 0;
-            while (true) {
-                BufferedImage frame = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_RGB);
-                Graphics2D g = frame.createGraphics();
-                g.setColor(new Color((frameCount * 10) % 255, (frameCount * 5) % 255, (frameCount * 3) % 255));
-                g.fillRect(0, 0, frameWidth, frameHeight);
-                g.setColor(Color.WHITE);
-                g.drawString("Frame: " + frameCount, frameWidth/2, frameHeight/2);
-                g.dispose();
-
-                videoPanel.updateFrame(frame);
-                bookmarkSlider.addFrame(frame);
-
-                frameCount++;
-                Thread.sleep(1000); // Simulate 10 FPS
-            }
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-    }
-}
 
 // Panel for displaying video
 class VideoPanel extends JPanel {
@@ -122,6 +69,10 @@ class BookmarkSlider extends JPanel {
     private boolean isDragging = false;
     private PaletteButton bookmarkButton;
 
+    public List<Integer> getBookmarks() {
+        return bookmarks;
+    }
+
     public void setBookmarkButton(PaletteButton bookmarkButton) {
         this.bookmarkButton = bookmarkButton;
         this.bookmarkButton.addActionListener(new ActionListener() {
@@ -180,10 +131,21 @@ class BookmarkSlider extends JPanel {
     public void toggleBookmark(int frameIndex) {
         if (bookmarks.contains(frameIndex)) {
             System.out.println("Active");
+            bookListModel.remove(bookmarks.indexOf(frameIndex));
             bookmarks.remove(bookmarks.indexOf(frameIndex));
         } else {
             System.out.println("Inactive");
             bookmarks.add(frameIndex);
+            bookListModel.removeAllElements();
+            int count = 1;
+            for (int bookmark : bookmarks) {
+                bookListModel.addElement(new Object[]{
+                        "Bookmark " + count,
+                        new ImageIcon("./assets/icons/bookmark_active.png"),
+                        bookmark
+                });
+                count++;
+            }
             System.out.println(bookmarks);
         }
     }
@@ -211,9 +173,20 @@ class BookmarkSlider extends JPanel {
             videoPanel.updateFrame(combinedImage); // 최신 프레임으로 업데이트
             displayBookmark(frameIndex);
         }
-        updateMarkers();
     }
 
+    // 북마크 히스토리 업데이트, 조회를 위한 메소드
+    private  DefaultListModel<Object[]> bookListModel;
+    public void setBookListModel(DefaultListModel<Object[]> bookListModel) {
+        this.bookListModel = bookListModel;
+    }
+
+    public void setSliderValue(int value) {
+        slider.setValue(value);
+        videoPanel.updateFrame(frameBuffer.get(value));
+        displayBookmark(value);
+    }
+    // ---------- 북마크 히스토리 메소드 끝
     private DrawingPanel drawingPanel;
     public void setDrawingPanel(DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
@@ -226,29 +199,6 @@ class BookmarkSlider extends JPanel {
         g.drawImage(drawing, 0, 0, null);
         g.dispose();
         return combined;
-    }
-
-    public void addBookmark() {
-        int currentFrame = slider.getValue();
-        bookmarkButton.active();
-        System.out.println("Adding bookmark at frame " + currentFrame);
-        if (!bookmarks.contains(currentFrame)) {
-            bookmarks.add(currentFrame);
-            updateMarkers();
-        }
-    }
-
-    private void updateMarkers() {
-        markerPanel.removeAll();
-        for (int bookmark : bookmarks) {
-            JButton marker = new JButton("●");
-            marker.setFont(new Font("Arial", Font.BOLD, 10));
-            marker.setBounds(bookmark * markerPanel.getWidth() / slider.getMaximum(), 0, 10, 10);
-            marker.addActionListener(e -> slider.setValue(bookmark));
-            markerPanel.add(marker);
-        }
-        markerPanel.revalidate();
-        markerPanel.repaint();
     }
 }
 

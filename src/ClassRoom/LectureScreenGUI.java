@@ -16,7 +16,7 @@ public class LectureScreenGUI extends JFrame {
     private PaletteButton b_eraser;
     private PaletteButton b_bookmark;
     private DrawingPanel drawingPanel;
-
+    private BookmarkSlider bookmarkSlider;
     LectureScreenGUI() {
         super("수업 중...");
 
@@ -48,8 +48,7 @@ public class LectureScreenGUI extends JFrame {
         drawingPanel.add(screenPanel, BorderLayout.CENTER);
 
         // 빈 패널 (위치 조정용)
-        JPanel emptyPanel = new JPanel();
-        emptyPanel.setPreferredSize(new Dimension(164, screenHeight));
+        JPanel emptyPanel = createBookmarkHistory();
         emptyPanel.setBackground(Theme.Ultramarine);
 
         // 실시간 녹화 전체 패널
@@ -65,6 +64,82 @@ public class LectureScreenGUI extends JFrame {
         add(contentPanel);
     }
 
+    // 북마크 히스토리 함수
+    public JPanel createBookmarkHistory() {
+        JPanel emptyWestPanel = new JPanel();
+        emptyWestPanel.setPreferredSize(new Dimension(10, screenHeight));
+        emptyWestPanel.setBackground(Theme.Ultramarine);
+        JPanel emptyEastPanel = new JPanel();
+        emptyEastPanel.setPreferredSize(new Dimension(10, screenHeight));
+        emptyEastPanel.setBackground(Theme.Ultramarine);
+        JPanel bookmarkHistoryPanel = new JPanel(new BorderLayout());
+
+        JLabel bookmarkHistoryTitle = new JLabel("북마크 리스트");
+        bookmarkHistoryTitle.setHorizontalAlignment(JLabel.CENTER);
+        bookmarkHistoryTitle.setFont(new Font("돋움", Font.BOLD, 16));
+        bookmarkHistoryTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        bookmarkHistoryTitle.setForeground(Theme.White);
+
+        bookmarkHistoryPanel.add(bookmarkHistoryTitle, BorderLayout.NORTH);
+
+
+        //
+        // 북마크와 이미지 아이콘을 저장할 리스트
+        ImageIcon bookmarkIcon = new ImageIcon("./assets/icons/bookmark_inactive.PNG");
+        Object[][] data = {
+                {"Bookmark 1", bookmarkIcon, 1},
+                {"Bookmark 1", bookmarkIcon, 10},
+                {"Bookmark 1", bookmarkIcon, 12},
+        };
+
+        // JList에 사용할 모델 설정
+        DefaultListModel<Object[]> listModel = new DefaultListModel<>();
+        bookmarkSlider.setBookListModel(listModel);
+
+        // JList 생성
+        JList<Object[]> bookmarkList = new JList<>(listModel);
+
+        // 커스텀 셀 렌더러 설정 (아이콘과 텍스트를 함께 표시)
+        bookmarkList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+            String text = (String) value[0];
+            ImageIcon icon = (ImageIcon) value[1];
+            int bookmarkId = (int) value[2];
+
+            // 텍스트와 아이콘을 패널에 추가
+            icon.setImage(icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH));
+            JLabel label = new JLabel(text, icon, JLabel.LEFT);
+            panel.add(label, BorderLayout.CENTER);
+
+            // 선택된 항목일 경우 배경색 변경
+            if (isSelected) {
+                panel.setBackground(Color.LIGHT_GRAY);
+                bookmarkSlider.setSliderValue(bookmarkId);
+            } else {
+                panel.setBackground(Color.WHITE);
+            }
+
+            return panel;
+        });
+        // JList를 JScrollPane에 넣기
+        JScrollPane scrollPane = new JScrollPane(bookmarkList);
+        //
+
+
+        bookmarkHistoryPanel.add(scrollPane, BorderLayout.CENTER);
+        bookmarkHistoryPanel.setBackground(Theme.Ultramarine);
+
+        JPanel bookmarkHistory = new JPanel(new BorderLayout());
+        bookmarkHistory.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
+        bookmarkHistory.setPreferredSize(new Dimension(164, screenHeight));
+        bookmarkHistory.add(emptyWestPanel, BorderLayout.WEST);
+        bookmarkHistory.add(bookmarkHistoryPanel, BorderLayout.CENTER);
+        bookmarkHistory.add(emptyEastPanel, BorderLayout.EAST);
+        return bookmarkHistory;
+    }
+    
     // 영상 패널
     public JPanel createScreenPanel() {
         // 영상 패널
@@ -79,7 +154,7 @@ public class LectureScreenGUI extends JFrame {
             }
         });
         // 슬라이더 - 타임라인 조정
-        BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
+        bookmarkSlider = new BookmarkSlider(videoPanel);
         bookmarkSlider.setBookmarkButton(b_bookmark);
 
         // (임시) 영상 녹화 테스트용
@@ -123,7 +198,7 @@ public class LectureScreenGUI extends JFrame {
         JPanel palettePanel = new JPanel();
         palettePanel.setBackground(Theme.White);
         palettePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        palettePanel.setPreferredSize(new Dimension(164, screenHeight));
+        palettePanel.setPreferredSize(new Dimension(100, screenHeight));
         palettePanel.setLayout(new GridLayout(7, 1, 10, 10));
         b_save = new JButton();
         palettePanel.add(b_bookmark);
@@ -147,7 +222,7 @@ public class LectureScreenGUI extends JFrame {
         // 팔레트 패널 중앙 정렬
         JPanel paletteWrapper = new JPanel(new GridBagLayout());
         paletteWrapper.setBackground(Theme.Ultramarine);
-        paletteWrapper.setPreferredSize(new Dimension(164, screenHeight));
+        paletteWrapper.setPreferredSize(new Dimension(100, screenHeight));
 
         paletteWrapper.add(roundedPane);
         // ---------- 팔레트 중앙 정렬 끝
