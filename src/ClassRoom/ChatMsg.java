@@ -15,6 +15,7 @@ public class ChatMsg implements Serializable {
     public final static int MODE_TX_ACCESS = 0x50;
     public final static int MODE_TX_DENIED = 0x51;
     public final static int MODE_USER_INFO = 0x52;
+    public final static int MODE_SHARED_SCREEN = 0x53;
 
     String userID;
     int mode;
