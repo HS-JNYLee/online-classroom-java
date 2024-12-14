@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.util.Vector;
@@ -19,10 +20,10 @@ public class WithChatServer extends JFrame {
 
     private JTextArea t_display;
     private JButton b_connect, b_disconnect, b_exit;
-
+    private static BufferedImage nowFrame;
     public WithChatServer(int port) {
         super("With Chat Server");
-
+        new Thread(WithChatServer::sampleFrame).start(); // [임시]: 영상 데이터가 전달되었다고 가정.
         DatabaseFile.parsing();
 
         buildGUI();
@@ -234,6 +235,16 @@ public class WithChatServer extends JFrame {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if(isValid) {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg));
+                /*
+                * 녹화 강의 모드로 전환
+                send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
+                * 녹화 현재 프레임 전달
+                new Thread(() -> {
+                    while (true) {
+                        send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, nowFrame));
+                    }
+                }).start();
+                */
             } else {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
             }
@@ -256,5 +267,27 @@ public class WithChatServer extends JFrame {
         int port = 8080;
 
         WithChatServer server = new WithChatServer(port);
+    }
+
+    // [임시]: 샘플 프레임 생성용 함수
+    private static void sampleFrame() {
+        int frameCount = 0;
+        try {
+            while (true) {
+                BufferedImage frame = new BufferedImage(600, 340, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g = frame.createGraphics();
+                g.setColor(new Color((frameCount * 10) % 255, (frameCount * 5) % 255, (frameCount * 3) % 255));
+                g.fillRect(0, 0, 600, 340);
+                g.setColor(Color.WHITE);
+                g.drawString("Frame: " + frameCount, 250, 170);
+                g.dispose();
+
+                frameCount++;
+                nowFrame = frame;
+                Thread.sleep(100);
+            }
+        }catch (InterruptedException ex) {
+        System.out.println(ex.getMessage());
+    }
     }
 }

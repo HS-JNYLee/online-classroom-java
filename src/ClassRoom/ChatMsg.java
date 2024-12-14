@@ -2,7 +2,12 @@ package ClassRoom;
 
 import User.Roles;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 
 public class ChatMsg implements Serializable {
@@ -24,6 +29,7 @@ public class ChatMsg implements Serializable {
     long size;
     String uName;
     String uType;
+    byte[] imageBytes;
 
     public ChatMsg(String userID, String userName, ImageIcon image, String uType ,int code, String message){
         this.userID = userID;
@@ -56,6 +62,11 @@ public class ChatMsg implements Serializable {
         this(userID, code, null, image, 0, null, null);
     }
 
+    public ChatMsg(String userID, int code, BufferedImage image) {
+        this(userID, code, null, null, 0, null, null);
+        setImageBytes(image);
+    }
+
     public ChatMsg(String userID, int code, String message, ImageIcon image) {
         this(userID, code, message, image, 0, null, null);
     }
@@ -86,6 +97,26 @@ public class ChatMsg implements Serializable {
 
     public ImageIcon getImage(){
         return this.image;
+    }
+
+
+    public void setImageBytes(BufferedImage image) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(image, "png", baos);
+            this.imageBytes = baos.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public BufferedImage getImageBytes() {
+        try {
+            ByteArrayInputStream bais = new ByteArrayInputStream(this.imageBytes);
+            return ImageIO.read(bais);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
