@@ -505,8 +505,6 @@ public class MainStudScreenGUI extends JFrame {
                 String msg = chatTextField.getText();
                 chatTextField.setText("");
 
-                chatCommunityPanel.add(addMessage(msg, LoginStudent));
-
                 // 스크롤 바를 자동으로 제일 밑으로 이동
                 JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
                 scrollBar.setValue(scrollBar.getMaximum());
@@ -518,11 +516,6 @@ public class MainStudScreenGUI extends JFrame {
                         scrollBar.setValue(scrollBar.getMaximum());
                     }
                 });
-
-                String roleString;
-                if(LoginStudent.getRole()==Roles.STUDENT){
-
-                }
 
                 ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USER_INFO, msg);
 
@@ -537,8 +530,6 @@ public class MainStudScreenGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String msg = chatTextField.getText();
                 chatTextField.setText("");
-
-                chatCommunityPanel.add(addMessage(msg, LoginStudent));
 
 //                chatCommunityPanel.add(addMessage(msg, new Professor("1", "김교수", new ImageIcon("./assets/icons/user_icon.png"))));
 
@@ -593,7 +584,7 @@ public class MainStudScreenGUI extends JFrame {
         JLabel msgText = new JLabel(msg);
         JLabel msgProfile = new JLabel(profileImage);
 
-        if (user instanceof Student && ((Student) user) == LoginStudent) { // 수신자의 정보 (우측 정렬)
+        if (user instanceof Student && ((Student) user).getId().equals(LoginStudent.getId())) { // 수신자의 정보 (우측 정렬)
 
             // 우측 정렬
             msgGroupPanel.add(Box.createHorizontalGlue());
@@ -613,9 +604,22 @@ public class MainStudScreenGUI extends JFrame {
 //            msgGroupPanel.setBackground(Color.red);
         }
 
+        chatCommunityPanel.add(msgGroupPanel);
+
         // 부모 패널 업데이트
         chatCommunityPanel.revalidate();
         chatCommunityPanel.repaint();
+
+        JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+        scrollBar.setValue(scrollBar.getMaximum());
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                scrollBar.setValue(scrollBar.getMaximum());
+            }
+        });
 
         return msgGroupPanel;
     }
