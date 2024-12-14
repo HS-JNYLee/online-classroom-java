@@ -202,6 +202,9 @@ public class WithChatServer extends JFrame {
                         printDisplay(msg.getuId() + " : " + msg.getMessage());
                         broadcasting(msg);
                     }
+                    else if(msg.mode == ChatMsg.MODE_EMOJI) {
+                        printDisplay("Received Emoji: " + msg.x + ", " + msg.y);
+                    }
                 }
                 users.removeElement(this);
                 printDisplay(uid + "퇴장. 현재 참가자 수: " + users.size());
@@ -282,7 +285,7 @@ public class WithChatServer extends JFrame {
                         }
                     }
                 });
-                // imageVideoThread.start();
+                imageVideoThread.start();
                 audioThread = new Thread(() -> {
                     File wavFile = new File("assets/bass.wav");
                     if (!wavFile.exists()) {
@@ -330,7 +333,7 @@ public class WithChatServer extends JFrame {
                         e.printStackTrace();
                     }
                 });
-                // audioThread.start();
+                audioThread.start();
             } else {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
             }

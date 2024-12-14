@@ -141,6 +141,7 @@ public class LectureScreenGUI extends JFrame {
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) { // 우클릭 감지
                     videoPanel.showEmoji(e.getPoint());
+                    sendObserver.send(e.getPoint().x, e.getPoint().y);
                 }
             }
         });
@@ -350,6 +351,14 @@ public class LectureScreenGUI extends JFrame {
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+    private SendObserver sendObserver;
+    void setSendObserver(SendObserver sendObserver) {
+        this.sendObserver = sendObserver;
+    }
+    private ChatMsg chatMsg;
+    public void setChatMsg(ChatMsg chatMsg) {
+        this.chatMsg = chatMsg;
     }
 }
 
