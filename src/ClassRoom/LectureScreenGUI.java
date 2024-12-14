@@ -5,6 +5,8 @@ import Utils.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 public class LectureScreenGUI extends JFrame {
@@ -12,6 +14,7 @@ public class LectureScreenGUI extends JFrame {
     private final int screenHeight = 540;
     private PaletteButton b_pen;
     private PaletteButton b_eraser;
+    private PaletteButton b_bookmark;
     private DrawingPanel drawingPanel;
 
     LectureScreenGUI() {
@@ -66,9 +69,19 @@ public class LectureScreenGUI extends JFrame {
     public JPanel createScreenPanel() {
         // 영상 패널
         VideoPanel videoPanel = new VideoPanel();
+
+        drawingPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) { // 우클릭 감지
+                    videoPanel.showEmoji(e.getPoint());
+                }
+            }
+        });
         // 슬라이더 - 타임라인 조정
         BookmarkSlider bookmarkSlider = new BookmarkSlider(videoPanel);
-        
+        bookmarkSlider.setBookmarkButton(b_bookmark);
+
         // (임시) 영상 녹화 테스트용
         new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
@@ -92,7 +105,7 @@ public class LectureScreenGUI extends JFrame {
     public JPanel createPalettePanel() {
         // 팔레트 버튼 모음
         // 북마크
-        PaletteButton b_bookmark = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
+        b_bookmark = new PaletteToggleButton(Icons.bookmarkInactiveIcon, Icons.bookmarkActiveIcon);
         // 지우개
         b_eraser = new PaletteToggleButton(Icons.eraserInactiveIcon, Icons.eraserActiveIcon);
         // 연필
@@ -159,7 +172,12 @@ public class LectureScreenGUI extends JFrame {
     // 나가기 버튼 배치 패널
     public JPanel createButtonPanel() {
         // 나가기 버튼 아이콘
-        PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon);
+        PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon) {
+            @Override
+            public void onClick() {
+                ExitModal.showModalDialog(LectureScreenGUI.this);
+            }
+        };
         exitButton.setPreferredSize(new Dimension(30, 31));
         // ---------- 나가기 버튼 아이콘 끝
         
