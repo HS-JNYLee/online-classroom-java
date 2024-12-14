@@ -42,7 +42,7 @@ public class WithTalk extends JFrame {
 
     private MainStudScreenGUI mainStudScreenGUI = null;
     private MainScreenGUI mainScreenGUI = null;
-
+    private LectureScreenGUI lectureScreenGUI = null;
 
     WithTalk(String serverAddress, int serverPort) {
         super("WithTalk");
@@ -268,6 +268,13 @@ public class WithTalk extends JFrame {
                                 printDisplay(inMsg.userID + ": " + inMsg.message);
                                 printDisplay(inMsg.image);
                                 break;
+                            case ChatMsg.MODE_SHARED_SCREEN:
+                                dispose();
+                                is_login = true; // 임시: 지워야 됨
+                                if (WithTalk.this.uType.equals("학생") && is_login) {
+                                    lectureScreenGUI = new LectureScreenGUI();
+                                }
+                                break;
                             case ChatMsg.MODE_TX_ACCESS:
                                 printDisplay(inMsg.userID + ": " + inMsg.message);
                                 dispose();
@@ -340,6 +347,10 @@ public class WithTalk extends JFrame {
                             break;
                         case ChatMsg.MODE_USER_INFO:
                             printDisplay("User객체로 전달됨 : " + inMsg.getuId());
+                            break;
+                        case ChatMsg.MODE_SHARED_SCREEN:
+                            printDisplay("User객체로 전달됨 : " + inMsg.getuId());
+                            lectureScreenGUI.getImages(inMsg.getImageBytes());
                             break;
                     }
 

@@ -82,16 +82,6 @@ public class LectureScreenGUI extends JFrame {
 
         bookmarkHistoryPanel.add(bookmarkHistoryTitle, BorderLayout.NORTH);
 
-
-        //
-        // 북마크와 이미지 아이콘을 저장할 리스트
-        ImageIcon bookmarkIcon = new ImageIcon("./assets/icons/bookmark_inactive.PNG");
-        Object[][] data = {
-                {"Bookmark 1", bookmarkIcon, 1},
-                {"Bookmark 1", bookmarkIcon, 10},
-                {"Bookmark 1", bookmarkIcon, 12},
-        };
-
         // JList에 사용할 모델 설정
         DefaultListModel<Object[]> listModel = new DefaultListModel<>();
         bookmarkSlider.setBookListModel(listModel);
@@ -301,6 +291,11 @@ public class LectureScreenGUI extends JFrame {
         new LectureScreenGUI();
     }
 
+    private BufferedImage nowFrame;
+    public void getImages(BufferedImage icon) {
+        nowFrame = icon;
+    }
+
     private void simulateVideoFrames(BookmarkSlider bookmarkSlider) {
         try {
             int frameCount = 0;
@@ -311,6 +306,9 @@ public class LectureScreenGUI extends JFrame {
                 g.fillRect(0, 0, 600, 340);
                 g.setColor(Color.WHITE);
                 g.drawString("Frame: " + frameCount, 250, 170);
+                if (nowFrame != null) {
+                    g.drawImage(nowFrame, 0, 0, null);
+                }
                 g.dispose();
 
                 SwingUtilities.invokeLater(() -> {
