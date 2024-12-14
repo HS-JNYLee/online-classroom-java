@@ -349,8 +349,13 @@ public class WithTalk extends JFrame {
                             printDisplay("User객체로 전달됨 : " + inMsg.getuId());
                             break;
                         case ChatMsg.MODE_SHARED_SCREEN:
-                            printDisplay("User객체로 전달됨 : " + inMsg.getuId());
+                            // printDisplay("화면 공유 for " + inMsg.getuId());
                             lectureScreenGUI.getImages(inMsg.getImageBytes());
+                            break;
+                        case ChatMsg.MODE_MIC_SOUND:
+                            if (inMsg.micSound != null) {
+                                lectureScreenGUI.getAudioChunk(inMsg.micSound);
+                            }
                             break;
                     }
 
@@ -361,7 +366,8 @@ public class WithTalk extends JFrame {
                     }
 
                 } catch (IOException ex) {
-                    System.err.println("연결을 종료했습니다.");
+                    System.err.println("연결을 종료했습니다." + ex.getMessage());
+                    System.exit(-1);
                 } catch (ClassNotFoundException ex) {
                     printDisplay("잘못된 객체가 전달되었습니다.");
                 }

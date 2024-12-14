@@ -2,6 +2,7 @@ package ClassRoom;
 
 import User.User;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -227,24 +228,104 @@ public class WithChatServer extends JFrame {
             }
         }
 
+        private void sendVideo(ChatMsg msg) {
+            try {
+                out.writeObject(msg);
+                out.flush();
+                out.reset();
+            } catch (IOException e) {
+                System.err.println("클라이언트 일반 전송 오류> "+e.getMessage());
+                if(imageVideoThread != null) {
+                    imageVideoThread.interrupt();
+                    imageVideoThread = null;
+                }
+                if(audioThread != null) {
+                    audioThread.interrupt();
+                    audioThread = null;
+                }
+                try {
+                    if (clientSocket != null) clientSocket.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        }
+
         private void sendMessage(String msg) {
             send(new ChatMsg(uid, ChatMsg.MODE_TX_STRING, msg));
         }
 
+        private Thread imageVideoThread = null;
+        private Thread audioThread = null;
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if(isValid) {
-                send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg));
+                //send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg));
+
                 /*
-                * 녹화 강의 모드로 전환
+                // * 녹화 강의 모드로 전환
                 send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
-                * 녹화 현재 프레임 전달
-                new Thread(() -> {
+                // * 녹화 현재 프레임 전달
+                imageVideoThread = new Thread(() -> {
                     while (true) {
-                        send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, nowFrame));
+                        sendVideo(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, nowFrame));
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
-                }).start();
-                */
+                });
+                imageVideoThread.start();
+                audioThread = new Thread(() -> {
+                    File wavFile = new File("assets/bass.wav");
+                    if (!wavFile.exists()) {
+                        System.out.println("WAV 파일을 찾을 수 없습니다.");
+                    }
+                    try  {
+                        AudioInputStream originalStream = AudioSystem.getAudioInputStream(wavFile);
+                        AudioFormat originalFormat = originalStream.getFormat();
+                        AudioFormat pcmFormat = new AudioFormat(
+                                AudioFormat.Encoding.PCM_SIGNED,
+                                originalFormat.getSampleRate(),
+                                16, // 샘플 크기
+                                originalFormat.getChannels(),
+                                originalFormat.getChannels() * 2, // 한 샘플당 바이트 수
+                                originalFormat.getSampleRate(),
+                                false // 리틀 엔디안
+                        );
+                        AudioInputStream pcmStream = AudioSystem.getAudioInputStream(pcmFormat, originalStream);
+
+                        AudioFormat format = pcmStream.getFormat();
+                        System.out.println("Audio Format: " + format);
+                        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+
+                        if (!AudioSystem.isLineSupported(info)) {
+                            System.out.println("Line not supported");
+                            return;
+                        }
+
+                        try (SourceDataLine audioLine = (SourceDataLine) AudioSystem.getLine(info)) {
+                            audioLine.open(format);
+                            audioLine.start();
+
+                            byte[] buffer = new byte[4096]; // 버퍼 크기
+                            int bytesRead = 0;
+                            while ((bytesRead = pcmStream.read(buffer, 0, buffer.length)) != -1) {
+                                // audioLine.write(buffer, 0, bytesRead); // 버퍼 데이터를 오디오 라인에 전송
+                                sendVideo(new ChatMsg(uid, "학생", ChatMsg.MODE_MIC_SOUND, buffer));
+                                Thread.sleep(10); // 0.1초 지연
+                            }
+
+                            audioLine.drain(); // 모든 데이터를 처리
+                            audioLine.stop();
+                        }
+                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+                audioThread.start();
+                 */
             } else {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
             }

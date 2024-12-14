@@ -146,7 +146,11 @@ public class LectureScreenGUI extends JFrame {
         // 슬라이더 - 타임라인 조정
         bookmarkSlider = new BookmarkSlider(videoPanel);
         bookmarkSlider.setBookmarkButton(b_bookmark);
+        soundManager = new SoundManager();
+        bookmarkSlider.setLectureSoundManager(soundManager);
 
+        // (임시) 소리 테스트용
+        simulateAudioStream();
         // (임시) 영상 녹화 테스트용
         new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
@@ -295,6 +299,29 @@ public class LectureScreenGUI extends JFrame {
     public void getImages(BufferedImage icon) {
         nowFrame = icon;
     }
+    private byte[] audioChunk;
+    public void getAudioChunk(byte[] audioChunk) {
+        this.audioChunk = audioChunk;
+    }
+
+    private SoundManager soundManager;
+    private void simulateAudioStream() {
+        new Thread(() -> {
+            while (true) {
+                // 임시 소리 데이터 생성 (실제 서버에서 받아오는 방식으로 대체)
+                if (audioChunk != null){
+                    byte[] soundChunk = audioChunk;
+                    soundManager.addSoundChunk(audioChunk);
+                }
+
+                try {
+                    Thread.sleep(10); // 0.1초 간격으로 추가
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     private void simulateVideoFrames(BookmarkSlider bookmarkSlider) {
         try {
@@ -317,7 +344,7 @@ public class LectureScreenGUI extends JFrame {
                     bookmarkSlider.setButton(b_save);
                 });
                 frameCount++;
-                Thread.sleep(100);
+                Thread.sleep(10);
             }
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
