@@ -1,7 +1,7 @@
 package MainStudScreen;
 
 import ClassRoom.ChatMsg;
-import ClassRoom.MainScreenGUI;
+import Threads.SendMicSoundThread;
 import User.User;
 import User.Student;
 import User.Professor;
@@ -10,14 +10,21 @@ import Utils.Icons;
 import Utils.Theme;
 import ClassRoom.SelectImageButton;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static User.User.roleToString;
+
 public class MainStudScreenGUI extends JFrame {
-    private final CommunicationCallBack communicationCallBack;
+    private final CommunicationCallbacks communicationCallbacks;
+    private SendMicSoundThread sendMicSoundThread;
 
     private JButton micBtn;
     private JButton soundBtn;
@@ -55,7 +62,7 @@ public class MainStudScreenGUI extends JFrame {
     // 구현 예정 함수들
     // 메시지 송신
     public void sendMsg(ChatMsg chatMsg){
-        this.communicationCallBack.send(chatMsg);
+        this.communicationCallbacks.send(chatMsg);
     }
 
     // 메시지 수신 (Thread)
@@ -83,10 +90,40 @@ public class MainStudScreenGUI extends JFrame {
     public void receiveScreen(){ }
 
     // 화면 소리, 교수님, 다른 학생들 마이크 소리 수신 (Thread)
-    public void receiveSound(){ }
+    public void receiveSound(ChatMsg chatMsg){
+        try {
+            System.out.println("소리옴");
+            // 1. 오디오 포맷 설정 (서버와 동일하게 설정)
+            AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
+            SourceDataLine line = AudioSystem.getSourceDataLine(format);
+            line.open(format);
+            line.start(); // 오디오 출력을 위한 라인 시작
+
+            // 2. ChatMsg에서 바이트 배열 가져오기
+            byte[] soundData = chatMsg.getMicSound(); // ChatMsg에 추가된 getter 메서드로 데이터 접근
+
+            // 3. 가져온 데이터를 SourceDataLine에 전달
+            if (soundData != null && soundData.length > 0) {
+                System.out.println("수신 읽은 데이터 : " + soundData.length);
+                line.write(soundData, 0, soundData.length); // 오디오 출력
+            }
+
+            line.drain(); // 버퍼에 남은 데이터 재생 완료
+            line.close(); // 라인 닫기
+
+        } catch (LineUnavailableException e) {
+            System.err.println("오디오 장치를 사용할 수 없습니다.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     // 현재 로그인 된 학생의 마이크 소리 송신 (Thread)
-    public void sendMicVoice(){ }
+    public void sendMicVoice(ChatMsg chatMsg){
+        System.out.println("소리보냄");
+        this.communicationCallbacks.send(chatMsg);
+    }
 
     // Team 활동 시작 유무 수신 (Thread) 팀원들 정보 전달 받음
     public void receiveTeamActivityStatus(){ }
@@ -98,7 +135,7 @@ public class MainStudScreenGUI extends JFrame {
 
 
     // User 정보 필요
-    public MainStudScreenGUI(CommunicationCallBack communicationCallBack, Student user){
+    public MainStudScreenGUI(CommunicationCallbacks communicationCallbacks, Student user){
         setTitle("Class Student Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(960, 540);
@@ -111,7 +148,7 @@ public class MainStudScreenGUI extends JFrame {
 
         getContentPane().setBackground(new Color(43, 61, 81));
 
-        this.communicationCallBack = communicationCallBack;
+        this.communicationCallbacks = communicationCallbacks;
         this.LoginStudent = user;
 
         buildGUI();
@@ -202,9 +239,7 @@ public class MainStudScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
 
-                    teamActivityStatus = true;
-
-
+                    sendMicSoundThread.stopThread();
                 }
                 else{ // 마이크가 꺼져있을 때 눌렀을 경우 (Mic ON)
                     is_mic_on = true;
@@ -215,9 +250,8 @@ public class MainStudScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
 
-                    teamActivityStatus = false;
-
-                    //TODO sendMicVoice (Thread)
+                    sendMicSoundThread = new SendMicSoundThread(LoginStudent,(chatMsg)->sendMicVoice(chatMsg));
+                    sendMicSoundThread.start();
                 }
             }
         });
@@ -517,7 +551,7 @@ public class MainStudScreenGUI extends JFrame {
                     }
                 });
 
-                ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USER_INFO, msg);
+                ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USERINFO_MSG, msg);
 
                 sendMsg(sendChatMsg); // 메시지 송신
             }
@@ -545,7 +579,7 @@ public class MainStudScreenGUI extends JFrame {
                     }
                 });
 
-                ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USER_INFO, msg);
+                ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USERINFO_MSG, msg);
 
                 sendMsg(sendChatMsg); // 메시지 송신
             }
@@ -622,35 +656,6 @@ public class MainStudScreenGUI extends JFrame {
         });
 
         return msgGroupPanel;
-    }
-
-    static public String roleToString(Roles roles){
-
-        if(roles == Roles.STUDENT){
-            return "학생";
-        }else if(roles == Roles.PROFESSOR){
-            return "교수";
-        } else if (roles == Roles.TEAM_LEADER) {
-            return "팀장";
-        } else if (roles== Roles.TEAM_MEMBER) {
-            return "팀원";
-        }else return "역할이 할당 안됨";
-    }
-
-    static public Roles stringToRole(String target){
-        Roles roles = Roles.PROFESSOR;
-
-        if(target=="학생"){
-            roles = Roles.STUDENT;
-        } else if (target == "교수") {
-            roles = Roles.PROFESSOR;
-        } else if (target == "팀장") {
-            roles = Roles.TEAM_LEADER;
-        } else if (target == "팀원") {
-            roles = Roles.TEAM_MEMBER;
-        }
-
-        return roles;
     }
 
 

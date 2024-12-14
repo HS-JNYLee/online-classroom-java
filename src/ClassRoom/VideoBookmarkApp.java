@@ -2,7 +2,6 @@ package ClassRoom;
 
 import Utils.PaletteButton;
 import Utils.Theme;
-import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;

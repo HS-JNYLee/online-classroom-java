@@ -2,6 +2,6 @@ package MainStudScreen;
 
 import ClassRoom.ChatMsg;
 
-public interface CommunicationCallBack{
+public interface CommunicationCallbacks {
     void send(ChatMsg chatMsg);
 }

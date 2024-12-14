@@ -1,7 +1,5 @@
 package ClassRoom;
 
-import User.Roles;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
@@ -19,7 +17,7 @@ public class ChatMsg implements Serializable {
     public final static int MODE_TX_IMAGE = 0x40;
     public final static int MODE_TX_ACCESS = 0x50;
     public final static int MODE_TX_DENIED = 0x51;
-    public final static int MODE_USER_INFO = 0x52;
+    public final static int MODE_USERINFO_MSG = 0x52;
     public final static int MODE_SHARED_SCREEN = 0x53;
     public final static int MODE_MIC_SOUND = 0x59;
 
@@ -107,6 +105,10 @@ public class ChatMsg implements Serializable {
 
     public ImageIcon getImage(){
         return this.image;
+    }
+
+    public byte[] getMicSound(){
+        return this.micSound;
     }
 
 

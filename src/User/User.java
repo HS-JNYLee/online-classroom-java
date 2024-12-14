@@ -100,4 +100,33 @@ public class User implements UserInterface {
 
     }
 
+    static public String roleToString(Roles roles){
+
+        if(roles == Roles.STUDENT){
+            return "학생";
+        }else if(roles == Roles.PROFESSOR){
+            return "교수";
+        } else if (roles == Roles.TEAM_LEADER) {
+            return "팀장";
+        } else if (roles== Roles.TEAM_MEMBER) {
+            return "팀원";
+        }else return "역할이 할당 안됨";
+    }
+
+    static public Roles stringToRole(String target){
+        Roles roles = Roles.PROFESSOR;
+
+        if(target=="학생"){
+            roles = Roles.STUDENT;
+        } else if (target == "교수") {
+            roles = Roles.PROFESSOR;
+        } else if (target == "팀장") {
+            roles = Roles.TEAM_LEADER;
+        } else if (target == "팀원") {
+            roles = Roles.TEAM_MEMBER;
+        }
+
+        return roles;
+    }
+
 }

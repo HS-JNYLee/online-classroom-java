@@ -195,8 +195,12 @@ public class WithChatServer extends JFrame {
                     } else if (msg.mode == ChatMsg.MODE_TX_IMAGE) {
                         printDisplay(uid + ": " + msg.message);
                         broadcasting(msg);
-                    } else if(msg.mode == ChatMsg.MODE_USER_INFO){
+                    } else if(msg.mode == ChatMsg.MODE_USERINFO_MSG){
                         printDisplay(msg.getuId() + " : " + msg.getMessage());
+                        broadcasting(msg);
+                    }
+                    else if(msg.mode == ChatMsg.MODE_MIC_SOUND){
+                        printDisplay(msg.getuId() + " : " + "소리 송신");
                         broadcasting(msg);
                     }
                 }
