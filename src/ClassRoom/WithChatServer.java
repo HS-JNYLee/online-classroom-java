@@ -15,7 +15,7 @@ import java.util.Vector;
 public class WithChatServer extends JFrame {
     private int port;
     private ServerSocket serverSocket = null;
-
+    private long threadSleep = 50;
     private Thread acceptThread = null;
     private Vector<ClientHandler> users = new Vector<ClientHandler>();
 
@@ -129,6 +129,7 @@ public class WithChatServer extends JFrame {
                 cHandler.start();
             }
         } catch (SocketException e) {
+            e.printStackTrace();
             printDisplay("서버 소켓 종료");
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,6 +139,7 @@ public class WithChatServer extends JFrame {
                 if (clientSocket != null) clientSocket.close();
                 if (serverSocket != null) serverSocket.close();
             } catch (IOException e) {
+                e.printStackTrace();
                 System.err.println("서버 닫기 오류> " + e.getMessage());
                 System.exit(-1);
             }
@@ -234,20 +236,25 @@ public class WithChatServer extends JFrame {
                 out.flush();
                 out.reset();
             } catch (IOException e) {
+                e.printStackTrace();
                 System.err.println("클라이언트 일반 전송 오류> "+e.getMessage());
-                if(imageVideoThread != null) {
-                    imageVideoThread.interrupt();
-                    imageVideoThread = null;
+                // 스레드 종료 시 안전하게 리소스 해제
+                if (imageVideoThread != null) {
+                    imageVideoThread.interrupt(); // 스레드 인터럽트
+                    imageVideoThread = null; // 스레드 재활용 방지
                 }
-                if(audioThread != null) {
-                    audioThread.interrupt();
-                    audioThread = null;
+                if (audioThread != null) {
+                    audioThread.interrupt(); // 스레드 인터럽트
+                    audioThread = null; // 스레드 재활용 방지
                 }
                 try {
-                    if (clientSocket != null) clientSocket.close();
+                    if (clientSocket != null) {
+                        clientSocket.close(); // 소켓 닫기
+                    }
                 } catch (IOException ex) {
-                    throw new RuntimeException(ex);
+                    System.err.println("소켓 닫기 오류> " + ex.getMessage());
                 }
+                throw new RuntimeException("클라이언트 전송 중 오류 발생", e);
             }
         }
 
@@ -259,20 +266,19 @@ public class WithChatServer extends JFrame {
         private Thread audioThread = null;
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
-            if(isValid) {
-                //send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg));
+            if (isValid) {
+                // send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
 
-                /*
                 // * 녹화 강의 모드로 전환
                 send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
                 // * 녹화 현재 프레임 전달
                 imageVideoThread = new Thread(() -> {
-                    while (true) {
+                    while (!Thread.currentThread().isInterrupted()) {
                         sendVideo(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, nowFrame));
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(threadSleep); // 0.1초 지연
                         } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                            break; // 스레드가 중단된 경우 루프를 종료
                         }
                     }
                 });
@@ -281,8 +287,9 @@ public class WithChatServer extends JFrame {
                     File wavFile = new File("assets/bass.wav");
                     if (!wavFile.exists()) {
                         System.out.println("WAV 파일을 찾을 수 없습니다.");
+                        return;
                     }
-                    try  {
+                    try {
                         AudioInputStream originalStream = AudioSystem.getAudioInputStream(wavFile);
                         AudioFormat originalFormat = originalStream.getFormat();
                         AudioFormat pcmFormat = new AudioFormat(
@@ -310,11 +317,10 @@ public class WithChatServer extends JFrame {
                             audioLine.start();
 
                             byte[] buffer = new byte[4096]; // 버퍼 크기
-                            int bytesRead = 0;
-                            while ((bytesRead = pcmStream.read(buffer, 0, buffer.length)) != -1) {
-                                // audioLine.write(buffer, 0, bytesRead); // 버퍼 데이터를 오디오 라인에 전송
+                            int bytesRead;
+                            while ((bytesRead = pcmStream.read(buffer, 0, buffer.length)) != -1 && !Thread.currentThread().isInterrupted()) {
                                 sendVideo(new ChatMsg(uid, "학생", ChatMsg.MODE_MIC_SOUND, buffer));
-                                Thread.sleep(10); // 0.1초 지연
+                                Thread.sleep(threadSleep); // 0.1초 지연
                             }
 
                             audioLine.drain(); // 모든 데이터를 처리
@@ -325,7 +331,6 @@ public class WithChatServer extends JFrame {
                     }
                 });
                 audioThread.start();
-                 */
             } else {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
             }

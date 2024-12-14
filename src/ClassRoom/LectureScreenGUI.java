@@ -17,6 +17,7 @@ public class LectureScreenGUI extends JFrame {
     private PaletteButton b_bookmark;
     private DrawingPanel drawingPanel;
     private BookmarkSlider bookmarkSlider;
+    private long threadSleep = 50;
     LectureScreenGUI() {
         super("수업 중...");
 
@@ -315,7 +316,7 @@ public class LectureScreenGUI extends JFrame {
                 }
 
                 try {
-                    Thread.sleep(10); // 0.1초 간격으로 추가
+                    Thread.sleep(threadSleep); // 0.1초 간격으로 추가
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -344,7 +345,7 @@ public class LectureScreenGUI extends JFrame {
                     bookmarkSlider.setButton(b_save);
                 });
                 frameCount++;
-                Thread.sleep(10);
+                Thread.sleep(threadSleep);
             }
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
