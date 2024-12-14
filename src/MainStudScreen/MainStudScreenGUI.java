@@ -1,5 +1,6 @@
 package MainStudScreen;
 
+import ClassRoom.ChatMsg;
 import ClassRoom.MainScreenGUI;
 import User.User;
 import User.Student;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainStudScreenGUI extends JFrame {
+    private final CommunicationCallBack communicationCallBack;
 
     private JButton micBtn;
     private JButton soundBtn;
@@ -52,13 +54,29 @@ public class MainStudScreenGUI extends JFrame {
 
     // 구현 예정 함수들
     // 메시지 송신
-    public void sendMsg(){
-
+    public void sendMsg(ChatMsg chatMsg){
+        this.communicationCallBack.send(chatMsg);
     }
 
     // 메시지 수신 (Thread)
-    public void receiveMsg(){
+    public void receiveMsg(ChatMsg receivedChatMsg){
 
+        String roleString = receivedChatMsg.getuType();
+        String id = receivedChatMsg.getuId();
+        String name = receivedChatMsg.getuName();
+        ImageIcon imageIcon = receivedChatMsg.getImage();
+
+        User receivedUser;
+
+        System.out.println(receivedChatMsg.getuId());
+
+        if(roleString=="교수"){
+            receivedUser = new Professor(id, name, imageIcon);
+        } else {
+            receivedUser = new Student(id,name, imageIcon);
+        }
+
+        addMessage(receivedChatMsg.getMessage(), receivedUser);
     }
 
     // 교수가 화면 공유를 시작했을 경우 화면 수신 (Thread)
@@ -80,7 +98,7 @@ public class MainStudScreenGUI extends JFrame {
 
 
     // User 정보 필요
-    private MainStudScreenGUI(){
+    public MainStudScreenGUI(CommunicationCallBack communicationCallBack, Student user){
         setTitle("Class Student Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(960, 540);
@@ -92,6 +110,9 @@ public class MainStudScreenGUI extends JFrame {
         setContentPane(padding);
 
         getContentPane().setBackground(new Color(43, 61, 81));
+
+        this.communicationCallBack = communicationCallBack;
+        this.LoginStudent = user;
 
         buildGUI();
 
@@ -498,7 +519,14 @@ public class MainStudScreenGUI extends JFrame {
                     }
                 });
 
-                sendMsg(); // 메시지 송신
+                String roleString;
+                if(LoginStudent.getRole()==Roles.STUDENT){
+
+                }
+
+                ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USER_INFO, msg);
+
+                sendMsg(sendChatMsg); // 메시지 송신
             }
         });
 
@@ -512,7 +540,7 @@ public class MainStudScreenGUI extends JFrame {
 
                 chatCommunityPanel.add(addMessage(msg, LoginStudent));
 
-                chatCommunityPanel.add(addMessage(msg, new Professor("1", "김교수", new ImageIcon("./assets/icons/user_icon.png"))));
+//                chatCommunityPanel.add(addMessage(msg, new Professor("1", "김교수", new ImageIcon("./assets/icons/user_icon.png"))));
 
                 // 스크롤 바를 자동으로 제일 밑으로 이동
                 JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
@@ -526,7 +554,9 @@ public class MainStudScreenGUI extends JFrame {
                     }
                 });
 
-                sendMsg(); // 메시지 송신
+                ChatMsg sendChatMsg = new ChatMsg(LoginStudent.getId() ,LoginStudent.getName(), LoginStudent.getProfileImage() ,roleToString(LoginStudent.getRole()) ,ChatMsg.MODE_USER_INFO, msg);
+
+                sendMsg(sendChatMsg); // 메시지 송신
             }
         });
 
@@ -590,9 +620,38 @@ public class MainStudScreenGUI extends JFrame {
         return msgGroupPanel;
     }
 
+    static public String roleToString(Roles roles){
+
+        if(roles == Roles.STUDENT){
+            return "학생";
+        }else if(roles == Roles.PROFESSOR){
+            return "교수";
+        } else if (roles == Roles.TEAM_LEADER) {
+            return "팀장";
+        } else if (roles== Roles.TEAM_MEMBER) {
+            return "팀원";
+        }else return "역할이 할당 안됨";
+    }
+
+    static public Roles stringToRole(String target){
+        Roles roles = Roles.PROFESSOR;
+
+        if(target=="학생"){
+            roles = Roles.STUDENT;
+        } else if (target == "교수") {
+            roles = Roles.PROFESSOR;
+        } else if (target == "팀장") {
+            roles = Roles.TEAM_LEADER;
+        } else if (target == "팀원") {
+            roles = Roles.TEAM_MEMBER;
+        }
+
+        return roles;
+    }
+
 
     public static void main(String[] args) {
-        new MainStudScreenGUI();
+//        new MainStudScreenGUI();
     }
 }
 

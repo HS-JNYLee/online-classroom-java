@@ -1,14 +1,14 @@
 package ClassRoom;
 
+import MainStudScreen.MainStudScreenGUI;
 import User.User;
 import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
 import Utils.Theme;
+import User.Student;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,16 +24,25 @@ public class WithTalk extends JFrame {
     private String serverAddress;
     private int serverPort;
 
+    private boolean is_login = false;
+
     private Socket socket;
     private ObjectOutputStream out;
+    private ObjectInputStream in;
 
     private String uId;
     private String uName;
     private String uType;
     private Thread receiveThread = null;
+    private Thread receiveChatMsgThread;
+
     private String uFileName;
     private int frameHeight = 390;
     private int frameWidth = 510;
+
+    private MainStudScreenGUI mainStudScreenGUI = null;
+    private MainScreenGUI mainScreenGUI = null;
+
 
     WithTalk(String serverAddress, int serverPort) {
         super("WithTalk");
@@ -243,18 +252,16 @@ public class WithTalk extends JFrame {
             out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             receiveThread = new Thread(new Runnable() {
-                private ObjectInputStream in;
                 private void receiveMessage() {
                     try {
                         ChatMsg inMsg = (ChatMsg) in.readObject();
                         if (inMsg == null) {
                             disconnect();
                             printDisplay("서버 연결 끊김");
-                            return;
                         }
 
                         switch (inMsg.mode) {
-                            case ChatMsg.MODE_TX_STRING :
+                            case ChatMsg.MODE_TX_STRING:
                                 printDisplay(inMsg.userID + ": " + inMsg.message);
                                 break;
                             case ChatMsg.MODE_TX_IMAGE:
@@ -264,7 +271,17 @@ public class WithTalk extends JFrame {
                             case ChatMsg.MODE_TX_ACCESS:
                                 printDisplay(inMsg.userID + ": " + inMsg.message);
                                 dispose();
-                                new MainScreenGUI();
+
+                                System.out.println(WithTalk.this.uType);
+
+                                if (WithTalk.this.uType=="교수"){
+                                    mainScreenGUI = new MainScreenGUI();// TODO send 설정 필요
+                                } else if(WithTalk.this.uType=="학생"){
+                                    mainStudScreenGUI = new MainStudScreenGUI(msg->send(msg), new Student(uId, uName, new ImageIcon(uFileName)));
+                                }
+
+                                is_login = true;
+
                                 break;
                             case ChatMsg.MODE_TX_DENIED:
                                 printDisplay(inMsg.userID + ": " + inMsg.message);
@@ -283,9 +300,11 @@ public class WithTalk extends JFrame {
                     } catch (IOException ex) {
                         printDisplay("입력 스트림이 열리지 않음");
                     }
-                    while (receiveThread == Thread.currentThread()) {
+                    while (!is_login) { // login 되지 않았다면 계속 로그인 대기
                         receiveMessage();
                     }
+                    // 로그인이 되었다면
+                    receiveChatMsg(); //ChatMsg 계속 수신
                 }
             });
             receiveThread.start();
@@ -295,6 +314,65 @@ public class WithTalk extends JFrame {
             System.err.println("클라이언트 연결 오류 > " + ex.getMessage());
         }
     }
+
+    // 메시지를 계속 수신하는 함수
+    public void receiveChatMsg(){
+
+        receiveChatMsgThread = new Thread(new Runnable() {
+            private void receiveMessage() {
+                try {
+                    ChatMsg inMsg = (ChatMsg) in.readObject();
+                    if (inMsg == null) {
+                        disconnect();
+                        printDisplay("서버 연결 끊김");
+                    }
+
+                    switch (inMsg.mode) {
+                        case ChatMsg.MODE_TX_STRING:
+                            printDisplay(inMsg.userID + ": " + inMsg.message);
+                            break;
+                        case ChatMsg.MODE_TX_IMAGE:
+                            printDisplay(inMsg.userID + ": " + inMsg.message);
+                            printDisplay(inMsg.image);
+                            break;
+                        case ChatMsg.MODE_TX_DENIED:
+                            printDisplay(inMsg.userID + ": " + inMsg.message);
+                            break;
+                        case ChatMsg.MODE_USER_INFO:
+                            printDisplay("User객체로 전달됨 : " + inMsg.getuId());
+                            break;
+                    }
+
+                    if(WithTalk.this.mainScreenGUI != null){ // 현재 로그인 사용자의 화면이 교수인 경우
+
+                    } else if(WithTalk.this.mainStudScreenGUI != null){ // 현재 로그인 사용자의 화면이 학생인 경우
+                        mainStudScreenGUI.receiveMsg(inMsg);
+                    }
+
+                } catch (IOException ex) {
+                    System.err.println("연결을 종료했습니다.");
+                } catch (ClassNotFoundException ex) {
+                    printDisplay("잘못된 객체가 전달되었습니다.");
+                }
+            }
+            @Override
+            public void run() {
+//                try {
+//                    System.out.println(socket.getInputStream().toString());
+//                    in = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+//                } catch (IOException ex) {
+//                    printDisplay("입력 스트림이 열리지 않음123" + ex.getMessage());
+//                }
+                while (receiveChatMsgThread==Thread.currentThread()) {
+                    receiveMessage();
+                }
+            }
+        });
+
+        receiveChatMsgThread.start();
+    }
+
+
 
     // 서버와 접속을 종료하는 함수
     public void disconnect() {
@@ -342,7 +420,7 @@ public class WithTalk extends JFrame {
         }
         ImageIcon icon = new ImageIcon(uFileName);
 
-        send(new ChatMsg(uId, ChatMsg.MODE_LOGIN, file.getName(), icon, uId, uName, uType));
+        send(new ChatMsg(uId, ChatMsg.MODE_LOGIN, file.getName(), icon, uName, uType));
     }
 
     public static void main(String[] args) {

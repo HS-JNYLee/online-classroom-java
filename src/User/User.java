@@ -2,6 +2,7 @@ package User;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.Socket;
 
 public class User implements UserInterface {

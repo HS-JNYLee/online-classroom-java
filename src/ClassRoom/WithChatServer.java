@@ -179,11 +179,11 @@ public class WithChatServer extends JFrame {
                     } else if (msg.mode == ChatMsg.MODE_LOGIN) {
                         printDisplay("참가자 구분: " + msg.uType);
                         printDisplay("참가자 이름: " + msg.uName);
-                        printDisplay("참가자 학번/교번: " + msg.uId);
+                        printDisplay("참가자 학번/교번: " + msg.userID);
                         User user = new User();
                         user.setRole(DatabaseFile.matchRole(msg.uType));
                         user.setName(msg.uName);
-                        user.setId(msg.uId);
+                        user.setId(msg.userID);
                         sendMessage(DatabaseFile.isValidate(user));
                     } else if (msg.mode == ChatMsg.MODE_LOGOUT) {
                         break;
@@ -193,6 +193,9 @@ public class WithChatServer extends JFrame {
                         broadcasting(msg);
                     } else if (msg.mode == ChatMsg.MODE_TX_IMAGE) {
                         printDisplay(uid + ": " + msg.message);
+                        broadcasting(msg);
+                    } else if(msg.mode == ChatMsg.MODE_USER_INFO){
+                        printDisplay(msg.getuId() + " : " + msg.getMessage());
                         broadcasting(msg);
                     }
                 }
