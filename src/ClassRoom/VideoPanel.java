@@ -14,6 +14,10 @@ public class VideoPanel extends JPanel {
         super.setLayout(null);
     }
 
+    public BufferedImage getCurrentFrame() {
+        return currentFrame;
+    }
+
     public void updateFrame(BufferedImage frame) {
         this.currentFrame = frame;
         if (emojiIcon != null) {

@@ -356,10 +356,8 @@ public class LectureScreenGUI extends JFrame {
     void setSendObserver(SendObserver sendObserver) {
         this.sendObserver = sendObserver;
     }
-    private Point point;
     public void setPoint(Point point) {
         videoPanel.showEmoji(point);
-        this.point = point;
     }
 }
 
