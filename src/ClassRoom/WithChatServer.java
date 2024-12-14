@@ -234,7 +234,7 @@ public class WithChatServer extends JFrame {
             }
         }
 
-        private void sendVideo(ChatMsg msg) {
+        private synchronized void sendVideo(ChatMsg msg) {
             try {
                 out.writeObject(msg);
                 out.flush();
