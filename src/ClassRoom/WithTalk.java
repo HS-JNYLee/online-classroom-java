@@ -46,8 +46,6 @@ public class WithTalk extends JFrame implements SendObserver {
     private MainScreenGUI mainScreenGUI = null;
     private LectureScreenGUI lectureScreenGUI = null;
 
-    private ChatMsg fetchedChatMsg;
-
     WithTalk(String serverAddress, int serverPort) {
         super("WithTalk");
         this.serverAddress = serverAddress;
@@ -359,12 +357,8 @@ public class WithTalk extends JFrame implements SendObserver {
                             lectureScreenGUI.getImages(fetchedChatMsg.getImageBytes());
                             break;
                         case ChatMsg.MODE_MIC_SOUND:
-                            if(WithTalk.this.mainStudScreenGUI != null) mainStudScreenGUI.receiveSound(fetchedChatMsg);
-                            break;
-                        case ChatMsg.MODE_MIC_SOUND:
-                            if (fetchedChatMsg.micSound != null) {
-                                lectureScreenGUI.getAudioChunk(fetchedChatMsg.micSound);
-                            }
+                            if(mainStudScreenGUI != null) mainStudScreenGUI.receiveSound(fetchedChatMsg);
+                            if (lectureScreenGUI != null && fetchedChatMsg.micSound != null) lectureScreenGUI.getAudioChunk(fetchedChatMsg.micSound);
                             break;
                         case ChatMsg.MODE_EMOJI:
                             lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));

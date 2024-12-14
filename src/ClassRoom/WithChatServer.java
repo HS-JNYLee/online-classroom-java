@@ -275,10 +275,10 @@ public class WithChatServer extends JFrame {
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if (isValid) {
-                // send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
+                 send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
 
                 // * 녹화 강의 모드로 전환
-                send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
+//                send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
                 // * 녹화 현재 프레임 전달
                 imageVideoThread = new Thread(() -> {
                     while (!Thread.currentThread().isInterrupted()) {
@@ -290,7 +290,7 @@ public class WithChatServer extends JFrame {
                         }
                     }
                 });
-                imageVideoThread.start();
+//                imageVideoThread.start();
                 audioThread = new Thread(() -> {
                     File wavFile = new File("assets/bass.wav");
                     if (!wavFile.exists()) {
@@ -338,7 +338,7 @@ public class WithChatServer extends JFrame {
                         e.printStackTrace();
                     }
                 });
-                audioThread.start();
+//                audioThread.start();
             } else {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
             }

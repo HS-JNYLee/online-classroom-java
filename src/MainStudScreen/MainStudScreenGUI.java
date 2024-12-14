@@ -92,7 +92,7 @@ public class MainStudScreenGUI extends JFrame {
     // 화면 소리, 교수님, 다른 학생들 마이크 소리 수신 (Thread)
     public void receiveSound(ChatMsg chatMsg){
         try {
-            System.out.println("소리옴");
+            System.out.println("소리옴~~~~~~~~~~~~~~~~~~~~~~~");
             // 1. 오디오 포맷 설정 (서버와 동일하게 설정)
             AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
             SourceDataLine line = AudioSystem.getSourceDataLine(format);
