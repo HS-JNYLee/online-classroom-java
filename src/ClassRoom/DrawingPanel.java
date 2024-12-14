@@ -14,8 +14,13 @@ public class DrawingPanel extends JPanel {
     private Color color;
     private PaletteButton penButton;
     private PaletteButton eraserButton;
+    private VideoPanel videoPanel;
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public void setVideoPanel(VideoPanel videoPanel) {
+        this.videoPanel = videoPanel;
     }
 
     public void setButtons(PaletteButton penButton, PaletteButton eraserButton) {
@@ -68,6 +73,7 @@ public class DrawingPanel extends JPanel {
         g.drawLine(prevPoint.x, prevPoint.y, currPoint.x, currPoint.y);
         g.dispose();
         repaint();
+        videoPanel.updateFrame(BookmarkSlider.combineImages(videoPanel.getCurrentFrame(), drawingImage));
     }
 
     public void removePaint() {

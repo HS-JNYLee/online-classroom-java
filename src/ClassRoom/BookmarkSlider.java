@@ -63,7 +63,6 @@ public class BookmarkSlider extends JPanel {
 
         // Slider setup
         slider = new JSlider(0, 0, 0);
-        //slider.setEnabled(false);
         slider.addChangeListener(e -> {
             if (slider.getValueIsAdjusting()) {
                 isDragging = true;
@@ -149,9 +148,10 @@ public class BookmarkSlider extends JPanel {
     private DrawingPanel drawingPanel;
     public void setDrawingPanel(DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
+        drawingPanel.setVideoPanel(videoPanel);
     }
 
-    private BufferedImage combineImages(BufferedImage videoFrame, BufferedImage drawing) {
+    public static BufferedImage combineImages(BufferedImage videoFrame, BufferedImage drawing) {
         BufferedImage combined = new BufferedImage(videoFrame.getWidth(), videoFrame.getHeight(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = combined.createGraphics();
         g.drawImage(videoFrame, 0, 0, null);
