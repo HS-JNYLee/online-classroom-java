@@ -17,6 +17,7 @@ public class LectureScreenGUI extends JFrame {
     private PaletteButton b_bookmark;
     private DrawingPanel drawingPanel;
     private BookmarkSlider bookmarkSlider;
+    private long threadSleep = 50;
     LectureScreenGUI() {
         super("수업 중...");
 
@@ -129,24 +130,29 @@ public class LectureScreenGUI extends JFrame {
         bookmarkHistory.add(emptyEastPanel, BorderLayout.EAST);
         return bookmarkHistory;
     }
-    
+    private VideoPanel videoPanel;
     // 영상 패널
     public JPanel createScreenPanel() {
         // 영상 패널
-        VideoPanel videoPanel = new VideoPanel();
+        videoPanel = new VideoPanel();
 
         drawingPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) { // 우클릭 감지
                     videoPanel.showEmoji(e.getPoint());
+                    sendObserver.send(e.getPoint().x, e.getPoint().y);
                 }
             }
         });
         // 슬라이더 - 타임라인 조정
         bookmarkSlider = new BookmarkSlider(videoPanel);
         bookmarkSlider.setBookmarkButton(b_bookmark);
+        soundManager = new SoundManager();
+        bookmarkSlider.setLectureSoundManager(soundManager);
 
+        // (임시) 소리 테스트용
+        simulateAudioStream();
         // (임시) 영상 녹화 테스트용
         new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
@@ -295,6 +301,29 @@ public class LectureScreenGUI extends JFrame {
     public void getImages(BufferedImage icon) {
         nowFrame = icon;
     }
+    private byte[] audioChunk;
+    public void getAudioChunk(byte[] audioChunk) {
+        this.audioChunk = audioChunk;
+    }
+
+    private SoundManager soundManager;
+    private void simulateAudioStream() {
+        new Thread(() -> {
+            while (true) {
+                // 임시 소리 데이터 생성 (실제 서버에서 받아오는 방식으로 대체)
+                if (audioChunk != null){
+                    byte[] soundChunk = audioChunk;
+                    soundManager.addSoundChunk(audioChunk);
+                }
+
+                try {
+                    Thread.sleep(threadSleep); // 0.1초 간격으로 추가
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     private void simulateVideoFrames(BookmarkSlider bookmarkSlider) {
         try {
@@ -317,11 +346,20 @@ public class LectureScreenGUI extends JFrame {
                     bookmarkSlider.setButton(b_save);
                 });
                 frameCount++;
-                Thread.sleep(100);
+                Thread.sleep(threadSleep);
             }
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+    private SendObserver sendObserver;
+    void setSendObserver(SendObserver sendObserver) {
+        this.sendObserver = sendObserver;
+    }
+    private Point point;
+    public void setPoint(Point point) {
+        videoPanel.showEmoji(point);
+        this.point = point;
     }
 }
 

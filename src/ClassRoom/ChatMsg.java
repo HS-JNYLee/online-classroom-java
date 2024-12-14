@@ -20,6 +20,7 @@ public class ChatMsg implements Serializable {
     public final static int MODE_USERINFO_MSG = 0x52;
     public final static int MODE_SHARED_SCREEN = 0x53;
     public final static int MODE_MIC_SOUND = 0x59;
+    public final static int MODE_EMOJI = 0x60; // 이모티콘 송수신 모드
 
     String userID;
     int mode;
@@ -30,6 +31,20 @@ public class ChatMsg implements Serializable {
     String uType;
     byte[] imageBytes;
     byte[] micSound;
+    int x;
+    int y;
+
+    public ChatMsg(String userID, String uType, int code){
+        this.userID = userID;
+        this.uType = uType;
+        this.mode = code;
+    }
+
+    public ChatMsg(String userID, String uType, int code, int x, int y){
+        this(userID, uType, code);
+        this.x = x;
+        this.y = y;
+    }
 
     // TODO 학생의 모둠 번호도 추가하여 모둠 별로만 통신이 가능하도록 설계
     public ChatMsg(String userID, String uType, int code, byte[] micSound){
@@ -110,6 +125,12 @@ public class ChatMsg implements Serializable {
     public byte[] getMicSound(){
         return this.micSound;
     }
+
+    public int getCode() {
+        return this.mode;
+    }
+
+
 
 
     public void setImageBytes(BufferedImage image) {

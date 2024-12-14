@@ -4,6 +4,7 @@ import MainStudScreen.MainStudScreenGUI;
 import User.User;
 import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
+import Utils.SendObserver;
 import Utils.Theme;
 import User.Student;
 
@@ -17,7 +18,7 @@ import java.io.*;
 import java.net.*;
 import java.util.Map;
 
-public class WithTalk extends JFrame {
+public class WithTalk extends JFrame implements SendObserver {
     private JTextField t_id, t_input_name;
     private JButton b_enter;
     private JComboBox<String> cb;
@@ -276,6 +277,7 @@ public class WithTalk extends JFrame {
                                 is_login = true; // 임시: 지워야 됨
                                 if (WithTalk.this.uType.equals("학생") && is_login) {
                                     lectureScreenGUI = new LectureScreenGUI();
+                                    lectureScreenGUI.setSendObserver(WithTalk.this);
                                 }
                                 break;
                             case ChatMsg.MODE_TX_ACCESS:
@@ -359,6 +361,14 @@ public class WithTalk extends JFrame {
                         case ChatMsg.MODE_MIC_SOUND:
                             if(WithTalk.this.mainStudScreenGUI != null) mainStudScreenGUI.receiveSound(fetchedChatMsg);
                             break;
+                        case ChatMsg.MODE_MIC_SOUND:
+                            if (fetchedChatMsg.micSound != null) {
+                                lectureScreenGUI.getAudioChunk(fetchedChatMsg.micSound);
+                            }
+                            break;
+                        case ChatMsg.MODE_EMOJI:
+                            lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
+                            break;
                     }
 
                     if(WithTalk.this.mainScreenGUI != null){ // 현재 로그인 사용자의 화면이 교수인 경우
@@ -369,6 +379,8 @@ public class WithTalk extends JFrame {
 
                 } catch (IOException ex) {
                     System.err.println("메시지를 받는 중에 연결을 종료했습니다." + ex.getMessage());
+                    System.err.println("연결을 종료했습니다." + ex.getMessage());
+                    System.exit(-1);
                 } catch (ClassNotFoundException ex) {
                     printDisplay("잘못된 객체가 전달되었습니다.");
                 }
@@ -473,5 +485,10 @@ public class WithTalk extends JFrame {
 
     public static void main(String[] args) {
         new WithTalk("127.0.0.1", 8080);
+    }
+
+    @Override
+    public void send(int x, int y) {
+        send(new ChatMsg(uId, uType, ChatMsg.MODE_EMOJI, x, y));
     }
 }
