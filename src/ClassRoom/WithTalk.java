@@ -7,6 +7,7 @@ import Utils.RoundedShadowPane;
 import Utils.SendObserver;
 import Utils.Theme;
 import User.Student;
+import User.Professor;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -283,9 +284,9 @@ public class WithTalk extends JFrame implements SendObserver {
 
                                 System.out.println(WithTalk.this.uType);
 
-                                if (WithTalk.this.uType=="교수"){
-                                    mainScreenGUI = new MainScreenGUI();// TODO send 설정 필요
-                                } else if(WithTalk.this.uType=="학생"){
+                                if (WithTalk.this.uType.equals("교수")){
+                                    mainScreenGUI = new MainScreenGUI(msg->send(msg), new Professor(uId, uName, new ImageIcon(uFileName)));
+                                } else if(WithTalk.this.uType.equals("학생")){
                                     mainStudScreenGUI = new MainStudScreenGUI(msg->send(msg), new Student(uId, uName, new ImageIcon(uFileName)));
                                 }
 
@@ -349,6 +350,7 @@ public class WithTalk extends JFrame implements SendObserver {
                         case ChatMsg.MODE_USERINFO_MSG:
                             printDisplay("User객체로 전달됨 : " + fetchedChatMsg.getuId());
                             if(WithTalk.this.mainStudScreenGUI != null) mainStudScreenGUI.receiveMsg(fetchedChatMsg);
+                            if(WithTalk.this.mainScreenGUI != null) mainScreenGUI.receiveMsg(fetchedChatMsg);
                             break;
                         case ChatMsg.MODE_SHARED_SCREEN:
                             printDisplay("User객체로 전달됨 : " + fetchedChatMsg.getuId());
@@ -427,6 +429,7 @@ public class WithTalk extends JFrame implements SendObserver {
         User user = new User();
         user.setId(uId); // 학번/교번
         user.setName(uName); // 이름
+        user.setRole(User.stringToRole(uType));
 
         // 프로필 사진
         File file = new File(uFileName);

@@ -187,7 +187,7 @@ public class WithChatServer extends JFrame {
                         printDisplay("참가자 이름: " + msg.uName);
                         printDisplay("참가자 학번/교번: " + msg.userID);
                         User user = new User();
-                        user.setRole(DatabaseFile.matchRole(msg.uType));
+                        user.setRole(User.stringToRole(msg.uType));
                         user.setName(msg.uName);
                         user.setId(msg.userID);
                         sendMessage(DatabaseFile.isValidate(user));
@@ -280,7 +280,7 @@ public class WithChatServer extends JFrame {
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if (isValid) {
-                if(uName.equals("학생1")) {
+                if(uName.equals("학생1") || uName.equals("교수자")) {
                     send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
                 } else if (uName.equals("학생2")){
                     // * 녹화 강의 모드로 전환
