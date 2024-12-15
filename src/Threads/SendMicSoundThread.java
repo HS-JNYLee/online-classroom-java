@@ -8,7 +8,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
-import javax.sound.sampled.SourceDataLine;
+import java.util.Arrays;
 
 public class SendMicSoundThread extends Thread {
 
@@ -30,37 +30,26 @@ public class SendMicSoundThread extends Thread {
     public void run() {
         try {
             // 오디오 포맷 설정
-            AudioFormat format = new AudioFormat(16000, 16, 1, true, false); // 샘플링 주파수 16kHz, 16-bit, mono
+            AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
             TargetDataLine line = AudioSystem.getTargetDataLine(format);
             line.open(format);
             line.start();
 
-            // 출력용 SourceDataLine 설정
-            SourceDataLine outputLine = AudioSystem.getSourceDataLine(format);
-            outputLine.open(format);
-            outputLine.start();
-
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[1024]; // 버퍼 크기 설정
             while (running) {
-                int bytesRead = line.read(buffer, 0, buffer.length); // 마이크에서 읽은 데이터
+                int bytesRead = line.read(buffer, 0, buffer.length); // 마이크에서 읽은 데이터 크기
                 if (bytesRead > 0) {
-                    // 소리의 크기 계산 (RMS 방식)
-                    double rms = calculateRMS(buffer);
-
-                    // 소리의 크기가 임계값을 넘으면 전송
+                    double rms = calculateRMS(buffer); // 소리 크기 계산
                     if (rms > THRESHOLD) {
-                        System.out.println("음성 전송됨 : " + bytesRead + buffer.length);
-                        sendMicCallback.send(new ChatMsg(user.getId(), User.roleToString(user.getRole()), ChatMsg.MODE_MIC_SOUND, buffer));
+                        System.out.println("음성 전송됨: " + bytesRead);
+
+                        // 읽은 데이터 크기만큼 전송
+                        byte[] soundData = Arrays.copyOf(buffer, bytesRead);
+                        sendMicCallback.send(new ChatMsg(user.getId(), User.roleToString(user.getRole()), ChatMsg.MODE_MIC_SOUND, soundData));
                     }
-
-                    // 마이크 입력 소리 바로 출력
-//                    outputLine.write(buffer, 0, bytesRead);
                 }
-//                Thread.sleep(100); // 잠시 대기 (너무 짧은 간격으로 읽지 않도록 조절)
             }
-            outputLine.drain(); // 남은 데이터 전부 출력
-            outputLine.close(); // 출력 라인 종료
-
+            line.close(); // 라인 종료
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         }

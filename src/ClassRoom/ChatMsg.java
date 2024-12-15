@@ -90,6 +90,11 @@ public class ChatMsg implements Serializable {
         setImageBytes(image);
     }
 
+    public ChatMsg(String userID, String uType ,int code, BufferedImage image) {
+        this(userID, code, null, null, 0, null, uType);
+        setImageBytes(image);
+    }
+
     public ChatMsg(String userID, int code, String message, ImageIcon image) {
         this(userID, code, message, image, 0, null, null);
     }

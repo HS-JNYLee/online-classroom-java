@@ -2,6 +2,7 @@ package MainStudScreen;
 
 import ClassRoom.ChatMsg;
 import Threads.SendMicSoundThread;
+import Threads.SendScreenThread;
 import User.User;
 import User.Student;
 import User.Professor;
@@ -25,6 +26,7 @@ import static User.User.roleToString;
 public class MainStudScreenGUI extends JFrame {
     private final CommunicationCallbacks communicationCallbacks;
     private SendMicSoundThread sendMicSoundThread;
+    private SendScreenThread sendScreenThread;
 
     private JButton micBtn;
     private JButton soundBtn;
@@ -121,7 +123,6 @@ public class MainStudScreenGUI extends JFrame {
 
     // 현재 로그인 된 학생의 마이크 소리 송신 (Thread)
     public void sendMicVoice(ChatMsg chatMsg){
-        System.out.println("소리보냄");
         this.communicationCallbacks.send(chatMsg);
     }
 
@@ -129,9 +130,10 @@ public class MainStudScreenGUI extends JFrame {
     public void receiveTeamActivityStatus(){ }
 
     // Team 활동을 시작했고 User가 팀장인 경우 화면 송신 가능 (Thread)
-    public void sendScreen(){ }
-
-
+    public void sendScreen(ChatMsg chatMsg){
+        System.out.println("화면 보냄");
+        this.communicationCallbacks.send(chatMsg);
+    }
 
 
     // User 정보 필요
@@ -150,6 +152,8 @@ public class MainStudScreenGUI extends JFrame {
 
         this.communicationCallbacks = communicationCallbacks;
         this.LoginStudent = user;
+        teamActivityStatus = true;
+        LoginStudent.setRole(Roles.TEAM_LEADER);
 
         buildGUI();
 
@@ -324,7 +328,8 @@ public class MainStudScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
 
-
+                    sendScreenThread = new SendScreenThread(LoginStudent,(chatMsg)->sendScreen(chatMsg));
+                    sendScreenThread.start();
                 }
                 else{ // 화면 공유중인 경우 (Screen Share OFF)
                     is_screen_share_possible = true;
@@ -335,7 +340,7 @@ public class MainStudScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
 
-                    //TODO sendScreen() (Thread)
+                    sendScreenThread.stopThread();
                 }
             }
         });
@@ -488,27 +493,6 @@ public class MainStudScreenGUI extends JFrame {
                 String toolTipString = String.format("<html><div style='background-color: #2c3e50; color: white; font-size: 12px'> 이름 : %s<br>학번 : %s<br>모둠번호 : %s<br>역할 : %s </div></html>", studentItem.getId(), studentItem.getName(), studentItem.getTeamNum(), role);
 
                 circleIcon.getButton().setToolTipText(toolTipString);
-
-//                circleIcon.getButton().addMouseListener(new MouseAdapter() {
-//                    @Override
-//                    public void mouseEntered(MouseEvent e) {
-//                        System.out.println("in Apple");
-//                        Point location = circleIcon.getButton().getLocationOnScreen();
-//
-//                        System.out.println(profileInfoPanelClass.getStudent().getId());
-//
-//                        // 패널 위치 설정
-//                        profileInfoPanel.setLocation(location.x + circleIcon.getButton().getWidth() / 2 - profileInfoPanel.getWidth() / 2,
-//                                location.y - profileInfoPanel.getHeight());
-//                        profileInfoPanel.setVisible(true);
-//                    }
-//
-//                    @Override
-//                    public void mouseExited(MouseEvent e) {
-//                        System.out.println("out Apple");
-//                        profileInfoPanel.setVisible(false);
-//                    }
-//                });
 
                 teamProfilesPanel.add(circleIcon.getButton());
             });

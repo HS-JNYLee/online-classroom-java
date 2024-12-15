@@ -165,6 +165,7 @@ public class WithChatServer extends JFrame {
         private Socket clientSocket;
         private ObjectOutputStream out;
         private String uid;
+        private String uName;
         ClientHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
@@ -181,6 +182,7 @@ public class WithChatServer extends JFrame {
                         printDisplay("현재 참가자 수: " + users.size());
                         continue;
                     } else if (msg.mode == ChatMsg.MODE_LOGIN) {
+                        uName = msg.getuName();
                         printDisplay("참가자 구분: " + msg.uType);
                         printDisplay("참가자 이름: " + msg.uName);
                         printDisplay("참가자 학번/교번: " + msg.userID);
@@ -209,6 +211,9 @@ public class WithChatServer extends JFrame {
                     else if(msg.mode == ChatMsg.MODE_EMOJI) {
                         printDisplay("Received Emoji: " + msg.x + ", " + msg.y);
                         broadcasting(msg);
+                    } else if (msg.mode == ChatMsg.MODE_SHARED_SCREEN) {
+                        printDisplay("Server 화면 Broadcasting : " + msg.userID);
+                        broadcastingVideo(msg);
                     }
                 }
                 users.removeElement(this);
@@ -275,10 +280,14 @@ public class WithChatServer extends JFrame {
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if (isValid) {
-                 send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
+                if(uName.equals("학생1")) {
+                    send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
+                } else if (uName.equals("학생2")){
+                    // * 녹화 강의 모드로 전환
+                    send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
+                }
 
-                // * 녹화 강의 모드로 전환
-//                send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
+
                 // * 녹화 현재 프레임 전달
                 imageVideoThread = new Thread(() -> {
                     while (!Thread.currentThread().isInterrupted()) {
@@ -341,6 +350,12 @@ public class WithChatServer extends JFrame {
 //                audioThread.start();
             } else {
                 send(new ChatMsg(uid, ChatMsg.MODE_TX_DENIED, msg));
+            }
+        }
+
+        private void broadcastingVideo(ChatMsg msg){
+            for(ClientHandler c : users){
+                c.sendVideo(msg);
             }
         }
 

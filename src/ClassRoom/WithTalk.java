@@ -36,7 +36,6 @@ public class WithTalk extends JFrame implements SendObserver {
     private String uType;
     private Thread receiveThread = null;
     private Thread receiveChatMsgThread;
-    private Thread receiveMicSoundThread;
 
     private String uFileName;
     private int frameHeight = 390;
@@ -315,7 +314,6 @@ public class WithTalk extends JFrame implements SendObserver {
                     }
                     // 로그인이 되었다면
                     receiveChatMsg(); //ChatMsg 계속 수신
-//                    receiveMicSound(); // Mic소리 계속 수신????????????????????????????????????????????????????????????????????????????????????
                 }
             });
             receiveThread.start();
@@ -390,43 +388,6 @@ public class WithTalk extends JFrame implements SendObserver {
         receiveChatMsgThread.start();
     }
 
-    // 마이크 소리 수신
-//    public void receiveMicSound(){
-//        receiveMicSoundThread = new Thread(new Runnable() {
-//            private void receiveMicSound() {
-//                try {
-//                    fetchedChatMsg = (ChatMsg) in.readObject();
-//                    if (fetchedChatMsg == null) {
-//                        return;
-////                        disconnect();
-////                        printDisplay("서버 연결 끊김");
-//                    }
-//
-//                    if(fetchedChatMsg.mode != ChatMsg.MODE_MIC_SOUND) return;
-//
-//                    if(WithTalk.this.mainScreenGUI != null){ // 현재 로그인 사용자의 화면이 교수인 경우
-//
-//                    } else if(WithTalk.this.mainStudScreenGUI != null){ // 현재 로그인 사용자의 화면이 학생인 경우
-//                        mainStudScreenGUI.receiveSound(fetchedChatMsg);
-//                    }
-//
-//                } catch (IOException ex) {
-//                    System.err.println("소리를 받는 중에 연결을 종료했습니다." + ex.getMessage());
-//                } catch (ClassNotFoundException ex) {
-//                    printDisplay("잘못된 객체가 전달되었습니다.");
-//                }
-//            }
-//            @Override
-//            public void run() {
-//                while (receiveMicSoundThread==Thread.currentThread()) {
-//                    receiveMicSound();
-//                }
-//            }
-//        });
-//
-//        receiveMicSoundThread.start();
-//    }
-
 
     // 서버와 접속을 종료하는 함수
     public void disconnect() {
@@ -441,10 +402,11 @@ public class WithTalk extends JFrame implements SendObserver {
         }
     }
 
-    private void send(ChatMsg msg) {
+    private synchronized void send(ChatMsg msg) {
         try {
             out.writeObject(msg);
             out.flush();
+            out.reset();
         } catch (IOException e) {
             System.err.println("클라이언트 일반 전송 오류> " + e);
         }
