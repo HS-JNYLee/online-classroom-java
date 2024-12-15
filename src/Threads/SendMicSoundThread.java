@@ -4,10 +4,7 @@ import ClassRoom.ChatMsg;
 import MainStudScreen.CommunicationCallbacks;
 import User.User;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.*;
 import java.util.Arrays;
 
 public class SendMicSoundThread extends Thread {
@@ -35,6 +32,10 @@ public class SendMicSoundThread extends Thread {
             line.open(format);
             line.start();
 
+            SourceDataLine outputLine = AudioSystem.getSourceDataLine(format);
+            outputLine.open(format);
+            outputLine.start();
+
             byte[] buffer = new byte[1024]; // 버퍼 크기 설정
             while (running) {
                 int bytesRead = line.read(buffer, 0, buffer.length); // 마이크에서 읽은 데이터 크기
@@ -47,6 +48,7 @@ public class SendMicSoundThread extends Thread {
                         byte[] soundData = Arrays.copyOf(buffer, bytesRead);
                         sendMicCallback.send(new ChatMsg(user.getId(), User.roleToString(user.getRole()), ChatMsg.MODE_MIC_SOUND, soundData));
                     }
+//                    outputLine.write(buffer, 0, bytesRead);
                 }
             }
             line.close(); // 라인 종료
