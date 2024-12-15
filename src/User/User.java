@@ -116,13 +116,13 @@ public class User implements UserInterface {
     static public Roles stringToRole(String target){
         Roles roles = Roles.PROFESSOR;
 
-        if(target=="학생"){
+        if(target.equals("학생")){
             roles = Roles.STUDENT;
-        } else if (target == "교수") {
+        } else if (target.equals("교수")) {
             roles = Roles.PROFESSOR;
-        } else if (target == "팀장") {
+        } else if (target.equals("팀장")) {
             roles = Roles.TEAM_LEADER;
-        } else if (target == "팀원") {
+        } else if (target.equals("팀원")) {
             roles = Roles.TEAM_MEMBER;
         }
 

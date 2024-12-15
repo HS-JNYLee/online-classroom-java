@@ -48,7 +48,7 @@ public class SendMicSoundThread extends Thread {
                         byte[] soundData = Arrays.copyOf(buffer, bytesRead);
                         sendMicCallback.send(new ChatMsg(user.getId(), User.roleToString(user.getRole()), ChatMsg.MODE_MIC_SOUND, soundData));
                     }
-//                    outputLine.write(buffer, 0, bytesRead);
+                    outputLine.write(buffer, 0, bytesRead);
                 }
             }
             line.close(); // 라인 종료

@@ -65,7 +65,7 @@ public class MainStudScreenGUI extends JFrame {
 
     // 구현 예정 함수들
     // 메시지 송신
-    public void sendMsg(ChatMsg chatMsg){
+    private void sendMsg(ChatMsg chatMsg){
         this.communicationCallbacks.send(chatMsg);
     }
 
@@ -128,7 +128,7 @@ public class MainStudScreenGUI extends JFrame {
     }
 
     // 현재 로그인 된 학생의 마이크 소리 송신 (Thread)
-    public void sendMicVoice(ChatMsg chatMsg){
+    private void sendMicVoice(ChatMsg chatMsg){
         this.communicationCallbacks.send(chatMsg);
     }
 
@@ -136,7 +136,7 @@ public class MainStudScreenGUI extends JFrame {
     public void receiveTeamActivityStatus(){ }
 
     // Team 활동을 시작했고 User가 팀장인 경우 화면 송신 가능 (Thread)
-    public void sendScreen(ChatMsg chatMsg){
+    private void sendScreen(ChatMsg chatMsg){
         System.out.println("화면 보냄");
         this.communicationCallbacks.send(chatMsg);
     }
@@ -565,8 +565,6 @@ public class MainStudScreenGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String msg = chatTextField.getText();
                 chatTextField.setText("");
-
-//                chatCommunityPanel.add(addMessage(msg, new Professor("1", "김교수", new ImageIcon("./assets/icons/user_icon.png"))));
 
                 // 스크롤 바를 자동으로 제일 밑으로 이동
                 JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
