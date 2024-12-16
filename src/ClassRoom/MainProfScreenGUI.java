@@ -1,4 +1,5 @@
 package ClassRoom;
+import ClassRoom.Group.MultiGroup;
 import MainStudScreen.CommunicationCallbacks;
 import Threads.SendMicSoundThread;
 import Threads.SendScreenThread;
@@ -58,7 +59,7 @@ public class MainProfScreenGUI extends JFrame {
     public MainProfScreenGUI(){
         setTitle("Class Student Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1000, 650);
+        setSize(1200, 700);
         setLocationRelativeTo(null);
 
         JPanel padding = new JPanel(new BorderLayout());
@@ -338,15 +339,21 @@ public class MainProfScreenGUI extends JFrame {
 
     private JPanel createJoinedStudentPanel(){
         this.joinedStudentPanel = new JPanel();
-        joinedStudentPanel.setBackground(Color.red);
+        joinedStudentPanel.setBackground(Theme.Ultramarine);
+        joinedStudentPanel.setPreferredSize(new Dimension(384,384));
+
+        joinedStudentPanel.add((new MultiGroup()).buildGUI());
 
         JPanel padding = new JPanel(new GridLayout());
-        padding.setPreferredSize(new Dimension(364,364));
-        padding.setBorder(BorderFactory.createEmptyBorder(30,30,30,30));
-        padding.setBackground(Theme.Blue);
+        padding.setPreferredSize(new Dimension(384,384));
+        padding.setBackground(Theme.Ultramarine);
         padding.add(joinedStudentPanel);
 
-        return padding;
+        RoundedPane tmp = new RoundedPane();
+        tmp.setContentPane(joinedStudentPanel);
+        tmp.setBackgroundColor(Theme.Blue);
+
+        return tmp;
     }
 
     private JPanel createStudentTablePanel(){
@@ -424,7 +431,7 @@ public class MainProfScreenGUI extends JFrame {
         this.studentTableJScrollPanel = new JScrollPane(studentJTable);
 
         JPanel padding = new JPanel(new GridLayout());
-        padding.setPreferredSize(new Dimension(300,300));
+        padding.setPreferredSize(new Dimension(384,384));
         padding.setBorder(BorderFactory.createEmptyBorder(30,30,30,30));
         padding.setBackground(Theme.Blue);
         padding.add(studentTableJScrollPanel);
@@ -506,7 +513,7 @@ public class MainProfScreenGUI extends JFrame {
         chatPanel.add(chatScroller, BorderLayout.CENTER);
 
         chatroomPanelPadding = new JPanel(new GridLayout());
-        chatroomPanelPadding.setPreferredSize(new Dimension(300,300));
+        chatroomPanelPadding.setPreferredSize(new Dimension(384,384));
         chatroomPanelPadding.setBorder(BorderFactory.createEmptyBorder(30,30,30,30));
         chatroomPanelPadding.setBackground(Theme.Blue);
         chatroomPanelPadding.add(chatPanel);
