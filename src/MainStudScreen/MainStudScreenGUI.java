@@ -11,14 +11,11 @@ import Utils.Icons;
 import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
 import Utils.Theme;
-import ClassRoom.SelectImageButton;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import static User.User.roleToString;
 
@@ -29,32 +26,17 @@ public class MainStudScreenGUI extends JFrame {
 
     private JButton micBtn;
     private JButton soundBtn;
-    private JButton screenShareBtn;
     private JButton chatBtn;
     private JPanel screenPanel;
     private JButton exitBtn;
     private JPanel chatPanel;
     private JTextField chatTextField;
     private JScrollPane chatScroller; // 채팅방의 스크롤 Panel
-    private JPanel chatCommunityPanel;
-    private JPanel teamProfilesPanel;
-    private JPanel teamProfilesPanelPadding; // 해당부분의 setVisibility를 사용하여 숨김 보이기 관리
+    private JPanel chatCommunityPanel;// 해당부분의 setVisibility를 사용하여 숨김 보이기 관리
 
     private boolean is_mic_on = false;
     private boolean is_sound_on = true;
-    private boolean is_screen_share_possible = true;
     private boolean is_chat_on = true;
-
-    private ArrayList<Student> teamMembers = new ArrayList<Student>(
-            Arrays.asList(
-                    new Student("1","KJH",Icons.userIcon, Roles.TEAM_LEADER),
-                    new Student("12","KJH",Icons.userIcon, Roles.TEAM_MEMBER),
-                    new Student("123","KJH",Icons.userIcon, Roles.TEAM_MEMBER)
-            )
-    ); // 팀원들 최대 3명
-
-    // 교수가 팀 활동을 시작했을 경우 활성화
-    private boolean teamActivityStatus = false;
 
     // 임시 user data
     Student LoginStudent = new Student("1", "김재호", new ImageIcon("./assets/icons/user_icon.png"), Roles.TEAM_LEADER);
@@ -155,8 +137,6 @@ public class MainStudScreenGUI extends JFrame {
 
         this.communicationCallbacks = communicationCallbacks;
         this.LoginStudent = user;
-        teamActivityStatus = true;///////////////////////////////////////////////////////////////////////////////////////////////// 없애기
-        LoginStudent.setRole(Roles.TEAM_LEADER);
 
         buildGUI();
 
@@ -186,9 +166,7 @@ public class MainStudScreenGUI extends JFrame {
         exitBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                teamActivityStatus = !teamActivityStatus;
-                teamProfilesPanelPadding.setVisible(teamActivityStatus);
-                screenShareBtn.setVisible(teamActivityStatus);
+
             }
         });
 
@@ -207,7 +185,6 @@ public class MainStudScreenGUI extends JFrame {
         // 안에 포함된 컴포넌트 구성
         btnsPanel.add(createMicBtn()); // 마이크 버튼
         btnsPanel.add(createSoundBtn()); // 소리 버튼
-        if(teamActivityStatus && LoginStudent.getRole() == Roles.TEAM_LEADER) btnsPanel.add(createScreenShareButton()); // 팀장인 경우만 화면 공우 가능
         btnsPanel.add(createChatBtn()); // 채팅 버튼
 
 
@@ -315,51 +292,6 @@ public class MainStudScreenGUI extends JFrame {
         return soundBtn;
     }
 
-    private JButton createScreenShareButton(){
-        this.screenShareBtn = new JButton("",new ImageIcon("./assets/icons/screen_share_on.png"));
-        Icon micIcon = this.screenShareBtn.getIcon();
-
-        Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-        ((ImageIcon) micIcon).setImage(resize);
-
-        screenShareBtn.setBackground(new Color(0, 0, 0, 0));
-        screenShareBtn.setOpaque(false);
-        screenShareBtn.setBorderPainted(false);
-
-        screenShareBtn.setPreferredSize(new Dimension(resize.getWidth(null), resize.getHeight(null)));
-
-        screenShareBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(is_screen_share_possible){ // 화면 공유 시작 가능 (Screen Share ON)
-                    is_screen_share_possible = false;
-                    screenShareBtn.setIcon(new ImageIcon("./assets/icons/screen_share_off.png"));
-
-                    Icon micIcon = screenShareBtn.getIcon();
-
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
-
-                    sendScreenThread = new SendScreenThread(LoginStudent,(chatMsg)->sendScreen(chatMsg));
-                    sendScreenThread.start();
-                }
-                else{ // 화면 공유중인 경우 (Screen Share OFF)
-                    is_screen_share_possible = true;
-                    screenShareBtn.setIcon(new ImageIcon("./assets/icons/screen_share_on.png"));
-
-                    Icon micIcon = screenShareBtn.getIcon();
-
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
-
-                    sendScreenThread.stopThread();
-                }
-            }
-        });
-
-        return screenShareBtn;
-    }
-
     private JButton createChatBtn(){
         this.chatBtn = new JButton("",new ImageIcon("./assets/icons/chat_on.png"));
         Icon micIcon = this.chatBtn.getIcon();
@@ -454,7 +386,7 @@ public class MainStudScreenGUI extends JFrame {
         userAndTeamPanel.setBackground(new Color(39, 81, 171));
 
         RoundedPane profileImageNameRounded = new RoundedPane();
-        profileImageNameRounded.setBackground(Color.YELLOW);
+        profileImageNameRounded.setBackgroundColor(Theme.Darkblue);
         profileImageNameRounded.setContentPane(profilePanel);
 
         userAndTeamPanel.add(profileImageNameRounded, BorderLayout.CENTER);
@@ -471,55 +403,7 @@ public class MainStudScreenGUI extends JFrame {
         userAndTeamPanel.add(tmpEast, BorderLayout.EAST);
         userAndTeamPanel.add(tmpWest, BorderLayout.WEST);
 
-        userAndTeamPanel.add(createTeamMemberPanel(), BorderLayout.SOUTH);
-        // 팀활동 중이라면 팀원 프로필 표시
-        teamProfilesPanelPadding.setVisible(teamActivityStatus);
-
         return userAndTeamPanel;
-    }
-
-    private JPanel createTeamMemberPanel(){
-        this.teamProfilesPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40,0));
-        teamProfilesPanel.setBackground(Theme.Ultramarine);
-
-        this.teamProfilesPanelPadding = new JPanel();
-
-        if(!teamMembers.isEmpty()){ // 팀원이 있는 경우 표시
-            teamMembers.forEach((studentItem)->{
-                SelectImageButton circleIcon = new SelectImageButton();
-                circleIcon.setImage(studentItem.getProfileImage().getImage());
-                circleIcon.setHeight(30);
-                circleIcon.setWidth(30);
-                circleIcon.getButton().setEnabled(false);
-
-                ProfileInfoPanel profileInfoPanelClass = new ProfileInfoPanel(studentItem);
-                JPanel profileInfoPanel = profileInfoPanelClass.buildPanel();
-
-                String role;
-                if(studentItem.getRole()==Roles.TEAM_LEADER){
-                    role = "팀장";
-                } else {
-                    role = "팀원";
-                }
-
-                ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-
-                String toolTipString = String.format("<html><div style='background-color: #2c3e50; color: white; font-size: 12px'> 이름 : %s<br>학번 : %s<br>모둠번호 : %s<br>역할 : %s </div></html>", studentItem.getId(), studentItem.getName(), studentItem.getTeamNum(), role);
-
-                circleIcon.getButton().setToolTipText(toolTipString);
-
-                teamProfilesPanel.add(circleIcon.getButton());
-            });
-
-            teamProfilesPanelPadding.setBackground(Theme.Ultramarine);
-            teamProfilesPanelPadding.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
-
-            teamProfilesPanelPadding.add(teamProfilesPanel);
-        } else{
-            teamProfilesPanelPadding.setBackground(Theme.Darkblue);
-        }
-
-        return teamProfilesPanelPadding;
     }
 
     private JPanel createChatRoomPanel(){
