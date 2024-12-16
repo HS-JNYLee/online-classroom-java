@@ -7,19 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class MultiGroup extends JFrame {
-    public MultiGroup() {
-/*        setTitle("MultiGroup UI Test");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(960, 540);
-        setLocationRelativeTo(null);
-        buildGUI();
-
-        setVisible(true);*/
-        group1 = new Group();
-        group2 = new Group();
-        group3 = new Group();
-        group4 = new Group();
-    }
+    public MultiGroup() {}
 
     private final Boolean[][] attendanceStudents = {
             {false, false, false, false},
@@ -28,38 +16,24 @@ public class MultiGroup extends JFrame {
             {false, false, false, false},
     };
 
-    public JPanel participate(int index) {
+    public void participate(int index) {
         attendanceStudents[index / 4][index % 4] = true;
-        // 전체 갱신
         revalidate();
         repaint();
-
-        return buildGUI();
+        buildGUI();
     }
 
-    public JPanel absent(int index) {
+    public void absent(int index) {
         attendanceStudents[index / 4][index % 4] = false;
-        // 전체 갱신
         revalidate();
         repaint();
-
-        return buildGUI();
+        buildGUI();
     }
 
-    private Group getGroupByIndex(int index) {
-        return switch (index / 4) {
-            case 0 -> group1;
-            case 1 -> group2;
-            case 2 -> group3;
-            case 3 -> group4;
-            default -> null;
-        };
-    }
-
-    Group group1;
-    Group group2;
-    Group group3;
-    Group group4;
+    Group group1 = new Group();
+    Group group2 = new Group();
+    Group group3 = new Group();
+    Group group4 = new Group();
 
     public JPanel buildGUI() {
         JPanel panel = new JPanel(new GridLayout(2, 2));
@@ -72,9 +46,11 @@ public class MultiGroup extends JFrame {
         group2.setAttendanceStudents(attendanceStudents[1]);
         JPanel group2Panel = group2.buildGUI();
         group2Panel.setBackground(Theme.Ultramarine);
+
         group3.setAttendanceStudents(attendanceStudents[2]);
         JPanel group3Panel = group3.buildGUI();
         group3Panel.setBackground(Theme.Ultramarine);
+
         group4.setAttendanceStudents(attendanceStudents[3]);
         JPanel group4Panel = group4.buildGUI();
         group4Panel.setBackground(Theme.Ultramarine);
@@ -86,18 +62,15 @@ public class MultiGroup extends JFrame {
         panel.setPreferredSize(new Dimension(364, 364));
 
         RoundedPane roundedPane = new RoundedPane();
-        roundedPane.setBackground(Theme.Ultramarine);
         roundedPane.setContentPane(panel);
+        roundedPane.setBackground(Theme.Ultramarine);
         roundedPane.setPreferredSize(new Dimension(364, 364));
 
         JPanel wrappedPanel = new JPanel();
         wrappedPanel.add(roundedPane);
         wrappedPanel.setPreferredSize(new Dimension(364, 364));
+
         add(wrappedPanel);
         return panel;
-    }
-
-    public static void main(String[] args) {
-        MultiGroup group = new MultiGroup();
     }
 }

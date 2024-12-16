@@ -8,24 +8,16 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Group extends JFrame {
-    Group() {
-/*        setTitle("Group UI Test");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(960, 540);
-        setLocationRelativeTo(null);
-        buildGUI();
-
-        setVisible(true);*/
-    }
+    Group() {}
 
     private Boolean[] attendanceStudents = new Boolean[4];
 
-    public JPanel setAttendanceStudents(Boolean[] attendanceStudents) {
+    public void setAttendanceStudents(Boolean[] attendanceStudents) {
         this.attendanceStudents = attendanceStudents;
-        // 전체 갱신
+
         revalidate();
         repaint();
-        return buildGUI();
+        buildGUI();
     }
 
     public JPanel buildGUI() {
@@ -66,11 +58,8 @@ public class Group extends JFrame {
         JPanel wrappedPanel = new JPanel();
         wrappedPanel.add(roundedPane);
         wrappedPanel.setPreferredSize(new Dimension(171, 171));
+
         add(wrappedPanel);
         return wrappedPanel;
-    }
-
-    public static void main(String[] args) {
-        Group group = new Group();
     }
 }
