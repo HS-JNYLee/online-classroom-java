@@ -11,7 +11,8 @@ public abstract class PaletteButton extends JButton implements ActionListener {
         return isActive;
     }
 
-    public PaletteButton() {}
+    public PaletteButton() {
+    }
 
     public JButton getButton() {
         return this;
@@ -36,12 +37,12 @@ public abstract class PaletteButton extends JButton implements ActionListener {
     }
 
     public abstract void onClick();
+
     public void active() {
         isActive = true;
-    };
+    }
+
     public void inactive() {
         isActive = false;
     }
-
-
 }
