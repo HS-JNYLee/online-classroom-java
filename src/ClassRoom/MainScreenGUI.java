@@ -1,5 +1,6 @@
 package ClassRoom;
 
+import MainStudScreen.CommunicationCallbacks;
 import User.Professor;
 import User.Student;
 import User.User;
@@ -13,7 +14,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static User.User.roleToString;
+
 public class MainScreenGUI extends JFrame {
+    private CommunicationCallbacks communicationCallbacks;
 
     private JButton micBtn;
     private JButton soundBtn;
@@ -30,6 +34,7 @@ public class MainScreenGUI extends JFrame {
     private JPanel StudentTablePanel;
     private JTable studentJTable;
     private JScrollPane StudentTableJScrollPanel;
+    private JScrollPane chatScroller;
     private JPanel ChatPanel;
     private JTextField chatTextField;
     private JButton sendBtn;
@@ -37,7 +42,7 @@ public class MainScreenGUI extends JFrame {
     private JPanel ChatComuPanel;
     private ArrayList<JPanel> TeamPanels;
 
-    //TODO ClassRoom class 만들어서 삽입
+    private Professor LoginProf;
 
     private boolean is_mic_on = false;
     private boolean is_sound_on = true;
@@ -45,15 +50,41 @@ public class MainScreenGUI extends JFrame {
     private boolean is_team_action_possible = true;
     private boolean is_chat_on = true;
 
-    public MainScreenGUI(){
+    private void sendMsg(ChatMsg chatMsg){
+        this.communicationCallbacks.send(chatMsg);
+    }
+
+    public void receiveMsg(ChatMsg receivedChatMsg){
+        String roleString = receivedChatMsg.getuType();
+        String id = receivedChatMsg.getuId();
+        String name = receivedChatMsg.getuName();
+        ImageIcon imageIcon = receivedChatMsg.getImage();
+
+        User receivedUser;
+
+        System.out.println(receivedChatMsg.getuId());
+
+        if(roleString.equals("교수")){
+            receivedUser = new Professor(id, name, imageIcon);
+        } else {
+            receivedUser = new Student(id,name, imageIcon);
+        }
+
+        addMessage(receivedChatMsg.getMessage(), receivedUser);
+    }
+
+    public MainScreenGUI(CommunicationCallbacks communicationCallbacks, Professor user){
         setContentPane(MainScreenPanel);
         setTitle("ClassRoom Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1500, 800);
+
+        this.communicationCallbacks = communicationCallbacks;
+        this.LoginProf = user;
+        System.out.println("교수화면 : " + LoginProf.getId() + LoginProf.getName());
+
         setLocationRelativeTo(null);
         setVisible(true);
-
-
     }
 
     private void createUIComponents() {
@@ -400,12 +431,24 @@ public class MainScreenGUI extends JFrame {
         this.sendBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO 메시지 보내기
-
                 String msg = chatTextField.getText();
                 chatTextField.setText("");
 
-                ChatComuPanel.add(addMessage(msg, new Professor()));
+                JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                scrollBar.setValue(scrollBar.getMaximum());
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                        scrollBar.setValue(scrollBar.getMaximum());
+                    }
+                });
+
+                ChatMsg sendChatMsg = new ChatMsg(LoginProf.getId() ,LoginProf.getName(), LoginProf.getProfileImage() ,roleToString(LoginProf.getRole()) ,ChatMsg.MODE_USERINFO_MSG, msg);
+
+                sendMsg(sendChatMsg); // 메시지 송신
+
             }
         });
 
@@ -416,7 +459,20 @@ public class MainScreenGUI extends JFrame {
                 String msg = chatTextField.getText();
                 chatTextField.setText("");
 
-                ChatComuPanel.add(addMessage(msg, new Professor()));
+                JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                scrollBar.setValue(scrollBar.getMaximum());
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                        scrollBar.setValue(scrollBar.getMaximum());
+                    }
+                });
+
+                ChatMsg sendChatMsg = new ChatMsg(LoginProf.getId() ,LoginProf.getName(), LoginProf.getProfileImage() ,roleToString(LoginProf.getRole()) ,ChatMsg.MODE_USERINFO_MSG, msg);
+
+                sendMsg(sendChatMsg); // 메시지 송신
             }
         });
 
@@ -426,75 +482,71 @@ public class MainScreenGUI extends JFrame {
         this.ChatPanel.add(MessageSendControlPanel, BorderLayout.SOUTH);
 
         this.ChatComuPanel = new JPanel();
-
+        ChatComuPanel.setBackground(Color.WHITE);
         ChatComuPanel.setLayout(new BoxLayout(ChatComuPanel, BoxLayout.Y_AXIS));
 
-        // 임시 데이터
-        int i;
-        for(i=0;i<40;i++){
-            ChatComuPanel.add(addMessage("I'm a student", new Student("132", "KJH", new ImageIcon("./assets/icons/user_icon.png"))));
-            ChatComuPanel.add(addMessage("I'm a professor", new Professor()));
-        }
-
-
-        this.ChatPanel.add(new JScrollPane(ChatComuPanel), BorderLayout.CENTER);
+        this.chatScroller = new JScrollPane(ChatComuPanel);
+        this.ChatPanel.add(chatScroller, BorderLayout.CENTER);
     }
 
     private JPanel addMessage(String msg, User user){
 
-        ImageIcon profileImage;
-        String id;
-        String name;
-        JPanel msgGroupPanel = new JPanel(new FlowLayout());
+        String id = user.getId();
+        String name = user.getName();
+        ImageIcon profileImage = user.getProfileImage();
+        Image resize = profileImage.getImage().getScaledInstance(25,25, Image.SCALE_SMOOTH);
+        ((ImageIcon) profileImage).setImage(resize);
 
-        if (user instanceof Student) {
-            id = ((Student) user).getId();
-            name = ((Student) user).getName();
-            profileImage = ((Student) user).getProfileImage();
+        // 송신된 메시지는 우측에, 수신된 메시지는 좌측에
+        JPanel msgGroupPanel = new JPanel();
+        msgGroupPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        msgGroupPanel.setBackground(Color.white);
+        msgGroupPanel.setLayout(new BoxLayout(msgGroupPanel, BoxLayout.X_AXIS));
 
-            // 프로필 이미지 레이블 생성
-            JLabel msgProfile = new JLabel(profileImage);
+        JLabel msgText = new JLabel(msg);
+        JLabel msgProfile = new JLabel(profileImage);
 
-            // 메시지 텍스트 레이블 생성
-            JLabel msgText = new JLabel(msg);
+        if (user instanceof Professor && ((Professor) user).getId().equals(LoginProf.getId())) {
 
-            // 이미지와 텍스트의 배치를 위한 설정
-            msgGroupPanel.setAlignmentX(FlowLayout.RIGHT);
-
-            // 메시지 텍스트와 이미지를 각각 패널에 추가
-            msgGroupPanel.add(msgProfile);
-            msgGroupPanel.add(msgText);  // 이제 메시지 텍스트도 추가
-
-            msgGroupPanel.setBackground(Color.blue);
-
-        } else if (user instanceof Professor) {
-            id = ((Professor) user).getId();
-            name = ((Professor) user).getName();
-            profileImage = ((Professor) user).getProfileImage();
-
-            // 프로필 이미지 레이블 생성
-            JLabel msgProfile = new JLabel(profileImage);
-
-            // 메시지 텍스트 레이블 생성
-            JLabel msgText = new JLabel(msg);
-
-            // 메시지 텍스트와 이미지를 각각 패널에 추가
-            msgGroupPanel.setAlignmentX(FlowLayout.LEFT);
-
-            // 텍스트와 이미지를 추가
-            msgGroupPanel.add(msgProfile);
+            // 우측 정렬
+            msgGroupPanel.add(Box.createHorizontalGlue());
             msgGroupPanel.add(msgText);
+            msgGroupPanel.add(Box.createRigidArea(new Dimension(20, 0))); // Profile Image와 택스트 사이의 공백
+            msgGroupPanel.add(msgProfile);
 
-            msgGroupPanel.setBackground(Color.red);  // 배경색 설정 (선택 사항)
+//            msgGroupPanel.setBackground(Color.blue);
+        } else {
+
+            // 좌측 정렬
+            msgGroupPanel.add(msgProfile);
+            msgGroupPanel.add(Box.createRigidArea(new Dimension(10, 0))); // Profile Image와 택스트 사이의 공백
+            msgGroupPanel.add(msgText);
+            msgGroupPanel.add(Box.createHorizontalGlue());
+
+//            msgGroupPanel.setBackground(Color.red);
         }
 
-        ChatPanel.revalidate();
-        ChatPanel.repaint();
+        ChatComuPanel.add(msgGroupPanel);
+
+        // 부모 패널 업데이트
+        ChatComuPanel.revalidate();
+        ChatComuPanel.repaint();
+
+        JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+        scrollBar.setValue(scrollBar.getMaximum());
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                scrollBar.setValue(scrollBar.getMaximum());
+            }
+        });
 
         return msgGroupPanel;
     }
     public static void main(String[] args) {
-        new MainScreenGUI();
+//        new MainScreenGUI();
     }
 }
 

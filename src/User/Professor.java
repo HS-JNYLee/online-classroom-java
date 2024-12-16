@@ -12,6 +12,7 @@ public class Professor extends User{
         this.id = id;
         this.name = name;
         this.profileImage = profileImage;
+        this.role = Roles.PROFESSOR;
     }
 
     @Override

@@ -69,6 +69,7 @@ public class DatabaseFile {
     }
 
     public static boolean isValidate(User user) {
+        System.out.println("인증 : " + user.getRole() + user.getName() + user.getId());
         for (User user1 : userList) {
             if (user1.getId().equals(user.getId())
                     && user1.getName().equals(user.getName())

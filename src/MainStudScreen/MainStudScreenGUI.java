@@ -2,21 +2,24 @@ package MainStudScreen;
 
 import ClassRoom.ChatMsg;
 import Threads.SendMicSoundThread;
+import Threads.SendScreenThread;
 import User.User;
 import User.Student;
 import User.Professor;
 import User.Roles;
 import Utils.Icons;
+import Utils.RoundedPane;
+import Utils.RoundedShadowPane;
 import Utils.Theme;
 import ClassRoom.SelectImageButton;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -25,6 +28,7 @@ import static User.User.roleToString;
 public class MainStudScreenGUI extends JFrame {
     private final CommunicationCallbacks communicationCallbacks;
     private SendMicSoundThread sendMicSoundThread;
+    private SendScreenThread sendScreenThread;
 
     private JButton micBtn;
     private JButton soundBtn;
@@ -61,7 +65,7 @@ public class MainStudScreenGUI extends JFrame {
 
     // 구현 예정 함수들
     // 메시지 송신
-    public void sendMsg(ChatMsg chatMsg){
+    private void sendMsg(ChatMsg chatMsg){
         this.communicationCallbacks.send(chatMsg);
     }
 
@@ -93,6 +97,10 @@ public class MainStudScreenGUI extends JFrame {
     public void receiveSound(ChatMsg chatMsg){
         try {
             System.out.println("소리옴~~~~~~~~~~~~~~~~~~~~~~~");
+            if (!is_sound_on){ // 마이크가 꺼져 있는 경우 소리 수신 X
+                System.out.println("소리옴~~~~~~~~~~~~~~~~~~~그러나 수신 X");
+                return;
+            }
             // 1. 오디오 포맷 설정 (서버와 동일하게 설정)
             AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
             SourceDataLine line = AudioSystem.getSourceDataLine(format);
@@ -120,8 +128,7 @@ public class MainStudScreenGUI extends JFrame {
     }
 
     // 현재 로그인 된 학생의 마이크 소리 송신 (Thread)
-    public void sendMicVoice(ChatMsg chatMsg){
-        System.out.println("소리보냄");
+    private void sendMicVoice(ChatMsg chatMsg){
         this.communicationCallbacks.send(chatMsg);
     }
 
@@ -129,9 +136,10 @@ public class MainStudScreenGUI extends JFrame {
     public void receiveTeamActivityStatus(){ }
 
     // Team 활동을 시작했고 User가 팀장인 경우 화면 송신 가능 (Thread)
-    public void sendScreen(){ }
-
-
+    private void sendScreen(ChatMsg chatMsg){
+        System.out.println("화면 보냄");
+        this.communicationCallbacks.send(chatMsg);
+    }
 
 
     // User 정보 필요
@@ -146,10 +154,12 @@ public class MainStudScreenGUI extends JFrame {
 
         setContentPane(padding);
 
-        getContentPane().setBackground(new Color(43, 61, 81));
+        getContentPane().setBackground(Theme.Ultramarine);
 
         this.communicationCallbacks = communicationCallbacks;
         this.LoginStudent = user;
+        teamActivityStatus = true;///////////////////////////////////////////////////////////////////////////////////////////////// 없애기
+        LoginStudent.setRole(Roles.TEAM_LEADER);
 
         buildGUI();
 
@@ -158,7 +168,7 @@ public class MainStudScreenGUI extends JFrame {
 
     private void buildGUI(){
         this.add(BorderLayout.NORTH, createExitBtn());
-        this.add(BorderLayout.SOUTH, createCntlPanel());
+        this.add(BorderLayout.SOUTH, createCtrlPanel());
         this.add(BorderLayout.CENTER, createScreenPanel());
     }
 
@@ -171,6 +181,8 @@ public class MainStudScreenGUI extends JFrame {
         exitBtn.setBackground(new Color(250, 91, 87));
         exitBtn.setPreferredSize(new Dimension(100, 30));
         exitBtn.setForeground(Color.white);
+        exitBtn.setOpaque(false);
+        exitBtn.setBorderPainted(false);
 
 
         //TODO 나가기 설계 Login? main?
@@ -183,13 +195,17 @@ public class MainStudScreenGUI extends JFrame {
             }
         });
 
-        ret.add(exitBtn);
+        RoundedShadowPane btnShadow = new RoundedShadowPane();
+        btnShadow.setContentPane(exitBtn);
+
+        ret.add(btnShadow);
 
         return ret;
     }
 
-    private JPanel createCntlPanel(){
+    private JPanel createCtrlPanel(){
         JPanel btnsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 80,5));
+        btnsPanel.setBackground(new Color(203, 203, 206));
 
         // 안에 포함된 컴포넌트 구성
         btnsPanel.add(createMicBtn()); // 마이크 버튼
@@ -205,13 +221,16 @@ public class MainStudScreenGUI extends JFrame {
         ctrlPanelPadding.add(btnsPanel);
         ctrlPanelPadding.setBackground(new Color(203, 203, 206));
 
+        RoundedShadowPane ctrlRounded = new RoundedShadowPane();
+        ctrlRounded.setContentPane(ctrlPanelPadding);
+
         //Margin
         JPanel ctrlPanelMargin = new JPanel();
         ctrlPanelMargin.setBorder(BorderFactory.createEmptyBorder(20,0,0,0));
         ctrlPanelMargin.setOpaque(false);
-        btnsPanel.setBackground(new Color(203, 203, 206));
+//        ctrlPanelMargin.setBackground(Color.red);
 
-        ctrlPanelMargin.add(ctrlPanelPadding);
+        ctrlPanelMargin.add(ctrlRounded);
 
         return ctrlPanelMargin;
     }
@@ -324,7 +343,8 @@ public class MainStudScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
 
-
+                    sendScreenThread = new SendScreenThread(LoginStudent,(chatMsg)->sendScreen(chatMsg));
+                    sendScreenThread.start();
                 }
                 else{ // 화면 공유중인 경우 (Screen Share OFF)
                     is_screen_share_possible = true;
@@ -335,7 +355,7 @@ public class MainStudScreenGUI extends JFrame {
                     Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
                     ((ImageIcon) micIcon).setImage(resize);
 
-                    //TODO sendScreen() (Thread)
+                    sendScreenThread.stopThread();
                 }
             }
         });
@@ -420,7 +440,7 @@ public class MainStudScreenGUI extends JFrame {
         userImageLabel.setOpaque(true);
         userImageLabel.setBackground(new Color(27, 116, 231));
         userImageLabel.setBorder(BorderFactory.createEmptyBorder(20,50,20,50)); // 프로필 이미지 주변에 Padding 추가
-        userImageLabel.setBackground(Color.red);
+
         profilePanel.add(userImageLabel);
 
         //User 이름
@@ -430,15 +450,17 @@ public class MainStudScreenGUI extends JFrame {
         userName.setFont(new Font("맑은 고딕", Font.PLAIN, 15));
         userName.setOpaque(true);
         userName.setBackground(new Color(27, 116, 231));
-        userName.setBorder(BorderFactory.createEmptyBorder(20,50,20,50));
-        userName.setBackground(Color.red);
         profilePanel.add(userName);
 
-        // user 이름, Profile 이미지, 팀원 프로필들을 감싸는 Padding
+        // user 이름, Profile 이미지, 팀원 프로필들을 감싸는 Panel
         JPanel userAndTeamPanel = new JPanel(new BorderLayout());
         userAndTeamPanel.setBackground(new Color(39, 81, 171));
 
-        userAndTeamPanel.add(profilePanel, BorderLayout.CENTER);
+        RoundedPane profileImageNameRounded = new RoundedPane();
+        profileImageNameRounded.setBackground(Color.YELLOW);
+        profileImageNameRounded.setContentPane(profilePanel);
+
+        userAndTeamPanel.add(profileImageNameRounded, BorderLayout.CENTER);
 
         JPanel tmpEast = new JPanel();
         tmpEast.setBorder(BorderFactory.createEmptyBorder(50,30,50,30));
@@ -488,27 +510,6 @@ public class MainStudScreenGUI extends JFrame {
                 String toolTipString = String.format("<html><div style='background-color: #2c3e50; color: white; font-size: 12px'> 이름 : %s<br>학번 : %s<br>모둠번호 : %s<br>역할 : %s </div></html>", studentItem.getId(), studentItem.getName(), studentItem.getTeamNum(), role);
 
                 circleIcon.getButton().setToolTipText(toolTipString);
-
-//                circleIcon.getButton().addMouseListener(new MouseAdapter() {
-//                    @Override
-//                    public void mouseEntered(MouseEvent e) {
-//                        System.out.println("in Apple");
-//                        Point location = circleIcon.getButton().getLocationOnScreen();
-//
-//                        System.out.println(profileInfoPanelClass.getStudent().getId());
-//
-//                        // 패널 위치 설정
-//                        profileInfoPanel.setLocation(location.x + circleIcon.getButton().getWidth() / 2 - profileInfoPanel.getWidth() / 2,
-//                                location.y - profileInfoPanel.getHeight());
-//                        profileInfoPanel.setVisible(true);
-//                    }
-//
-//                    @Override
-//                    public void mouseExited(MouseEvent e) {
-//                        System.out.println("out Apple");
-//                        profileInfoPanel.setVisible(false);
-//                    }
-//                });
 
                 teamProfilesPanel.add(circleIcon.getButton());
             });
@@ -564,8 +565,6 @@ public class MainStudScreenGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String msg = chatTextField.getText();
                 chatTextField.setText("");
-
-//                chatCommunityPanel.add(addMessage(msg, new Professor("1", "김교수", new ImageIcon("./assets/icons/user_icon.png"))));
 
                 // 스크롤 바를 자동으로 제일 밑으로 이동
                 JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
@@ -660,7 +659,13 @@ public class MainStudScreenGUI extends JFrame {
 
 
     public static void main(String[] args) {
-//        new MainStudScreenGUI();
+        CommunicationCallbacks test = new CommunicationCallbacks() {
+            @Override
+            public void send(ChatMsg chatMsg) {
+                System.out.println("Apple");
+            }
+        };
+        new MainStudScreenGUI(test, new Student(Icons.userIcon));
     }
 }
 
