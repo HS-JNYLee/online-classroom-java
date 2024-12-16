@@ -329,14 +329,8 @@ public class WithChatServer extends JFrame {
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if (isValid) {
-                if(!uName.equals("학생2")) {
-                    send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
-                    broadcastingForProfessor(new ChatMsg(user.getId(), ChatMsg.MODE_TX_ACCESS, user.getName(), user.getUserTableIndex(), user.getTeamRoomAddr()));
-                } else {
-                    // * 녹화 강의 모드로 전환
-                    send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, user.getName())); // GUI 전환
-                }
-
+                send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
+                broadcastingForProfessor(new ChatMsg(user.getId(), ChatMsg.MODE_TX_ACCESS, user.getName(), user.getUserTableIndex(), user.getTeamRoomAddr()));
 
                 // * 녹화 현재 프레임 전달
                 imageVideoThread = new Thread(() -> {
