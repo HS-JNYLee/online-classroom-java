@@ -316,6 +316,11 @@ public class WithTalk extends JFrame implements SendObserver {
                         }
 
                         switch (fetchedChatMsg.mode) {
+                            case ChatMsg.MODE_TX_ACCESS: // 학생이 출석했을 때, 학생의 정보를 받음
+                                if (mainProfScreenGUI != null && !fetchedChatMsg.userID.equals("2000001")) {
+                                    // {"김재호", 202312345, 1, "팀장", 0}
+                                    mainProfScreenGUI.attendanceStudent(new Object[]{uFileName, uId, fetchedChatMsg.x, "", (int) fetchedChatMsg.size});
+                                }
                             case ChatMsg.MODE_TX_STRING:
                                 printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
                                 break;

@@ -19,7 +19,7 @@ public interface UserInterface {
 
     int getClassRoomPort();
 
-    String getTeamRoomAddr();
+    int getTeamRoomAddr();
 
     int getTeamRoomPort();
 

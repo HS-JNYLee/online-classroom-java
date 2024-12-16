@@ -413,6 +413,7 @@ public class MainProfScreenGUI extends JFrame {
         joinedStudentPanel.setPreferredSize(new Dimension(384,384));
 
         multiGroup = new MultiGroup();
+        joinedStudentPanel.add(multiGroup.buildGUI());
 
         JPanel padding = new JPanel(new GridLayout());
         padding.setPreferredSize(new Dimension(384,384));

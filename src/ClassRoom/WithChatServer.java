@@ -1,6 +1,6 @@
 package ClassRoom;
 
-import User.User;
+import User.*;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
@@ -166,6 +166,7 @@ public class WithChatServer extends JFrame {
         private ObjectOutputStream out;
         private String uid;
         private String uName;
+        private User user;
         ClientHandler(Socket clientSocket) {
             this.clientSocket = clientSocket;
         }
@@ -186,11 +187,12 @@ public class WithChatServer extends JFrame {
                         printDisplay("참가자 구분: " + msg.uType);
                         printDisplay("참가자 이름: " + msg.uName);
                         printDisplay("참가자 학번/교번: " + msg.userID);
-                        User user = new User();
+                        user = new User();
                         user.setRole(User.stringToRole(msg.uType));
                         user.setName(msg.uName);
                         user.setId(msg.userID);
-                        sendMessage(DatabaseFile.isValidate(user));
+                        DatabaseFile df = new DatabaseFile();
+                        sendMessage(df.isValidate(user));
                     } else if (msg.mode == ChatMsg.MODE_LOGOUT) {
                         break;
                     } else if (msg.mode == ChatMsg.MODE_TX_STRING) {
@@ -287,9 +289,10 @@ public class WithChatServer extends JFrame {
         private void sendMessage(Boolean isValid) {
             String msg = isValid ? "참여를 시작합니다." : "올바르지 않은 데이터입니다.";
             if (isValid) {
-                if(uName.equals("학생1") || uName.equals("교수자")) {
+                if(!uName.equals("학생2")) {
                     send(new ChatMsg(uid, ChatMsg.MODE_TX_ACCESS, msg)); // 참가 허용 메세지 전송
-                } else if (uName.equals("학생2")){
+                    broadcastingForProfessor(new ChatMsg(user.getId(), ChatMsg.MODE_TX_ACCESS, msg, user.getUserTableIndex(), user.getTeamRoomAddr()));
+                } else {
                     // * 녹화 강의 모드로 전환
                     send(new ChatMsg(uid, ChatMsg.MODE_SHARED_SCREEN, msg)); // GUI 전환
                 }
@@ -369,6 +372,15 @@ public class WithChatServer extends JFrame {
         private void broadcasting(ChatMsg msg) {
             for (ClientHandler c : users) {
                 c.send(msg);
+            }
+        }
+
+        // 학생의 출석 확인을 알려주는 함수
+        private void broadcastingForProfessor(ChatMsg msg) {
+            for (ClientHandler c : users) {
+                if(c.user != null && c.user.getRole() == Roles.PROFESSOR) {
+                    c.send(msg);
+                }
             }
         }
 

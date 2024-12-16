@@ -30,7 +30,7 @@ public class DatabaseFile {
                 String[] parts = line.split(",");
 
                 // 데이터 검증
-                if (parts.length != 5) {
+                if (parts.length != 6) {
                     System.err.println("잘못된 데이터 형식: " + line);
                     continue;
                 }
@@ -41,17 +41,19 @@ public class DatabaseFile {
                 String type = parts[2].trim();
                 String iconPath = parts[3].trim();
                 String teamRoomAddr = parts[4].trim();
+                String userTableIndex = parts[5].trim(); // 출석용도 지정 좌석 번호
 
                 User user = new User();
                 user.setName(name);
                 user.setId(id);
+                user.setUserTableIndex(Integer.parseInt(userTableIndex));
 
                 File file = new File(iconPath);
                 if (file.exists()) {
                     ImageIcon icon = new ImageIcon(iconPath);
                     user.setProfileImage(icon);
                 }
-                user.setTeamRoomAddr(teamRoomAddr);
+                user.setTeamRoomAddr(Integer.parseInt(teamRoomAddr));
 
                 user.setRole(matchRole(type));
                 userList.add(user);
@@ -68,12 +70,21 @@ public class DatabaseFile {
         return userList;
     }
 
-    public static boolean isValidate(User user) {
+    private User user;
+
+    public User getUser() {
+        return user;
+    }
+
+    public boolean isValidate(User user) {
         System.out.println("인증 : " + user.getRole() + user.getName() + user.getId());
         for (User user1 : userList) {
             if (user1.getId().equals(user.getId())
                     && user1.getName().equals(user.getName())
                     && user1.getRole().equals(user.getRole())) {
+                user.setUserTableIndex(user1.getUserTableIndex());
+                user.setTeamRoomAddr(user1.getTeamRoomAddr());
+                this.user = user1;
                 return true;
             }
         }
