@@ -161,6 +161,38 @@ public class WithChatServer extends JFrame {
         t_display.append(msg + "\n");
         t_display.setCaretPosition(t_display.getDocument().getLength());
     }
+    private void printDisplay(ChatMsg msg) {
+        t_display.append("[" + msg.mode + "]: ");
+        if (msg.message != null) {
+            t_display.append("message: " + msg + ", ");
+        }
+        if (msg.userID != null) {
+            t_display.append("userID: " + msg.userID + ", ");
+        }
+        if (msg.uName != null) {
+            t_display.append("uName: " + msg.uName + ", ");
+        }
+        if (msg.size > 0.0) {
+            t_display.append("size: " + msg.size + ", ");
+        }
+        if (msg.uType != null) {
+            t_display.append("uType: " + msg.uType + ", ");
+        }
+        if (msg.x > 0.0) {
+            t_display.append("x: " + msg.x + ", ");
+        }
+        if (msg.y > 0.0) {
+            t_display.append("y: " + msg.y + ", ");
+        }
+        if (msg.micSound != null) {
+            t_display.append("micSound: " + msg.micSound.length + ", ");
+        }
+        if (msg.imageBytes != null) {
+            t_display.append("imageBytes: " + msg.imageBytes.length + ", ");
+        }
+        t_display.append("\n");
+        t_display.setCaretPosition(t_display.getDocument().getLength());
+    }
     class ClientHandler extends Thread {
         private Socket clientSocket;
         private ObjectOutputStream out;
@@ -181,12 +213,14 @@ public class WithChatServer extends JFrame {
                         uid = msg.userID;
                         printDisplay("새 참가자: " + uid);
                         printDisplay("현재 참가자 수: " + users.size());
+                        printDisplay(msg);
                         continue;
                     } else if (msg.mode == ChatMsg.MODE_LOGIN) {
                         uName = msg.getuName();
                         printDisplay("참가자 구분: " + msg.uType);
                         printDisplay("참가자 이름: " + msg.uName);
                         printDisplay("참가자 학번/교번: " + msg.userID);
+                        printDisplay(msg);
                         user = new User();
                         user.setRole(User.stringToRole(msg.uType));
                         user.setName(msg.uName);
@@ -194,34 +228,43 @@ public class WithChatServer extends JFrame {
                         DatabaseFile df = new DatabaseFile();
                         sendMessage(df.isValidate(user));
                     } else if (msg.mode == ChatMsg.MODE_LOGOUT) {
+                        printDisplay(msg);
                         break;
                     } else if (msg.mode == ChatMsg.MODE_TX_STRING) {
                         String message = uid + ": " + msg.message;
                         printDisplay(message);
+                        printDisplay(msg);
                         broadcasting(msg);
                     } else if (msg.mode == ChatMsg.MODE_TX_IMAGE) {
                         printDisplay(uid + ": " + msg.message);
+                        printDisplay(msg);
                         broadcasting(msg);
                     } else if(msg.mode == ChatMsg.MODE_USERINFO_MSG){
                         printDisplay(msg.getuId() + " : " + msg.getMessage());
+                        printDisplay(msg);
                         broadcasting(msg);
                     }
                     else if(msg.mode == ChatMsg.MODE_MIC_SOUND){
                         printDisplay(msg.getuId() + " : " + "소리 송신");
+                        printDisplay(msg);
                         broadcasting(msg);
                     }
                     else if(msg.mode == ChatMsg.MODE_EMOJI) {
                         printDisplay("Received Emoji: " + msg.x + ", " + msg.y);
+                        printDisplay(msg);
                         broadcasting(msg);
                     } else if (msg.mode == ChatMsg.MODE_SCREEN_SHARE_START) {
                         System.out.println("Server : 화면 공유 시작 이벤트");
+                        printDisplay(msg);
                         broadcasting(msg);
                     } else if (msg.mode == ChatMsg.MODE_SHARED_SCREEN) {
                         printDisplay("Server 화면 Broadcasting : " + msg.userID);
+                        printDisplay(msg);
                         broadcastingVideo(msg);
                     }
                     else if (msg.mode == ChatMsg.MODE_SCREEN_SHARE_END){
                         System.out.println("Server : 화면 공유 종료 이벤트");
+                        printDisplay(msg);
                         broadcasting(msg);
                     }
                 }
@@ -279,10 +322,6 @@ public class WithChatServer extends JFrame {
                 }
                 throw new RuntimeException("클라이언트 전송 중 오류 발생", e);
             }
-        }
-
-        private void sendMessage(String msg) {
-            send(new ChatMsg(uid, ChatMsg.MODE_TX_STRING, msg));
         }
 
         private Thread imageVideoThread = null;
