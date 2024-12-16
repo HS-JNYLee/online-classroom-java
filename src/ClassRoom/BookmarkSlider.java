@@ -6,45 +6,30 @@ import Utils.Theme;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-// Slider with playback control and bookmark support
 public class BookmarkSlider extends JPanel {
     private final JSlider slider;
-    private final List<BufferedImage> frameBuffer;
-    private final List<Integer> bookmarks;
+    private final List<BufferedImage> frameBuffer; // 영상을 이미지(Frame)으로 저장
+    private final List<Integer> bookmarks; // 프레임 index 저장
     private final VideoPanel videoPanel;
-    private final JPanel markerPanel;
-    private boolean isDragging = false;
     private PaletteButton bookmarkButton;
-    private SoundManager soundManager;
 
     public void setLectureSoundManager(SoundManager lectureSoundManager) {
-        this.soundManager = lectureSoundManager;
-        soundManager.startPlayback(); // 재생 시작
-    }
-
-    public List<Integer> getBookmarks() {
-        return bookmarks;
+        lectureSoundManager.startPlayback(); // 재생 시작
     }
 
     public void setBookmarkButton(PaletteButton bookmarkButton) {
         this.bookmarkButton = bookmarkButton;
-        this.bookmarkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int frameIndex = slider.getValue();
-                toggleBookmark(frameIndex);
-            }
+        this.bookmarkButton.addActionListener(_ -> {
+            toggleBookmark(slider.getValue()); // 북마크 버튼 활성화 상태 전환
         });
     }
 
-    // 저장 버튼 동작
-    public void setButton(JButton button) {
+    // 저장 버튼 동작 : 클릭 시 그린 그림 삭제 후 해당 프레임에 저장
+    public void onSave(JButton button) {
         button.addActionListener(_ -> {
             int frameIndex = slider.getValue();
             BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
@@ -61,25 +46,20 @@ public class BookmarkSlider extends JPanel {
 
         setLayout(new BorderLayout());
 
-        // Slider setup
         slider = new JSlider(0, 0, 0);
         slider.addChangeListener(e -> {
             if (slider.getValueIsAdjusting()) {
-                isDragging = true;
                 int frameIndex = slider.getValue();
                 if (frameIndex < frameBuffer.size()) {
                     BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
                     videoPanel.updateFrame(combinedImage);
                     displayBookmark(frameIndex);
                 }
-            } else {
-                isDragging = false;
             }
         });
         slider.setBackground(Theme.Blue);
 
-        // Marker panel for bookmarks
-        markerPanel = new JPanel(null);
+        JPanel markerPanel = new JPanel(null);
         markerPanel.setOpaque(false);
         setBackground(Theme.Blue);
         add(slider, BorderLayout.CENTER);
@@ -88,19 +68,16 @@ public class BookmarkSlider extends JPanel {
 
     public void toggleBookmark(int frameIndex) {
         if (bookmarks.contains(frameIndex)) {
-            System.out.println("Active");
             bookListModel.remove(bookmarks.indexOf(frameIndex));
             bookmarks.remove(bookmarks.indexOf(frameIndex));
         } else {
-            System.out.println("Inactive");
             bookmarks.add(frameIndex);
             bookListModel.removeAllElements();
             int count = 1;
-            for (int bookmark : bookmarks) {
-                bookListModel.addElement(new Object[]{
+            for (int _ : bookmarks) {
+                bookListModel.addElement(new Object[] {
                         "Bookmark " + count,
                         new ImageIcon("./assets/icons/bookmark_active.png"),
-                        bookmark
                 });
                 count++;
             }
@@ -117,7 +94,6 @@ public class BookmarkSlider extends JPanel {
     }
 
     public void addFrame(BufferedImage frame) {
-        BufferedImage combinedImage = frame;
         int frameIndex = slider.getValue();
         if (frameBuffer.size() >= 36000) { // 0.1 단위로 36000장(약 1시간 분량)
             frameBuffer.removeFirst();
@@ -126,7 +102,7 @@ public class BookmarkSlider extends JPanel {
         slider.setMaximum(frameBuffer.size() - 1);
         // 최신까지 당긴다면, 라이브로 유지
         if (frameIndex == frameBuffer.size() - 2) { // 업데이트 직전 프레임에 위치한다면,
-            combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
+            BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
             slider.setValue(frameBuffer.size() - 1); // 최신 프레임 상태로 유지
             videoPanel.updateFrame(combinedImage); // 최신 프레임으로 업데이트
             displayBookmark(frameIndex);
@@ -137,7 +113,8 @@ public class BookmarkSlider extends JPanel {
     // ----- GPT -----
     // https://chatgpt.com/share/675f930b-c444-800f-8d54-a45602347656
     // 북마크 히스토리 업데이트, 조회를 위한 메소드
-    private  DefaultListModel<Object[]> bookListModel;
+    private DefaultListModel<Object[]> bookListModel;
+
     public void setBookListModel(DefaultListModel<Object[]> bookListModel) {
         this.bookListModel = bookListModel;
     }
@@ -151,6 +128,7 @@ public class BookmarkSlider extends JPanel {
     // ----- GPT -----
 
     private DrawingPanel drawingPanel;
+
     public void setDrawingPanel(DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
         drawingPanel.setVideoPanel(videoPanel);

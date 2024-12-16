@@ -346,7 +346,7 @@ public class LectureScreenGUI extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     bookmarkSlider.setDrawingPanel(drawingPanel);
                     bookmarkSlider.addFrame(frame);
-                    bookmarkSlider.setButton(b_save);
+                    bookmarkSlider.onSave(b_save);
                 });
                 frameCount++;
                 Thread.sleep(threadSleep);
