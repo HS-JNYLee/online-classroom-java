@@ -274,7 +274,6 @@ public class WithTalk extends JFrame implements SendObserver {
                                 break;
                             case ChatMsg.MODE_SHARED_SCREEN:
                                 dispose();
-                                is_login = true; // 임시: 지워야 됨
                                 if (WithTalk.this.uType.equals("학생") && is_login) {
                                     lectureScreenGUI = new LectureScreenGUI();
                                     lectureScreenGUI.setSendObserver(WithTalk.this);
