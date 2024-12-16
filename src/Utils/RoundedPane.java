@@ -7,12 +7,12 @@ import java.awt.geom.RoundRectangle2D;
 
 public class RoundedPane extends JPanel {
 
-    private double cornerRadius = 20;
-    private int shadowSize = 0;
-    private Color backgroundColor = Theme.Ultramarine;
-    private Color shadowColor = Color.BLACK;
-    private float shadowAlpha = 0.25f;
-    private JComponent contentPane;
+    protected double cornerRadius = 20;
+    protected int shadowSize = 0;
+    protected Color backgroundColor = Theme.Ultramarine;
+    protected Color shadowColor = Color.BLACK;
+    protected float shadowAlpha = 0.25f;
+    protected JComponent contentPane;
 
     public void setBackgroundColor(Color backgroundColor) {
         this.backgroundColor = backgroundColor;

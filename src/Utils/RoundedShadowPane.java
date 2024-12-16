@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
 /**
+ * This class has Copyright by Stackoverflow
  * @see <a href="https://stackoverflow.com/questions/76214081/how-to-make-a-jpanel-with-round-corners-and-box-shadow-in-swing">Stack overflow</a>
  */
 public class RoundedShadowPane extends JPanel {

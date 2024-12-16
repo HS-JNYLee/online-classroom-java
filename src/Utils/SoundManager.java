@@ -4,6 +4,10 @@ import javax.sound.sampled.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * This Class supported by GPT
+ * https://chatgpt.com/share/675f91b8-3fac-8002-95a3-4b83dc92471f
+ */
 public class SoundManager {
     private BlockingQueue<byte[]> soundQueue;
     private AudioFormat format;
