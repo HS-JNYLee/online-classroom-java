@@ -337,12 +337,13 @@ public class MainProfScreenGUI extends JFrame {
 
     }
 
+    private MultiGroup multiGroup;
     private JPanel createJoinedStudentPanel(){
         this.joinedStudentPanel = new JPanel();
         joinedStudentPanel.setBackground(Theme.Ultramarine);
         joinedStudentPanel.setPreferredSize(new Dimension(384,384));
 
-        joinedStudentPanel.add((new MultiGroup()).buildGUI());
+        multiGroup = new MultiGroup();
 
         JPanel padding = new JPanel(new GridLayout());
         padding.setPreferredSize(new Dimension(384,384));
@@ -355,57 +356,42 @@ public class MainProfScreenGUI extends JFrame {
 
         return tmp;
     }
-
+    static DefaultTableModel model;
     private JPanel createStudentTablePanel(){
 
         String[] col = new String[]{"이름", "학번","모둠번호","역할"};
 
         Object[][] data = {
-                {"김재호", 202312345, 1, "팀장"},
-                {"이수민", 202312346, 1, "팀원"},
-                {"박지훈", 202312347, 2, "팀원"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"}
+                {"김재호", 202312345, 1, "팀장", 0},
+                {"이수민", 202312346, 1, "팀원", 2},
+                {"박지훈", 202312347, 2, "팀원", 4},
+                {"정하은", 202312348, 2, "팀장", 5},
+                {"정하은", 202312348, 2, "팀장", 6},
+                {"정하은", 202312348, 2, "팀장", 8},
+                {"정하은", 202312348, 2, "팀장", 10},
+                {"정하은", 202312348, 2, "팀장", 12},
+                {"정하은", 202312348, 2, "팀장", 14},
+                {"정하은", 202312348, 2, "팀장", 15},
         };
 
-        DefaultTableModel model = new DefaultTableModel(data, col) {
+        model = new DefaultTableModel(data, col) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // 모둠번호와 역할은 수정 가능
                 if(column==2 || column==3) return true;
                 else return false;
+            }
+
+            @Override
+            public void addRow(Object[] rowData) {
+                if(rowData[4] != null) {
+                multiGroup.participate((Integer) rowData[4]);
+
+                joinedStudentPanel.removeAll();
+                joinedStudentPanel.add(multiGroup.buildGUI());
+                joinedStudentPanel.revalidate();
+                joinedStudentPanel.repaint();
+                }
             }
 
             @Override
@@ -521,6 +507,9 @@ public class MainProfScreenGUI extends JFrame {
         return chatroomPanelPadding;
     }
 
+    public void attendanceStudent(Object[] student){
+        model.addRow(student);
+    }
 
     public static void main(String[] args) {
         new MainProfScreenGUI();
