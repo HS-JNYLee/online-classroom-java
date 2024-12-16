@@ -59,7 +59,7 @@ public class MainProfScreenGUI extends JFrame {
     public MainProfScreenGUI(){
         setTitle("Class Student Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1200, 700);
+        setSize(1400, 700);
         setLocationRelativeTo(null);
 
         JPanel padding = new JPanel(new BorderLayout());
