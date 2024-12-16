@@ -19,6 +19,8 @@ public class ChatMsg implements Serializable {
     public final static int MODE_TX_DENIED = 0x51;
     public final static int MODE_USERINFO_MSG = 0x52;
     public final static int MODE_SHARED_SCREEN = 0x53;
+    public final static int MODE_SCREEN_SHARE_START = 0x54;
+    public final static int MODE_SCREEN_SHARE_END = 0x55;
     public final static int MODE_MIC_SOUND = 0x59;
     public final static int MODE_EMOJI = 0x60; // 이모티콘 송수신 모드
 
