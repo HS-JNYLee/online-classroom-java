@@ -1,9 +1,13 @@
 package ClassRoom;
+
 import ClassRoom.Group.MultiGroup;
 import MainStudScreen.CommunicationCallbacks;
 import Threads.SendMicSoundThread;
 import Threads.SendScreenThread;
-import User.*;
+import User.Professor;
+import User.Roles;
+import User.Student;
+import User.User;
 import Utils.Icons;
 import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
@@ -19,6 +23,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import static User.User.roleToString;
 
@@ -120,7 +126,7 @@ public class MainProfScreenGUI extends JFrame {
     public MainProfScreenGUI(CommunicationCallbacks communicationCallbacks, Professor user){
         setTitle("Class Student Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1200, 700);
+        setSize(1400, 700);
         setLocationRelativeTo(null);
 
         JPanel padding = new JPanel(new BorderLayout());
@@ -406,12 +412,14 @@ public class MainProfScreenGUI extends JFrame {
 
     }
 
+    private MultiGroup multiGroup;
     private JPanel createJoinedStudentPanel(){
         this.joinedStudentPanel = new JPanel();
         joinedStudentPanel.setBackground(Theme.Ultramarine);
         joinedStudentPanel.setPreferredSize(new Dimension(384,384));
 
-        joinedStudentPanel.add((new MultiGroup()).buildGUI());
+        multiGroup = new MultiGroup();
+        joinedStudentPanel.add(multiGroup.buildGUI());
 
         JPanel padding = new JPanel(new GridLayout());
         padding.setPreferredSize(new Dimension(384,384));
@@ -424,57 +432,37 @@ public class MainProfScreenGUI extends JFrame {
 
         return tmp;
     }
-
+    static DefaultTableModel model;
     private JPanel createStudentTablePanel(){
 
         String[] col = new String[]{"이름", "학번","모둠번호","역할"};
 
-        Object[][] data = {
-                {"김재호", 202312345, 1, "팀장"},
-                {"이수민", 202312346, 1, "팀원"},
-                {"박지훈", 202312347, 2, "팀원"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"정하은", 202312348, 2, "팀장"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"},
-                {"최유진", 202312349, 3, "팀원"}
-        };
+        /*Object[][] data = {
+                {"김재호", 202312345, 1, "팀장", 0},
+                {"이수민", 202312346, 1, "팀원", 2},};*/
 
-        DefaultTableModel model = new DefaultTableModel(data, col) {
+        Object[][] data = {};
+
+        model = new DefaultTableModel(data, col) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 // 모둠번호와 역할은 수정 가능
                 if(column==2 || column==3) return true;
                 else return false;
+            }
+
+            @Override
+            public void addRow(Object[] rowData) {
+                Object[] newRow = new Object[]{rowData[0],rowData[1],rowData[2],rowData[3]};
+                addRow(convertToVector(newRow));
+                if(rowData[4] != null) {
+                multiGroup.participate((Integer) rowData[4]);
+
+                joinedStudentPanel.removeAll();
+                joinedStudentPanel.add(multiGroup.buildGUI());
+                joinedStudentPanel.revalidate();
+                joinedStudentPanel.repaint();
+                }
             }
 
             @Override
@@ -647,7 +635,34 @@ public class MainProfScreenGUI extends JFrame {
         return msgGroupPanel;
     }
 
+    private int count = 0;
+    private HashMap<String, Integer> studentList = new HashMap<>();
+    public void attendanceStudent(Object[] student){
+        model.addRow(student);
+        studentList.put(student[1].toString(), count++);
+    }
 
+    public void absentStudent(Object[] student){
+        if(student[4] != null) {
+            int key = studentList.get(student[1].toString());
+            // 반복문을 돌며 값 수정
+            for (Map.Entry<String, Integer> entry : studentList.entrySet()) {
+                if (entry.getValue() > key) {
+                    entry.setValue(entry.getValue() - 1); // 7보다 큰 값은 -1로 설정
+                }
+            }
+
+            model.removeRow(key);
+
+            multiGroup.absent((int) student[4]);
+
+            joinedStudentPanel.removeAll();
+            joinedStudentPanel.add(multiGroup.buildGUI());
+            joinedStudentPanel.revalidate();
+            joinedStudentPanel.repaint();
+
+        }
+    }
     public static void main(String[] args) {
 //        new MainProfScreenGUI();
     }

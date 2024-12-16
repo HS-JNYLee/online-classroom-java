@@ -83,6 +83,12 @@ public class ChatMsg implements Serializable {
         this(userID, code, message, null, 0, null, null);
     }
 
+    // 학생 로그인 시 사용
+    public ChatMsg(String userID, int code, String message, int tableIndex, int teamIndex) {
+        this(userID, code, message, null, tableIndex, null, null);
+        this.x = teamIndex; // 모둠번호
+    }
+    
     public ChatMsg(String userID, int code, ImageIcon image) {
         this(userID, code, null, image, 0, null, null);
     }

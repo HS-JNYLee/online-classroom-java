@@ -6,8 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ExitModal {
-    public static void showModalDialog(JFrame parentFrame) {
-        JDialog modalDialog = new JDialog(parentFrame, "수업 종료 확인", true);  // 'true' makes it modal
+    public static void showModalDialog(JFrame parentFrame, SoundManager soundManager) {
+        JDialog modalDialog = new JDialog(parentFrame, "수업 종료 확인", true);
         modalDialog.setSize(300, 200);
         modalDialog.setLocationRelativeTo(parentFrame);
 
@@ -17,8 +17,8 @@ public class ExitModal {
         closeButton.addActionListener(e -> modalDialog.dispose());
         closeButton.addActionListener(e -> {
             parentFrame.dispose();
-            // new LoginScreenGUI(); // 로그인 창으로 돌아가기 / 나가기
-            WithTalk.main(new String[]{""}); // [임시]: 클라이언트 창으로 돌아가기
+            soundManager.stopPlayback();
+            new WithTalk("127.0.0.1", 8080);
         });
 
         modalDialog.setLayout(new BorderLayout());

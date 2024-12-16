@@ -8,25 +8,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-// Panel for drawing annotations
 public class DrawingPanel extends JPanel {
     private BufferedImage drawingImage;
     private Color color;
     private PaletteButton penButton;
     private PaletteButton eraserButton;
     private VideoPanel videoPanel;
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
-    public void setVideoPanel(VideoPanel videoPanel) {
-        this.videoPanel = videoPanel;
-    }
-
-    public void setButtons(PaletteButton penButton, PaletteButton eraserButton) {
-        this.penButton = penButton;
-        this.eraserButton = eraserButton;
-    }
 
     public DrawingPanel() {
         drawingImage = new BufferedImage(600, 340, BufferedImage.TYPE_INT_ARGB);
@@ -80,13 +67,26 @@ public class DrawingPanel extends JPanel {
         drawingImage = new BufferedImage(600, 340, BufferedImage.TYPE_INT_ARGB);
     }
 
-    public BufferedImage getDrawingImage() {
-        return drawingImage;
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(drawingImage, 0, 0, null);
+    }
+
+    public BufferedImage getDrawingImage() {
+        return drawingImage;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public void setVideoPanel(VideoPanel videoPanel) {
+        this.videoPanel = videoPanel;
+    }
+
+    public void setButtons(PaletteButton penButton, PaletteButton eraserButton) {
+        this.penButton = penButton;
+        this.eraserButton = eraserButton;
     }
 }

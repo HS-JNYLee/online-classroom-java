@@ -2,7 +2,6 @@ package User;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.Socket;
 
 public class User implements UserInterface {
@@ -12,9 +11,18 @@ public class User implements UserInterface {
     protected ImageIcon profileImage;
     protected String classRoomAddr;
     protected int classRoomPort;
-    protected String teamRoomAddr; // groupId
+    protected int teamRoomAddr; // groupId
     protected int teamRoomPort;
     protected Socket socket;
+    protected int userTableIndex;
+
+    public int getUserTableIndex() {
+        return userTableIndex;
+    }
+
+    public void setUserTableIndex(int userTableIndex) {
+        this.userTableIndex = userTableIndex;
+    }
 
     public User(){}
 
@@ -48,7 +56,7 @@ public class User implements UserInterface {
         return this.classRoomPort;
     }
 
-    public String getTeamRoomAddr() {
+    public int getTeamRoomAddr() {
         return this.teamRoomAddr;
     }
 
@@ -72,7 +80,7 @@ public class User implements UserInterface {
         this.profileImage = profileImage;
     }
 
-    public void setTeamRoomAddr(String teamRoomAddr) {
+    public void setTeamRoomAddr(int teamRoomAddr) {
         this.teamRoomAddr = teamRoomAddr;
     }
 

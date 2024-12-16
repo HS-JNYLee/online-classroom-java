@@ -36,7 +36,6 @@ public class WithTalk extends JFrame implements SendObserver {
     private String uName;
     private String uType;
     private Thread receiveThread = null;
-    private Thread receiveChatMsgThread;
 
     private String uFileName;
     private int frameHeight = 390;
@@ -46,7 +45,7 @@ public class WithTalk extends JFrame implements SendObserver {
     private MainProfScreenGUI mainProfScreenGUI = null;
     private LectureScreenGUI lectureScreenGUI = null;
 
-    WithTalk(String serverAddress, int serverPort) {
+    public WithTalk(String serverAddress, int serverPort) {
         super("WithTalk");
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
@@ -315,6 +314,20 @@ public class WithTalk extends JFrame implements SendObserver {
                         }
 
                         switch (fetchedChatMsg.mode) {
+                            case ChatMsg.MODE_TX_ACCESS: // 학생이 출석했을 때, 학생의 정보를 받음
+                                if (mainProfScreenGUI != null && !fetchedChatMsg.userID.equals("2000001")) {
+                                    // {"김재호", 202312345, 1, "팀장", 0}
+                                    // x: teamIndex
+                                    // size : tableIndex
+                                    mainProfScreenGUI.attendanceStudent(new Object[]{fetchedChatMsg.message, fetchedChatMsg.userID, fetchedChatMsg.x, "학생", (int) fetchedChatMsg.size});
+                                }
+                                break;
+                            case ChatMsg.MODE_LOGOUT: // 학생이 출석했을 때, 학생의 정보를 받음
+                                if (mainProfScreenGUI != null && !fetchedChatMsg.userID.equals("2000001")) {
+                                    // {"김재호", 202312345, 1, "팀장", 0}
+                                    mainProfScreenGUI.absentStudent(new Object[]{fetchedChatMsg.message, fetchedChatMsg.userID, fetchedChatMsg.x, "학생", (int) fetchedChatMsg.size});
+                                }
+                                break;
                             case ChatMsg.MODE_TX_STRING:
                                 printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
                                 break;

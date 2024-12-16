@@ -17,7 +17,7 @@ public class LectureScreenGUI extends JFrame {
     private PaletteButton b_bookmark;
     private DrawingPanel drawingPanel;
     private BookmarkSlider bookmarkSlider;
-    private long threadSleep = 50;
+    private final long threadSleep = 50;
     LectureScreenGUI() {
         super("수업 중...");
 
@@ -118,7 +118,6 @@ public class LectureScreenGUI extends JFrame {
         });
         // JList를 JScrollPane에 넣기
         JScrollPane scrollPane = new JScrollPane(bookmarkList);
-        //
         // ----- GPT -----
 
 
@@ -155,9 +154,9 @@ public class LectureScreenGUI extends JFrame {
         bookmarkSlider.setLectureSoundManager(soundManager);
 
         // (임시) 소리 테스트용
-        simulateAudioStream();
+        // simulateAudioStream();
         // (임시) 영상 녹화 테스트용
-        new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
+        // new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
         // 영상+슬라이더 패널
         JPanel screenPanel = new JPanel(new BorderLayout());
@@ -249,7 +248,7 @@ public class LectureScreenGUI extends JFrame {
         PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon) {
             @Override
             public void onClick() {
-                ExitModal.showModalDialog(LectureScreenGUI.this);
+                ExitModal.showModalDialog(LectureScreenGUI.this, soundManager);
             }
         };
         exitButton.setPreferredSize(new Dimension(30, 31));
@@ -296,20 +295,24 @@ public class LectureScreenGUI extends JFrame {
         return buttonWrapper;
     }
 
-    public static void main(String[] args) {
-        new LectureScreenGUI();
-    }
-
     private BufferedImage nowFrame;
     public void getImages(BufferedImage icon) {
         nowFrame = icon;
     }
+
     private byte[] audioChunk;
     public void getAudioChunk(byte[] audioChunk) {
         this.audioChunk = audioChunk;
     }
 
     private SoundManager soundManager;
+    private SendObserver sendObserver;
+    void setSendObserver(SendObserver sendObserver) {
+        this.sendObserver = sendObserver;
+    }
+    public void setPoint(Point point) {
+        videoPanel.showEmoji(point);
+    }
     private void simulateAudioStream() {
         new Thread(() -> {
             while (true) {
@@ -327,7 +330,6 @@ public class LectureScreenGUI extends JFrame {
             }
         }).start();
     }
-
     private void simulateVideoFrames(BookmarkSlider bookmarkSlider) {
         try {
             int frameCount = 0;
@@ -346,7 +348,7 @@ public class LectureScreenGUI extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     bookmarkSlider.setDrawingPanel(drawingPanel);
                     bookmarkSlider.addFrame(frame);
-                    bookmarkSlider.setButton(b_save);
+                    bookmarkSlider.onSave(b_save);
                 });
                 frameCount++;
                 Thread.sleep(threadSleep);
@@ -354,13 +356,6 @@ public class LectureScreenGUI extends JFrame {
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }
-    }
-    private SendObserver sendObserver;
-    void setSendObserver(SendObserver sendObserver) {
-        this.sendObserver = sendObserver;
-    }
-    public void setPoint(Point point) {
-        videoPanel.showEmoji(point);
     }
 }
 

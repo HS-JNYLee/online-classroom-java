@@ -4,19 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-// Panel for displaying video
 public class VideoPanel extends JPanel {
     private BufferedImage currentFrame;
     private ImageIcon emojiIcon;
     private Point position;
-    @Override
-    public void setLayout(LayoutManager mgr) {
-        super.setLayout(null);
-    }
-
-    public BufferedImage getCurrentFrame() {
-        return currentFrame;
-    }
 
     public void updateFrame(BufferedImage frame) {
         this.currentFrame = frame;
@@ -24,7 +15,6 @@ public class VideoPanel extends JPanel {
             BufferedImage combined = new BufferedImage(currentFrame.getWidth(), currentFrame.getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = combined.createGraphics();
             g.drawImage(currentFrame, 0, 0, null);
-            Image icon = emojiIcon.getImage();
             g.drawImage(emojiIcon.getImage(), position.x - 35, position.y - 35, 30, 30,null);
             g.dispose();
             this.currentFrame = combined;
@@ -42,9 +32,7 @@ public class VideoPanel extends JPanel {
 
     // 이모지를 표시하고 일정 시간 후 제거
     public void showEmoji(Point location) {
-        // 이모지 라벨 생성
-        System.out.println("Showing emoji");
-        emojiIcon = new ImageIcon("./assets/icons/emoji.png");
+        emojiIcon = new ImageIcon("assets/icons/emoji.png");
         position = location;
         // 일정 시간 후 제거 (500ms)
         Timer timer = new Timer(500, e -> {
@@ -54,4 +42,12 @@ public class VideoPanel extends JPanel {
         timer.start();
     }
 
+    @Override
+    public void setLayout(LayoutManager mgr) {
+        super.setLayout(null);
+    }
+
+    public BufferedImage getCurrentFrame() {
+        return currentFrame;
+    }
 }

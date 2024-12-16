@@ -9,7 +9,6 @@ public class TailRoundedPane extends RoundedPane {
         TOP_LEFT, BOTTOM_LEFT, TOP_RIGHT, BOTTOM_RIGHT
     }
 
-    private int topLeft, bottomLeft, topRight, bottomRight;
     private TailPosition tailPosition = TailPosition.TOP_LEFT;
     public TailRoundedPane(TailPosition tailPosition) {
         super();
@@ -104,7 +103,6 @@ public class TailRoundedPane extends RoundedPane {
         g2d.setColor(this.getBackground());
         g2d.fill(path);
         g2d.translate(insets.left, insets.top);
-        //g2d.draw(border);
         g2d.dispose();
     }
 }
