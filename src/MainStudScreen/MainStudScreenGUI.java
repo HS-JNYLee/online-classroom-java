@@ -114,12 +114,6 @@ public class MainStudScreenGUI extends JFrame {
     // Team 활동 시작 유무 수신 (Thread) 팀원들 정보 전달 받음
     public void receiveTeamActivityStatus(){ }
 
-    // Team 활동을 시작했고 User가 팀장인 경우 화면 송신 가능 (Thread)
-    private void sendScreen(ChatMsg chatMsg){
-        System.out.println("화면 보냄");
-        this.communicationCallbacks.send(chatMsg);
-    }
-
 
     // User 정보 필요
     public MainStudScreenGUI(CommunicationCallbacks communicationCallbacks, Student user){

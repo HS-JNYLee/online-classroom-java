@@ -3,12 +3,16 @@ import ClassRoom.Group.MultiGroup;
 import MainStudScreen.CommunicationCallbacks;
 import Threads.SendMicSoundThread;
 import Threads.SendScreenThread;
-import User.Professor;
+import User.*;
 import Utils.Icons;
 import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
 import Utils.Theme;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -34,7 +38,7 @@ public class MainProfScreenGUI extends JFrame {
     private JTextField chatTextField;
     private JScrollPane chatScroller;
 
-    private JPanel chatPanel;// TODO////////////////////////////////////////////////////////////////
+    private JPanel chatPanel;
     private JPanel variousScreenPanel;
     private JPanel chatCommunityPanel;
     private JPanel chatroomPanelPadding;
@@ -49,6 +53,44 @@ public class MainProfScreenGUI extends JFrame {
 
     private void sendMicVoice(ChatMsg chatMsg) { this.communicationCallbacks.send(chatMsg); }
 
+    // 화면 소리, 교수님, 다른 학생들 마이크 소리 수신 (Thread)
+    public void receiveSound(ChatMsg chatMsg){
+        try {
+            System.out.println("소리옴~~~~~~~~~~~~~~~~~~~~~~~");
+            if (!is_sound_on){ // 마이크가 꺼져 있는 경우 소리 수신 X
+                System.out.println("소리옴~~~~~~~~~~~~~~~~~~~그러나 수신 X");
+                return;
+            }
+            // 1. 오디오 포맷 설정 (서버와 동일하게 설정)
+            AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
+            SourceDataLine line = AudioSystem.getSourceDataLine(format);
+            line.open(format);
+            line.start(); // 오디오 출력을 위한 라인 시작
+
+            // 2. ChatMsg에서 바이트 배열 가져오기
+            byte[] soundData = chatMsg.getMicSound(); // ChatMsg에 추가된 getter 메서드로 데이터 접근
+
+            // 3. 가져온 데이터를 SourceDataLine에 전달
+            if (soundData != null && soundData.length > 0) {
+                System.out.println("수신 읽은 데이터 : " + soundData.length);
+                line.write(soundData, 0, soundData.length); // 오디오 출력
+            }
+
+            line.drain(); // 버퍼에 남은 데이터 재생 완료
+            line.close(); // 라인 닫기
+
+        } catch (LineUnavailableException e) {
+            System.err.println("오디오 장치를 사용할 수 없습니다.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendScreenStartEvent(ChatMsg chatMsg){ this.communicationCallbacks.send(chatMsg); }
+
+    private void sendScreenEndEvent(ChatMsg chatMsg) { this.communicationCallbacks.send(chatMsg); }
+
     private void sendScreen(ChatMsg chatMsg){
         System.out.println("화면 보냄");
         this.communicationCallbacks.send(chatMsg);
@@ -56,7 +98,26 @@ public class MainProfScreenGUI extends JFrame {
 
     private void sendMsg(ChatMsg chatMsg){ this.communicationCallbacks.send(chatMsg); }
 
-    public MainProfScreenGUI(){
+    public void receiveMsg(ChatMsg receivedChatMsg){
+        String roleString = receivedChatMsg.getuType();
+        String id = receivedChatMsg.getuId();
+        String name = receivedChatMsg.getuName();
+        ImageIcon imageIcon = receivedChatMsg.getImage();
+
+        User receivedUser;
+
+        System.out.println(receivedChatMsg.getuId());
+
+        if(roleString.equals("교수")){
+            receivedUser = new Professor(id, name, imageIcon);
+        } else {
+            receivedUser = new Student(id,name, imageIcon);
+        }
+
+        addMessage(receivedChatMsg.getMessage(), receivedUser);
+    }
+
+    public MainProfScreenGUI(CommunicationCallbacks communicationCallbacks, Professor user){
         setTitle("Class Student Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1200, 700);
@@ -71,9 +132,10 @@ public class MainProfScreenGUI extends JFrame {
 
         buildGUI();
 
-        //TODO
-        // this.communicationCallbacks = communicationCallbacks;
-        // LoginProf = user;
+        this.communicationCallbacks = communicationCallbacks;
+        LoginProf = user;
+        LoginProf.setRole(Roles.PROFESSOR);
+        System.out.println("교수화면 : " + LoginProf.getId() + LoginProf.getName());
 
         setVisible(true);
     }
@@ -120,7 +182,7 @@ public class MainProfScreenGUI extends JFrame {
         // 안에 포함된 컴포넌트 구성
         btnsPanel.add(createMicBtn()); // 마이크 버튼
         btnsPanel.add(createSoundBtn()); // 소리 버튼
-        btnsPanel.add(createScreenShareButton());
+        btnsPanel.add(createScreenShareButton());// 화면 공유 버튼
         btnsPanel.add(createChatBtn()); // 채팅 버튼
 
 
@@ -208,19 +270,19 @@ public class MainProfScreenGUI extends JFrame {
                     is_sound_on = false;
                     soundBtn.setIcon(Icons.soundOffIcon);
 
-                    Icon micIcon = soundBtn.getIcon();
+                    Icon soundBtnIcon = soundBtn.getIcon();
 
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
+                    Image resize = ((ImageIcon) soundBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) soundBtnIcon).setImage(resize);
                 }
                 else{ // 소리 버튼이 꺼져있을 때 눌렀을 경우 (Sound ON)
                     is_sound_on = true;
                     soundBtn.setIcon(Icons.soundOnIcon);
 
-                    Icon micIcon = soundBtn.getIcon();
+                    Icon soundBtnIcon = soundBtn.getIcon();
 
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
+                    Image resize = ((ImageIcon) soundBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) soundBtnIcon).setImage(resize);
                 }
             }
         });
@@ -249,10 +311,14 @@ public class MainProfScreenGUI extends JFrame {
                     is_screen_share_possible = false;
                     screenShareBtn.setIcon(Icons.screenShareOffIcon);
 
-                    Icon micIcon = screenShareBtn.getIcon();
+                    Icon screenShareBtnIcon = screenShareBtn.getIcon();
 
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
+                    Image resize = ((ImageIcon) screenShareBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) screenShareBtnIcon).setImage(resize);
+
+                    // 화면 공유 시작했음을 알림
+                    ChatMsg screenShareStart = new ChatMsg(LoginProf.getId(), User.roleToString(Roles.PROFESSOR), ChatMsg.MODE_SCREEN_SHARE_START);
+                    sendScreenStartEvent(screenShareStart);
 
                     sendScreenThread = new SendScreenThread(LoginProf,(chatMsg)->sendScreen(chatMsg));
                     sendScreenThread.start();
@@ -261,12 +327,15 @@ public class MainProfScreenGUI extends JFrame {
                     is_screen_share_possible = true;
                     screenShareBtn.setIcon(Icons.screenShareOnIcon);
 
-                    Icon micIcon = screenShareBtn.getIcon();
+                    Icon screenShareBtnIcon = screenShareBtn.getIcon();
 
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
+                    Image resize = ((ImageIcon) screenShareBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) screenShareBtnIcon).setImage(resize);
 
                     sendScreenThread.stopThread();
+
+                    ChatMsg screenShareEnded = new ChatMsg(LoginProf.getId(), User.roleToString(Roles.PROFESSOR), ChatMsg.MODE_SCREEN_SHARE_END);
+                    sendScreenEndEvent(screenShareEnded);
                 }
             }
         });
@@ -275,7 +344,7 @@ public class MainProfScreenGUI extends JFrame {
     }
 
     private JButton createChatBtn(){
-        this.chatBtn = new JButton("",new ImageIcon("./assets/icons/chat_on.png"));
+        this.chatBtn = new JButton("",Icons.chatOnIcon);
         Icon micIcon = this.chatBtn.getIcon();
 
         Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
@@ -292,22 +361,22 @@ public class MainProfScreenGUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if(is_chat_on){ // 채팅화면이 켜져있는 경우
                     is_chat_on = false;
-                    chatBtn.setIcon(new ImageIcon("./assets/icons/chat_off.png"));
+                    chatBtn.setIcon(Icons.chatOffIcon);
 
-                    Icon micIcon = chatBtn.getIcon();
+                    Icon chatBtnIcon = chatBtn.getIcon();
 
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
+                    Image resize = ((ImageIcon) chatBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) chatBtnIcon).setImage(resize);
                     chatroomPanelPadding.setVisible(false);
                 }
                 else{ // 채팅화면이 꺼져 있는 경우
                     is_chat_on = true;
-                    chatBtn.setIcon(new ImageIcon("./assets/icons/chat_on.png"));
+                    chatBtn.setIcon(Icons.chatOnIcon);
 
-                    Icon micIcon = chatBtn.getIcon();
+                    Icon chatBtnIcon = chatBtn.getIcon();
 
-                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
-                    ((ImageIcon) micIcon).setImage(resize);
+                    Image resize = ((ImageIcon) chatBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) chatBtnIcon).setImage(resize);
                     chatroomPanelPadding.setVisible(true);
                 }
             }
@@ -521,9 +590,66 @@ public class MainProfScreenGUI extends JFrame {
         return chatroomPanelPadding;
     }
 
+    private JPanel addMessage(String msg, User user){
+
+        String id = user.getId();
+        String name = user.getName();
+        ImageIcon profileImage = user.getProfileImage();
+        Image resize = profileImage.getImage().getScaledInstance(25,25, Image.SCALE_SMOOTH);
+        ((ImageIcon) profileImage).setImage(resize);
+
+        // 송신된 메시지는 우측에, 수신된 메시지는 좌측에
+        JPanel msgGroupPanel = new JPanel();
+        msgGroupPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        msgGroupPanel.setBackground(Color.white);
+        msgGroupPanel.setLayout(new BoxLayout(msgGroupPanel, BoxLayout.X_AXIS));
+
+        JLabel msgText = new JLabel(msg);
+        JLabel msgProfile = new JLabel(profileImage);
+
+        if (user instanceof Professor && ((Professor) user).getId().equals(LoginProf.getId())) {
+
+            // 우측 정렬
+            msgGroupPanel.add(Box.createHorizontalGlue());
+            msgGroupPanel.add(msgText);
+            msgGroupPanel.add(Box.createRigidArea(new Dimension(20, 0))); // Profile Image와 택스트 사이의 공백
+            msgGroupPanel.add(msgProfile);
+
+//            msgGroupPanel.setBackground(Color.blue);
+        } else {
+
+            // 좌측 정렬
+            msgGroupPanel.add(msgProfile);
+            msgGroupPanel.add(Box.createRigidArea(new Dimension(10, 0))); // Profile Image와 택스트 사이의 공백
+            msgGroupPanel.add(msgText);
+            msgGroupPanel.add(Box.createHorizontalGlue());
+
+//            msgGroupPanel.setBackground(Color.red);
+        }
+
+        chatCommunityPanel.add(msgGroupPanel);
+
+        // 부모 패널 업데이트
+        chatCommunityPanel.revalidate();
+        chatCommunityPanel.repaint();
+
+        JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+        scrollBar.setValue(scrollBar.getMaximum());
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JScrollBar scrollBar = chatScroller.getVerticalScrollBar();
+                scrollBar.setValue(scrollBar.getMaximum());
+            }
+        });
+
+        return msgGroupPanel;
+    }
+
 
     public static void main(String[] args) {
-        new MainProfScreenGUI();
+//        new MainProfScreenGUI();
     }
 
 
