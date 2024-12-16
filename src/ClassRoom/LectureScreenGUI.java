@@ -248,7 +248,7 @@ public class LectureScreenGUI extends JFrame {
         PaletteButton exitButton = new PaletteColorButton(Icons.exitIcon) {
             @Override
             public void onClick() {
-                ExitModal.showModalDialog(LectureScreenGUI.this);
+                ExitModal.showModalDialog(LectureScreenGUI.this, soundManager);
             }
         };
         exitButton.setPreferredSize(new Dimension(30, 31));

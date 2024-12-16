@@ -45,7 +45,7 @@ public class WithTalk extends JFrame implements SendObserver {
     private MainProfScreenGUI mainProfScreenGUI = null;
     private LectureScreenGUI lectureScreenGUI = null;
 
-    WithTalk(String serverAddress, int serverPort) {
+    public WithTalk(String serverAddress, int serverPort) {
         super("WithTalk");
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
