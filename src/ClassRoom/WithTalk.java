@@ -36,7 +36,6 @@ public class WithTalk extends JFrame implements SendObserver {
     private String uName;
     private String uType;
     private Thread receiveThread = null;
-    private Thread receiveChatMsgThread;
 
     private String uFileName;
     private int frameHeight = 390;

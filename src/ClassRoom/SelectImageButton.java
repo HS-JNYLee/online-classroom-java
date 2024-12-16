@@ -10,10 +10,6 @@ public class SelectImageButton {
     JButton button;
     private Image image = null;
 
-    SelectImageButton(JButton button) {
-        this.button = button;
-    }
-
     public SelectImageButton() {
         button = buildButton();
         button.setContentAreaFilled(false);
@@ -36,17 +32,15 @@ public class SelectImageButton {
 
             @Override
             protected void paintComponent(Graphics g) {
-                // 기본 배경 처리 (잔상 제거)
                 super.paintComponent(g);
 
-                // 버튼의 배경을 동그란 모양으로 채움
                 Graphics2D g2 = (Graphics2D) g;
 
                 if (image != null) {
                     ImageIcon icon = new ImageIcon(image);
                     int width = getWidth();
                     int height = getHeight();
-                    int size = Math.min(width, height); // 버튼 크기 기준으로 원 크기 설정
+                    int size = Math.min(width, height);
 
                     // 원형 모양의 클리핑 영역 설정
                     g2.setClip(new Ellipse2D.Float(0, 0, size, size));
@@ -64,11 +58,8 @@ public class SelectImageButton {
                     int centerX = getWidth() / 2;
                     int centerY = getHeight() / 2;
 
-                    // 수직 선
-                    g2.fillRect(centerX - 2, 5 * padding, 4, getHeight() - 10 * padding);
-
-                    // 수평 선
-                    g2.fillRect(5 * padding, centerY - 2, getWidth() - 10 * padding, 4);
+                    g2.fillRect(centerX - 2, 5 * padding, 4, getHeight() - 10 * padding); // 수직
+                    g2.fillRect(5 * padding, centerY - 2, getWidth() - 10 * padding, 4); // 수평
                 }
             }
 
