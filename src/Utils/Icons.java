@@ -17,6 +17,12 @@ public class Icons {
     public static ImageIcon bluePaletteIcon = createCircleIcon(Theme.Blue);
     public static ImageIcon exitIcon = setIcon("assets/icons/exit.png");
     public static ImageIcon userIcon = setIcon("assets/icons/user_icon.png");
+    public static ImageIcon micOnIcon = setIcon("assets/icons/mic_on.png");
+    public static ImageIcon micOffIcon = setIcon("assets/icons/mic_off.png");
+    public static ImageIcon soundOnIcon = setIcon("assets/icons/sound_on.png");
+    public static ImageIcon soundOffIcon = setIcon("assets/icons/sound_off.png");
+    public static ImageIcon screenShareOnIcon = setIcon("assets/icons/screen_share_on.png");
+    public static ImageIcon screenShareOffIcon = setIcon("assets/icons/screen_share_off.png");
     private static ImageIcon setIcon(String path) {
         ImageIcon icon = new ImageIcon(path);
         Image image = icon.getImage();

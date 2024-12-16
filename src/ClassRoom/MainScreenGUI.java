@@ -4,6 +4,7 @@ import MainStudScreen.CommunicationCallbacks;
 import User.Professor;
 import User.Student;
 import User.User;
+import Utils.Icons;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -36,6 +37,7 @@ public class MainScreenGUI extends JFrame {
     private JScrollPane StudentTableJScrollPanel;
     private JScrollPane chatScroller;
     private JPanel ChatPanel;
+    private JPanel TeamStudentPanelPadding;
     private JTextField chatTextField;
     private JButton sendBtn;
     private JPanel MessageSendControlPanel;
@@ -77,7 +79,7 @@ public class MainScreenGUI extends JFrame {
         setContentPane(MainScreenPanel);
         setTitle("ClassRoom Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(1500, 800);
+        setSize(960, 540);
 
         this.communicationCallbacks = communicationCallbacks;
         this.LoginProf = user;
@@ -306,10 +308,12 @@ public class MainScreenGUI extends JFrame {
         // TODO 통신 종료
     }
 
+    // 모둠 화면
     private void createTeamStudentPanel(){
         this.TeamStudentPanel = new JPanel(new GridLayout(2,2));
 
-        TeamStudentPanel.setPreferredSize(new Dimension(500,500));
+//        TeamStudentPanel.setPreferredSize(new Dimension(500,500));
+        TeamStudentPanel.setPreferredSize(new Dimension(350,350));
 
         TeamStudentPanel.setBackground(Color.blue);
 
@@ -357,6 +361,7 @@ public class MainScreenGUI extends JFrame {
 
     }
 
+    // 참석자 표
     private void createStudentPanel(){
 
         String[] col = new String[]{"이름", "학번","모둠번호","역할"};
@@ -546,7 +551,16 @@ public class MainScreenGUI extends JFrame {
         return msgGroupPanel;
     }
     public static void main(String[] args) {
-//        new MainScreenGUI();
+        CommunicationCallbacks tmp = new CommunicationCallbacks() {
+            @Override
+            public void send(ChatMsg chatMsg) {
+                System.out.println("apple");
+            }
+        };
+
+        Professor ptmp = new Professor("12", "KJH", Icons.userIcon);
+
+        new MainScreenGUI(tmp,ptmp );
     }
 }
 
