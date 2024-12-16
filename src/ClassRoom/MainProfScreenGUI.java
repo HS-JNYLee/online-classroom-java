@@ -1,9 +1,13 @@
 package ClassRoom;
+
 import ClassRoom.Group.MultiGroup;
 import MainStudScreen.CommunicationCallbacks;
 import Threads.SendMicSoundThread;
 import Threads.SendScreenThread;
-import User.*;
+import User.Professor;
+import User.Roles;
+import User.Student;
+import User.User;
 import Utils.Icons;
 import Utils.RoundedPane;
 import Utils.RoundedShadowPane;
@@ -465,6 +469,16 @@ public class MainProfScreenGUI extends JFrame {
             }
 
             @Override
+            public void removeRow(int rowIndex) {
+                multiGroup.absent(rowIndex);
+
+                joinedStudentPanel.removeAll();
+                joinedStudentPanel.add(multiGroup.buildGUI());
+                joinedStudentPanel.revalidate();
+                joinedStudentPanel.repaint();
+            }
+
+            @Override
             public void setValueAt(Object value, int row, int column) {
                 super.setValueAt(value, row, column); // 내부 데이터 업데이트
 
@@ -636,6 +650,12 @@ public class MainProfScreenGUI extends JFrame {
 
     public void attendanceStudent(Object[] student){
         model.addRow(student);
+    }
+
+    public void absentStudent(Object[] student){
+        if(student[4] != null) {
+            model.removeRow((int) student[4]);
+        }
     }
     public static void main(String[] args) {
 //        new MainProfScreenGUI();

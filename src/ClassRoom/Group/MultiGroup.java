@@ -37,6 +37,15 @@ public class MultiGroup extends JFrame {
         return buildGUI();
     }
 
+    public JPanel absent(int index) {
+        attendanceStudents[index / 4][index % 4] = false;
+        // 전체 갱신
+        revalidate();
+        repaint();
+
+        return buildGUI();
+    }
+
     private Group getGroupByIndex(int index) {
         return switch (index / 4) {
             case 0 -> group1;
