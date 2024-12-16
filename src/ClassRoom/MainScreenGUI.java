@@ -550,6 +550,8 @@ public class MainScreenGUI extends JFrame {
 
         return msgGroupPanel;
     }
+
+
     public static void main(String[] args) {
         CommunicationCallbacks tmp = new CommunicationCallbacks() {
             @Override

@@ -43,7 +43,7 @@ public class WithTalk extends JFrame implements SendObserver {
     private int frameWidth = 510;
 
     private MainStudScreenGUI mainStudScreenGUI = null;
-    private MainScreenGUI mainScreenGUI = null;
+    private MainProfScreenGUI mainProfScreenGUI = null;
     private LectureScreenGUI lectureScreenGUI = null;
 
     WithTalk(String serverAddress, int serverPort) {
@@ -254,6 +254,8 @@ public class WithTalk extends JFrame implements SendObserver {
             out = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
             receiveThread = new Thread(new Runnable() {
+
+                // 로그인 감지
                 private void receiveMessage() {
                     try {
                         ChatMsg inMsg = (ChatMsg) in.readObject();
@@ -285,7 +287,7 @@ public class WithTalk extends JFrame implements SendObserver {
                                 System.out.println(WithTalk.this.uType);
 
                                 if (WithTalk.this.uType.equals("교수")){
-                                    mainScreenGUI = new MainScreenGUI(msg->send(msg), new Professor(uId, uName, new ImageIcon(uFileName)));
+                                    mainProfScreenGUI = new MainProfScreenGUI(msg->send(msg), new Professor(uId, uName, new ImageIcon(uFileName)));
                                 } else if(WithTalk.this.uType.equals("학생")){
                                     mainStudScreenGUI = new MainStudScreenGUI(msg->send(msg), new Student(uId, uName, new ImageIcon(uFileName)));
                                 }
@@ -303,6 +305,91 @@ public class WithTalk extends JFrame implements SendObserver {
                         printDisplay("잘못된 객체가 전달되었습니다.");
                     }
                 }
+
+                // 로그인 후 통신
+                private void receiveChatMsg() {
+                    try {
+                        ChatMsg fetchedChatMsg = (ChatMsg) in.readObject();
+                        if (fetchedChatMsg == null) {
+                            disconnect();
+                            printDisplay("서버 연결 끊김");
+                        }
+
+                        switch (fetchedChatMsg.mode) {
+                            case ChatMsg.MODE_TX_STRING:
+                                printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
+                                break;
+                            case ChatMsg.MODE_TX_IMAGE:
+                                printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
+                                printDisplay(fetchedChatMsg.image);
+                                break;
+                            case ChatMsg.MODE_TX_DENIED:
+                                printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
+                                break;
+                            case ChatMsg.MODE_USERINFO_MSG: // 채팅 관련
+                                printDisplay("User객체로 전달됨 : " + fetchedChatMsg.getuId());
+                                if(WithTalk.this.mainStudScreenGUI != null) mainStudScreenGUI.receiveMsg(fetchedChatMsg);
+                                if(WithTalk.this.mainProfScreenGUI != null) mainProfScreenGUI.receiveMsg(fetchedChatMsg);
+                                break;
+                            case ChatMsg.MODE_SCREEN_SHARE_START:
+                                System.out.println("화면 공유 시작 이벤트");
+                                if(mainProfScreenGUI != null){ // 로그인한 사람이 교수인경우
+                                    return;
+                                }
+                                else if(mainStudScreenGUI != null) { // 로그인 한 사람이 학생인 경우
+                                    mainStudScreenGUI.dispose(); // 현재 mainStud 화면을 닫고
+                                    lectureScreenGUI = new LectureScreenGUI();  // 필기 화면 실행
+                                    lectureScreenGUI.setSendObserver(WithTalk.this);
+                                }
+                                break;
+                            case ChatMsg.MODE_SHARED_SCREEN: // 교수가 화면 공유 시작
+                                printDisplay("User객체로 전달됨 : " + fetchedChatMsg.getuId());
+                                if(mainProfScreenGUI != null){ // 로그인한 사람이 교수 인경우
+                                    return;
+                                }
+                                else if(lectureScreenGUI != null) { // 로그인 한 사람이 학생 + 필기 화면이 열린 경우
+                                    lectureScreenGUI.getImages(fetchedChatMsg.getImageBytes());
+                                }
+                                break;
+                            case ChatMsg.MODE_SCREEN_SHARE_END:
+                                System.out.println("화면 공유 중지 이벤트");
+                                if(mainProfScreenGUI!=null){ // 로그인 한 사람이 교수인경우
+                                    return;
+                                }
+                                else if(lectureScreenGUI!=null){
+                                    lectureScreenGUI.dispose();
+                                    mainStudScreenGUI = new MainStudScreenGUI(msg->send(msg), new Student(uId, uName, new ImageIcon(uFileName)));
+                                }
+                                break;
+                            case ChatMsg.MODE_MIC_SOUND:
+                                if(mainStudScreenGUI != null) {
+                                    mainStudScreenGUI.receiveSound(fetchedChatMsg);
+                                } else if (mainProfScreenGUI != null) { // 교수 화면
+                                    mainProfScreenGUI.receiveSound(fetchedChatMsg);
+                                } else if (lectureScreenGUI != null && fetchedChatMsg.micSound != null) {
+                                    lectureScreenGUI.getAudioChunk(fetchedChatMsg.micSound);
+                                }
+                                break;
+                            case ChatMsg.MODE_EMOJI:
+                                lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
+                                break;
+                        }
+
+                        if(WithTalk.this.mainProfScreenGUI != null){ // 현재 로그인 사용자의 화면이 교수인 경우
+
+                        } else if(WithTalk.this.mainStudScreenGUI != null){ // 현재 로그인 사용자의 화면이 학생인 경우
+//                        mainStudScreenGUI.receiveMsg(fetchedChatMsg);
+                        }
+
+                    } catch (IOException ex) {
+                        System.err.println("메시지를 받는 중에 연결을 종료했습니다." + ex.getMessage());
+                        System.err.println("연결을 종료했습니다." + ex.getMessage());
+                        System.exit(-1);
+                    } catch (ClassNotFoundException ex) {
+                        printDisplay("잘못된 객체가 전달되었습니다.");
+                    }
+                }
+
                 @Override
                 public void run() {
                     try {
@@ -314,7 +401,11 @@ public class WithTalk extends JFrame implements SendObserver {
                         receiveMessage();
                     }
                     // 로그인이 되었다면
-                    receiveChatMsg(); //ChatMsg 계속 수신
+                    // 메시지 계속 수신
+                    while (true){
+                        receiveChatMsg(); //ChatMsg 계속 수신
+                    }
+
                 }
             });
             receiveThread.start();
@@ -323,71 +414,6 @@ public class WithTalk extends JFrame implements SendObserver {
         } catch (IOException ex) {
             System.err.println("클라이언트 연결 오류 > " + ex.getMessage());
         }
-    }
-
-    // 메시지를 계속 수신하는 함수
-    public void receiveChatMsg(){
-        receiveChatMsgThread = new Thread(new Runnable() {
-            private void receiveMessage() {
-                try {
-                    ChatMsg fetchedChatMsg = (ChatMsg) in.readObject();
-                    if (fetchedChatMsg == null) {
-                        disconnect();
-                        printDisplay("서버 연결 끊김");
-                    }
-
-                    switch (fetchedChatMsg.mode) {
-                        case ChatMsg.MODE_TX_STRING:
-                            printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
-                            break;
-                        case ChatMsg.MODE_TX_IMAGE:
-                            printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
-                            printDisplay(fetchedChatMsg.image);
-                            break;
-                        case ChatMsg.MODE_TX_DENIED:
-                            printDisplay(fetchedChatMsg.userID + ": " + fetchedChatMsg.message);
-                            break;
-                        case ChatMsg.MODE_USERINFO_MSG:
-                            printDisplay("User객체로 전달됨 : " + fetchedChatMsg.getuId());
-                            if(WithTalk.this.mainStudScreenGUI != null) mainStudScreenGUI.receiveMsg(fetchedChatMsg);
-                            if(WithTalk.this.mainScreenGUI != null) mainScreenGUI.receiveMsg(fetchedChatMsg);
-                            break;
-                        case ChatMsg.MODE_SHARED_SCREEN:
-                            printDisplay("User객체로 전달됨 : " + fetchedChatMsg.getuId());
-                            lectureScreenGUI.getImages(fetchedChatMsg.getImageBytes());
-                            break;
-                        case ChatMsg.MODE_MIC_SOUND:
-                            if(mainStudScreenGUI != null) mainStudScreenGUI.receiveSound(fetchedChatMsg);
-                            if (lectureScreenGUI != null && fetchedChatMsg.micSound != null) lectureScreenGUI.getAudioChunk(fetchedChatMsg.micSound);
-                            break;
-                        case ChatMsg.MODE_EMOJI:
-                            lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
-                            break;
-                    }
-
-                    if(WithTalk.this.mainScreenGUI != null){ // 현재 로그인 사용자의 화면이 교수인 경우
-
-                    } else if(WithTalk.this.mainStudScreenGUI != null){ // 현재 로그인 사용자의 화면이 학생인 경우
-//                        mainStudScreenGUI.receiveMsg(fetchedChatMsg);
-                    }
-
-                } catch (IOException ex) {
-                    System.err.println("메시지를 받는 중에 연결을 종료했습니다." + ex.getMessage());
-                    System.err.println("연결을 종료했습니다." + ex.getMessage());
-                    System.exit(-1);
-                } catch (ClassNotFoundException ex) {
-                    printDisplay("잘못된 객체가 전달되었습니다.");
-                }
-            }
-            @Override
-            public void run() {
-                while (receiveChatMsgThread==Thread.currentThread()) {
-                    receiveMessage();
-                }
-            }
-        });
-
-        receiveChatMsgThread.start();
     }
 
 

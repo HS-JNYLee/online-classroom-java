@@ -211,9 +211,16 @@ public class WithChatServer extends JFrame {
                     else if(msg.mode == ChatMsg.MODE_EMOJI) {
                         printDisplay("Received Emoji: " + msg.x + ", " + msg.y);
                         broadcasting(msg);
+                    } else if (msg.mode == ChatMsg.MODE_SCREEN_SHARE_START) {
+                        System.out.println("Server : 화면 공유 시작 이벤트");
+                        broadcasting(msg);
                     } else if (msg.mode == ChatMsg.MODE_SHARED_SCREEN) {
                         printDisplay("Server 화면 Broadcasting : " + msg.userID);
                         broadcastingVideo(msg);
+                    }
+                    else if (msg.mode == ChatMsg.MODE_SCREEN_SHARE_END){
+                        System.out.println("Server : 화면 공유 종료 이벤트");
+                        broadcasting(msg);
                     }
                 }
                 users.removeElement(this);

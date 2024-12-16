@@ -23,6 +23,8 @@ public class Icons {
     public static ImageIcon soundOffIcon = setIcon("assets/icons/sound_off.png");
     public static ImageIcon screenShareOnIcon = setIcon("assets/icons/screen_share_on.png");
     public static ImageIcon screenShareOffIcon = setIcon("assets/icons/screen_share_off.png");
+    public static ImageIcon chatOnIcon = setIcon("assets/icons/chat_on.png");
+    public static ImageIcon chatOffIcon = setIcon("assets/icons/chat_off.png");
     private static ImageIcon setIcon(String path) {
         ImageIcon icon = new ImageIcon(path);
         Image image = icon.getImage();
