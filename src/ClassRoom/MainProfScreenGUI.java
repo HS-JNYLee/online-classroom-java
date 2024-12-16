@@ -23,6 +23,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import static User.User.roleToString;
 
@@ -435,18 +437,11 @@ public class MainProfScreenGUI extends JFrame {
 
         String[] col = new String[]{"이름", "학번","모둠번호","역할"};
 
-        Object[][] data = {
+        /*Object[][] data = {
                 {"김재호", 202312345, 1, "팀장", 0},
-                {"이수민", 202312346, 1, "팀원", 2},
-                {"박지훈", 202312347, 2, "팀원", 4},
-                {"정하은", 202312348, 2, "팀장", 5},
-                {"정하은", 202312348, 2, "팀장", 6},
-                {"정하은", 202312348, 2, "팀장", 8},
-                {"정하은", 202312348, 2, "팀장", 10},
-                {"정하은", 202312348, 2, "팀장", 12},
-                {"정하은", 202312348, 2, "팀장", 14},
-                {"정하은", 202312348, 2, "팀장", 15},
-        };
+                {"이수민", 202312346, 1, "팀원", 2},};*/
+
+        Object[][] data = {};
 
         model = new DefaultTableModel(data, col) {
             @Override
@@ -458,6 +453,8 @@ public class MainProfScreenGUI extends JFrame {
 
             @Override
             public void addRow(Object[] rowData) {
+                Object[] newRow = new Object[]{rowData[0],rowData[1],rowData[2],rowData[3]};
+                addRow(convertToVector(newRow));
                 if(rowData[4] != null) {
                 multiGroup.participate((Integer) rowData[4]);
 
@@ -466,16 +463,6 @@ public class MainProfScreenGUI extends JFrame {
                 joinedStudentPanel.revalidate();
                 joinedStudentPanel.repaint();
                 }
-            }
-
-            @Override
-            public void removeRow(int rowIndex) {
-                multiGroup.absent(rowIndex);
-
-                joinedStudentPanel.removeAll();
-                joinedStudentPanel.add(multiGroup.buildGUI());
-                joinedStudentPanel.revalidate();
-                joinedStudentPanel.repaint();
             }
 
             @Override
@@ -648,13 +635,32 @@ public class MainProfScreenGUI extends JFrame {
         return msgGroupPanel;
     }
 
+    private int count = 0;
+    private HashMap<String, Integer> studentList = new HashMap<>();
     public void attendanceStudent(Object[] student){
         model.addRow(student);
+        studentList.put(student[1].toString(), count++);
     }
 
     public void absentStudent(Object[] student){
         if(student[4] != null) {
-            model.removeRow((int) student[4]);
+            int key = studentList.get(student[1].toString());
+            // 반복문을 돌며 값 수정
+            for (Map.Entry<String, Integer> entry : studentList.entrySet()) {
+                if (entry.getValue() > key) {
+                    entry.setValue(entry.getValue() - 1); // 7보다 큰 값은 -1로 설정
+                }
+            }
+
+            model.removeRow(key);
+
+            multiGroup.absent((int) student[4]);
+
+            joinedStudentPanel.removeAll();
+            joinedStudentPanel.add(multiGroup.buildGUI());
+            joinedStudentPanel.revalidate();
+            joinedStudentPanel.repaint();
+
         }
     }
     public static void main(String[] args) {

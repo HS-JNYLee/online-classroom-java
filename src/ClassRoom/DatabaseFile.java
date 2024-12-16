@@ -84,6 +84,7 @@ public class DatabaseFile {
                     && user1.getRole().equals(user.getRole())) {
                 user.setUserTableIndex(user1.getUserTableIndex());
                 user.setTeamRoomAddr(user1.getTeamRoomAddr());
+                user.setName(user1.getName());
                 this.user = user1;
                 return true;
             }
