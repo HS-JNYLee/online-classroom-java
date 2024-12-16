@@ -44,6 +44,9 @@ public class TailRoundedPane extends RoundedPane {
 
         RoundRectangle2D border = new RoundRectangle2D.Double(0, 0, width, height, cornerRadius, cornerRadius);
         double arc = cornerRadius;
+
+        // ----- Supproted by GPT -----
+        // https://chatgpt.com/share/675f9351-949c-8002-bc0e-22cc7dc74b22
         GeneralPath path = new GeneralPath();
 
         // Create shape based on TailPosition
@@ -83,6 +86,7 @@ public class TailRoundedPane extends RoundedPane {
             path.quadTo(width, 0, width - arc, 0);
             path.lineTo(arc, 0);
         }
+        // ---- Supported by GPT -----
 
         ImageUtilities.applyQualityRenderingHints(g2d);
         g2d.drawImage(

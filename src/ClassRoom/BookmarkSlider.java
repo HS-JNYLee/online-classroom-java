@@ -133,6 +133,9 @@ public class BookmarkSlider extends JPanel {
         }
     }
 
+
+    // ----- GPT -----
+    // https://chatgpt.com/share/675f930b-c444-800f-8d54-a45602347656
     // 북마크 히스토리 업데이트, 조회를 위한 메소드
     private  DefaultListModel<Object[]> bookListModel;
     public void setBookListModel(DefaultListModel<Object[]> bookListModel) {
@@ -145,6 +148,8 @@ public class BookmarkSlider extends JPanel {
         displayBookmark(value);
     }
     // ---------- 북마크 히스토리 메소드 끝
+    // ----- GPT -----
+
     private DrawingPanel drawingPanel;
     public void setDrawingPanel(DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
