@@ -18,6 +18,7 @@ public class ExitModal {
         closeButton.addActionListener(e -> {
             parentFrame.dispose();
             soundManager.stopPlayback();
+            System.exit(0); 
         });
 
         modalDialog.setLayout(new BorderLayout());
