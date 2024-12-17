@@ -383,7 +383,9 @@ public class WithTalk extends JFrame implements SendObserver {
                                 }
                                 break;
                             case ChatMsg.MODE_EMOJI:
-                                lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
+                                if (lectureScreenGUI != null) {
+                                    lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
+                                }
                                 break;
                         }
 
