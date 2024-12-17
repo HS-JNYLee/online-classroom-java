@@ -273,6 +273,7 @@ public class WithChatServer extends JFrame {
             } catch (IOException e) {
                 users.removeElement(this);
                 broadcastingForProfessor(new ChatMsg(user.getId(), ChatMsg.MODE_LOGOUT, user.getName(), user.getUserTableIndex(), user.getTeamRoomAddr()));
+                printDisplay(new ChatMsg(user.getId(), ChatMsg.MODE_LOGOUT, user.getName(), user.getUserTableIndex(), user.getTeamRoomAddr()));
                 printDisplay(uid + " 연결 끊김. 현재 참가자 수: " + users.size());
             } catch (ClassNotFoundException e) {
                 users.removeElement(this);
