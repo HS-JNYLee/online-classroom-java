@@ -483,7 +483,7 @@ public class WithTalk extends JFrame implements SendObserver {
     }
 
     public static void main(String[] args) {
-        new WithTalk("127.0.0.1", 8080);
+        new WithTalk(DatabaseFile.getAddress(), DatabaseFile.getPort());
     }
 
     @Override

@@ -427,9 +427,9 @@ public class WithChatServer extends JFrame {
 
 
     public static void main(String[] args) {
-        int port = 8080;
+        DatabaseFile.getAddressAndPort();
 
-        WithChatServer server = new WithChatServer(port);
+        WithChatServer server = new WithChatServer(DatabaseFile.getPort());
     }
 
     // [임시]: 샘플 프레임 생성용 함수

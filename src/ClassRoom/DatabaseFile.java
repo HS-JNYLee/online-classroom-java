@@ -83,5 +83,43 @@ public class DatabaseFile {
         }
         return Roles.STUDENT;
     }
+
+    private static String address = "127.0.0.1";
+    private static int port = 8080;
+
+    public static String getAddress() {
+        return address;
+    }
+
+    public static int getPort() {
+        return port;
+    }
+
+    static public void getAddressAndPort() {
+        // 텍스트 파일 경로
+        String filePath = "server.txt";
+
+        // 파일 읽기
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            Boolean isAddress = true;
+            while ((line = br.readLine()) != null) {
+                // 데이터 검증
+                if (line == null || line.length() == 0) {
+                    System.err.println("잘못된 데이터 형식: " + line);
+                    continue;
+                }
+                if (isAddress) {
+                    isAddress = false;
+                    address = line;
+                } else {
+                    port = Integer.parseInt(line);
+                }
+            }
+            System.out.println("Address : " + address + ", port : " + port);
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + e.getCause());
+        }
+    }
 }
 
