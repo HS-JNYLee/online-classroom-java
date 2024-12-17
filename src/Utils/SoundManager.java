@@ -5,8 +5,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * This Class supported by GPT
- * https://chatgpt.com/share/675f91b8-3fac-8002-95a3-4b83dc92471f
+ * This Class supported by StackOverflow, Youtube
+ * https://www.youtube.com/watch?v=d3xb1Nj88pw ,
+ * https://www.youtube.com/watch?v=TprSF6EAmUA ,
+ * https://stackoverflow.com/questions/36577070/playing-sound-through-sourcedataline-write-how-to-use-the-byte-buffer-with-d
  */
 public class SoundManager {
     private BlockingQueue<byte[]> soundQueue;
