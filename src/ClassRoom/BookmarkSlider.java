@@ -6,6 +6,8 @@ import Utils.Theme;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,12 @@ public class BookmarkSlider extends JPanel {
 
     public void setBookmarkButton(PaletteButton bookmarkButton) {
         this.bookmarkButton = bookmarkButton;
-        this.bookmarkButton.addActionListener(_ -> {
-            toggleBookmark(slider.getValue()); // 북마크 버튼 활성화 상태 전환
+        this.bookmarkButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int frameIndex = slider.getValue();
+                toggleBookmark(frameIndex);
+            }
         });
     }
 
@@ -74,10 +80,11 @@ public class BookmarkSlider extends JPanel {
             bookmarks.add(frameIndex);
             bookListModel.removeAllElements();
             int count = 1;
-            for (int _ : bookmarks) {
-                bookListModel.addElement(new Object[] {
+            for (int bookmark : bookmarks) {
+                bookListModel.addElement(new Object[]{
                         "Bookmark " + count,
                         new ImageIcon("./assets/icons/bookmark_active.png"),
+                        bookmark
                 });
                 count++;
             }
