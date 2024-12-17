@@ -31,7 +31,7 @@ public class SendScreenThread extends Thread{
             Rectangle screenRect = new Rectangle(screenSize);
 
             while (running){
-                System.out.println("sec : " + cnt++);
+//                System.out.println("sec : " + cnt++);
                 BufferedImage screenImage = robot.createScreenCapture(screenRect);
                 int newWidth = 600;
                 int newHeight = 340;

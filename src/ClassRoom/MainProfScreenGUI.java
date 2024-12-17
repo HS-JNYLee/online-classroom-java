@@ -2,16 +2,14 @@ package ClassRoom;
 
 import ClassRoom.Group.MultiGroup;
 import MainStudScreen.CommunicationCallbacks;
+import MainStudScreen.MainStudScreenGUI;
 import Threads.SendMicSoundThread;
 import Threads.SendScreenThread;
 import User.Professor;
 import User.Roles;
 import User.Student;
 import User.User;
-import Utils.Icons;
-import Utils.RoundedPane;
-import Utils.RoundedShadowPane;
-import Utils.Theme;
+import Utils.*;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -62,9 +60,7 @@ public class MainProfScreenGUI extends JFrame {
     // 화면 소리, 교수님, 다른 학생들 마이크 소리 수신 (Thread)
     public void receiveSound(ChatMsg chatMsg){
         try {
-            System.out.println("소리옴~~~~~~~~~~~~~~~~~~~~~~~");
             if (!is_sound_on){ // 마이크가 꺼져 있는 경우 소리 수신 X
-                System.out.println("소리옴~~~~~~~~~~~~~~~~~~~그러나 수신 X");
                 return;
             }
             // 1. 오디오 포맷 설정 (서버와 동일하게 설정)
@@ -78,7 +74,7 @@ public class MainProfScreenGUI extends JFrame {
 
             // 3. 가져온 데이터를 SourceDataLine에 전달
             if (soundData != null && soundData.length > 0) {
-                System.out.println("수신 읽은 데이터 : " + soundData.length);
+//                System.out.println("수신 읽은 데이터 : " + soundData.length);
                 line.write(soundData, 0, soundData.length); // 오디오 출력
             }
 
@@ -98,7 +94,7 @@ public class MainProfScreenGUI extends JFrame {
     private void sendScreenEndEvent(ChatMsg chatMsg) { this.communicationCallbacks.send(chatMsg); }
 
     private void sendScreen(ChatMsg chatMsg){
-        System.out.println("화면 보냄");
+//        System.out.println("화면 보냄");
         this.communicationCallbacks.send(chatMsg);
     }
 
@@ -124,7 +120,7 @@ public class MainProfScreenGUI extends JFrame {
     }
 
     public MainProfScreenGUI(CommunicationCallbacks communicationCallbacks, Professor user){
-        setTitle("Class Student Main");
+        setTitle("Prof Class Main");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1400, 700);
         setLocationRelativeTo(null);
@@ -165,11 +161,10 @@ public class MainProfScreenGUI extends JFrame {
         exitBtn.setBorderPainted(false);
 
 
-        //TODO 나가기 설계 Login? main?
         exitBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                ExitModalForUser.showModalDialog(MainProfScreenGUI.this);
             }
         });
 

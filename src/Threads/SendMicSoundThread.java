@@ -42,7 +42,7 @@ public class SendMicSoundThread extends Thread {
                 if (bytesRead > 0) {
                     double rms = calculateRMS(buffer); // 소리 크기 계산
                     if (rms > THRESHOLD) {
-                        System.out.println("음성 전송됨: " + bytesRead);
+//                        System.out.println("음성 전송됨: " + bytesRead);
 
                         // 읽은 데이터 크기만큼 전송
                         byte[] soundData = Arrays.copyOf(buffer, bytesRead);
