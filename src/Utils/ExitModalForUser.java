@@ -17,6 +17,7 @@ public class ExitModalForUser {
         closeButton.addActionListener(e -> modalDialog.dispose());
         closeButton.addActionListener(e -> {
             parentFrame.dispose();
+            System.exit(0);
         });
 
         modalDialog.setLayout(new BorderLayout());
