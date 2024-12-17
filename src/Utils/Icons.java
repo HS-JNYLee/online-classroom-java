@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+// 아이콘 출처 : https://www.figma.com/community/plugin/735098390272716381/iconify
 public class Icons {
     private static int size = 31;
     public static ImageIcon bookmarkActiveIcon = setIcon("assets/icons/bookmark_active.png");
