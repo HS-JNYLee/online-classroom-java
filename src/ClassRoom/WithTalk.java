@@ -274,7 +274,7 @@ public class WithTalk extends JFrame implements SendObserver {
                             case ChatMsg.MODE_SHARED_SCREEN:
                                 dispose();
                                 if (WithTalk.this.uType.equals("학생") && is_login) {
-                                    lectureScreenGUI = new LectureScreenGUI();
+                                    lectureScreenGUI = new LectureScreenGUI(msg->send(msg), new Student(uId, uName, new ImageIcon(uFileName)));
                                     lectureScreenGUI.setSendObserver(WithTalk.this);
                                 }
                                 break;
@@ -350,7 +350,7 @@ public class WithTalk extends JFrame implements SendObserver {
                                 }
                                 else if(mainStudScreenGUI != null) { // 로그인 한 사람이 학생인 경우
                                     mainStudScreenGUI.dispose(); // 현재 mainStud 화면을 닫고
-                                    lectureScreenGUI = new LectureScreenGUI();  // 필기 화면 실행
+                                    lectureScreenGUI = new LectureScreenGUI(msg->send(msg), new Student(uId, uName, new ImageIcon(uFileName)));  // 필기 화면 실행
                                     lectureScreenGUI.setSendObserver(WithTalk.this);
                                 }
                                 break;
@@ -383,7 +383,9 @@ public class WithTalk extends JFrame implements SendObserver {
                                 }
                                 break;
                             case ChatMsg.MODE_EMOJI:
-                                lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
+                                if (lectureScreenGUI != null) {
+                                    lectureScreenGUI.setPoint(new Point(fetchedChatMsg.x, fetchedChatMsg.y));
+                                }
                                 break;
                         }
 

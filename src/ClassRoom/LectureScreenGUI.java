@@ -1,10 +1,17 @@
 package ClassRoom;
 
+import MainStudScreen.CommunicationCallbacks;
+import Threads.SendMicSoundThread;
+import Threads.SendScreenThread;
+import User.Roles;
+import User.Student;
 import Utils.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -18,7 +25,7 @@ public class LectureScreenGUI extends JFrame {
     private DrawingPanel drawingPanel;
     private BookmarkSlider bookmarkSlider;
     private final long threadSleep = 50;
-    LectureScreenGUI() {
+    LectureScreenGUI(CommunicationCallbacks communicationCallbacks, Student user) {
         super("수업 중...");
 
         buildGUI();
@@ -27,6 +34,10 @@ public class LectureScreenGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         setLocationRelativeTo(null);
+
+        this.LoginProf = user;
+        LoginProf.setRole(Roles.STUDENT);
+        this.communicationCallbacks = communicationCallbacks;
     }
 
     public void buildGUI() {
@@ -229,18 +240,141 @@ public class LectureScreenGUI extends JFrame {
 
     // 제어 패널
     public JPanel createControlPanel() {
-        JLabel label = new JLabel("Control Panel");
+        JPanel label = createCtrlPanel();
         label.setForeground(Color.WHITE);
         label.setSize(screenWidth, screenHeight);
 
         JPanel controlPanel = new JPanel(new GridBagLayout());
         controlPanel.setBackground(Theme.Ultramarine);
-        controlPanel.setPreferredSize(new Dimension(screenWidth, 68));
+        controlPanel.setPreferredSize(new Dimension(screenWidth, 118));
 
         controlPanel.add(label);
 
         return controlPanel;
     }
+
+    private JPanel createCtrlPanel(){
+        JPanel btnsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30,5));
+        btnsPanel.setBackground(new Color(203, 203, 206));
+
+        // 안에 포함된 컴포넌트 구성
+        btnsPanel.add(createMicBtn()); // 마이크 버튼
+        btnsPanel.add(createSoundBtn()); // 소리 버튼
+
+
+        // CntrlPanel(현재)의 스타일 지정 (padding, margin, radius...etc)
+        //Padding
+        JPanel ctrlPanelPadding = new JPanel();
+        ctrlPanelPadding.setBorder(BorderFactory.createEmptyBorder(0,50,0,50));
+        ctrlPanelPadding.add(btnsPanel);
+        ctrlPanelPadding.setBackground(new Color(203, 203, 206));
+
+        RoundedShadowPane ctrlRounded = new RoundedShadowPane();
+        ctrlRounded.setContentPane(ctrlPanelPadding);
+
+        //Margin
+        JPanel ctrlPanelMargin = new JPanel();
+        ctrlPanelMargin.setBorder(BorderFactory.createEmptyBorder(20,0,0,0));
+        ctrlPanelMargin.setOpaque(false);
+//        ctrlPanelMargin.setBackground(Color.red);
+
+        ctrlPanelMargin.add(ctrlRounded);
+
+        return ctrlPanelMargin;
+    }
+
+    private JButton micBtn;
+    private JButton soundBtn;
+    private SendMicSoundThread sendMicSoundThread;
+    private SendScreenThread sendScreenThread;
+    private boolean is_mic_on = false;
+    private boolean is_sound_on = true;
+    private Student LoginProf;
+    private CommunicationCallbacks communicationCallbacks;
+    private JButton createMicBtn(){
+        this.micBtn = new JButton("", Icons.micOffIcon);
+        Icon micIcon = this.micBtn.getIcon();
+
+        Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+        ((ImageIcon) micIcon).setImage(resize);
+
+        micBtn.setBackground(new Color(0, 0, 0, 0));
+        micBtn.setOpaque(false);
+        micBtn.setBorderPainted(false);
+
+        micBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(is_mic_on){ // 마이크가 켜져있을 때 눌렀을 경우 (Mic OFF)
+                    is_mic_on = false;
+                    micBtn.setIcon(Icons.micOffIcon);
+
+                    Icon micIcon = micBtn.getIcon();
+
+                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) micIcon).setImage(resize);
+
+                    sendMicSoundThread.stopThread();
+                }
+                else{ // 마이크가 꺼져있을 때 눌렀을 경우 (Mic ON)
+                    is_mic_on = true;
+                    micBtn.setIcon(Icons.micOnIcon);
+
+                    Icon micIcon = micBtn.getIcon();
+
+                    Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) micIcon).setImage(resize);
+
+                    sendMicSoundThread = new SendMicSoundThread(LoginProf,(chatMsg)->sendMicVoice(chatMsg));
+                    sendMicSoundThread.start();
+                }
+            }
+        });
+
+        return micBtn;
+    }
+
+    private JButton createSoundBtn(){
+        this.soundBtn = new JButton("",Icons.soundOnIcon);
+        Icon micIcon = this.soundBtn.getIcon();
+
+        Image resize = ((ImageIcon) micIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+        ((ImageIcon) micIcon).setImage(resize);
+
+        soundBtn.setBackground(new Color(0, 0, 0, 0));
+        soundBtn.setOpaque(false);
+        soundBtn.setBorderPainted(false);
+
+        soundBtn.setPreferredSize(new Dimension(resize.getWidth(null), resize.getHeight(null)));
+
+        soundBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(is_sound_on){ // 소리 버튼이 켜져있을 때 눌렀을 경우 (Sound OFF)
+                    is_sound_on = false;
+                    soundBtn.setIcon(Icons.soundOffIcon);
+
+                    Icon soundBtnIcon = soundBtn.getIcon();
+
+                    Image resize = ((ImageIcon) soundBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) soundBtnIcon).setImage(resize);
+                }
+                else{ // 소리 버튼이 꺼져있을 때 눌렀을 경우 (Sound ON)
+                    is_sound_on = true;
+                    soundBtn.setIcon(Icons.soundOnIcon);
+
+                    Icon soundBtnIcon = soundBtn.getIcon();
+
+                    Image resize = ((ImageIcon) soundBtnIcon).getImage().getScaledInstance(35,35, Image.SCALE_SMOOTH);
+                    ((ImageIcon) soundBtnIcon).setImage(resize);
+                }
+            }
+        });
+
+        return soundBtn;
+    }
+
+    private void sendMicVoice(ChatMsg chatMsg) { this.communicationCallbacks.send(chatMsg); }
 
     // 나가기 버튼 배치 패널
     public JPanel createButtonPanel() {
