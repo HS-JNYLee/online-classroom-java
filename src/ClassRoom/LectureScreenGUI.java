@@ -94,8 +94,8 @@ public class LectureScreenGUI extends JFrame {
 
         bookmarkHistoryPanel.add(bookmarkHistoryTitle, BorderLayout.NORTH);
 
-        // ---- GPT -----
-        // https://chatgpt.com/share/675f930b-c444-800f-8d54-a45602347656
+
+        // https://stackoverflow.com/questions/4262669/refresh-jlist-in-a-jframe
         // JList에 사용할 모델 설정
         DefaultListModel<Object[]> listModel = new DefaultListModel<>();
         bookmarkSlider.setBookListModel(listModel);

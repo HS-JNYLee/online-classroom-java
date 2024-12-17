@@ -7,12 +7,14 @@ import User.User;
 import javax.sound.sampled.*;
 import java.util.Arrays;
 
+
+// https://enumclass.tistory.com/162
 public class SendMicSoundThread extends Thread {
 
     private CommunicationCallbacks sendMicCallback;
     private boolean running = true;
     private User user;
-    private static final int THRESHOLD = 40; // 음성 인식의 임계값 (조정 필요)
+    private static final int THRESHOLD = 40; // 음성 인식의 임계값
 
     public SendMicSoundThread(User user, CommunicationCallbacks callback) {
         this.sendMicCallback = callback;
@@ -58,6 +60,8 @@ public class SendMicSoundThread extends Thread {
     }
 
     // RMS 값 계산 함수
+    // https://stackoverflow.com/questions/11540094/sound-level-rms
+    // https://wiki.homerecz.com/doku.php/%EC%9D%8C%ED%96%A5/level/rms
     private double calculateRMS(byte[] buffer) {
         long sum = 0;
         for (int i = 0; i < buffer.length; i++) {
