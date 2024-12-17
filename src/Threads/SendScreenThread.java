@@ -7,6 +7,7 @@ import User.User;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+// https://ibabo.tistory.com/236
 public class SendScreenThread extends Thread{
     private CommunicationCallbacks sendScreenCallback;
     private User user;
@@ -20,8 +21,6 @@ public class SendScreenThread extends Thread{
     public void stopThread(){
         this.running = false;
     }
-
-    private int cnt = 0;
 
     @Override
     public void run() {
