@@ -156,7 +156,7 @@ public class LectureScreenGUI extends JFrame {
         // (임시) 소리 테스트용
         // simulateAudioStream();
         // (임시) 영상 녹화 테스트용
-        // new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
+        new Thread(() -> simulateVideoFrames(bookmarkSlider)).start();
         
         // 영상+슬라이더 패널
         JPanel screenPanel = new JPanel(new BorderLayout());
