@@ -17,7 +17,6 @@ public class ExitModalForUser {
         closeButton.addActionListener(e -> modalDialog.dispose());
         closeButton.addActionListener(e -> {
             parentFrame.dispose();
-            new WithTalk("127.0.0.1", 8080);
         });
 
         modalDialog.setLayout(new BorderLayout());
