@@ -36,12 +36,15 @@ public class BookmarkSlider extends JPanel {
 
     // 저장 버튼 동작 : 클릭 시 그린 그림 삭제 후 해당 프레임에 저장
     public void onSave(JButton button) {
-        button.addActionListener(_ -> {
-            int frameIndex = slider.getValue();
-            BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
-            frameBuffer.set(frameIndex, combinedImage);
-            drawingPanel.removePaint();
-            videoPanel.updateFrame(frameBuffer.get(frameIndex));
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int frameIndex = slider.getValue();
+                BufferedImage combinedImage = combineImages(frameBuffer.get(frameIndex), drawingPanel.getDrawingImage());
+                frameBuffer.set(frameIndex, combinedImage);
+                drawingPanel.removePaint();
+                videoPanel.updateFrame(frameBuffer.get(frameIndex));
+            }
         });
     }
 

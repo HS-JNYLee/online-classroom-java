@@ -19,9 +19,11 @@ public abstract class PaletteButton extends JButton implements ActionListener {
     }
 
     public void setOnClickEvent() {
-        this.addActionListener(_ -> {
-            onClick();
-            getButton().repaint();
+        this.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onClick();
+                getButton().repaint();
+            }
         });
     }
 
