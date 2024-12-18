@@ -129,7 +129,6 @@ public class LectureScreenGUI extends JFrame {
         });
         // JList를 JScrollPane에 넣기
         JScrollPane scrollPane = new JScrollPane(bookmarkList);
-        // ----- GPT -----
 
 
         bookmarkHistoryPanel.add(scrollPane, BorderLayout.CENTER);

@@ -124,7 +124,6 @@ public class BookmarkSlider extends JPanel {
     public void setBookListModel(DefaultListModel<Object[]> bookListModel) {
         this.bookListModel = bookListModel;
     }
-    // ----- GPT -----
 
     public void setSliderValue(int value) {
         slider.setValue(value);
